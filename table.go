@@ -25,6 +25,6 @@ func (s *Table) GetColumns() []string {
 }
 
 func (s *Table) BuildQuery() string {
-	query := fmt.Sprintf("SELECT % s FROM %s", strings.Join(s.columns, " "), s.tableName)
+	query := fmt.Sprintf("SELECT % s FROM %s", strings.Join(s.columns, ", "), s.tableName)
 	return query + ";"
 }

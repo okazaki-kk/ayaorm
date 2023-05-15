@@ -39,3 +39,10 @@ func (r *Relation) QueryRow(dest ...interface{}) error {
 	log.Print("excute query: ", query)
 	return r.db.QueryRow(query).Scan(dest...)
 }
+
+func (r *Relation) Query() (*sql.Rows, error) {
+	query := r.BuildQuery()
+	log.Print("excute query: ", query)
+	rows, err := r.db.Query(query)
+	return rows, err
+}

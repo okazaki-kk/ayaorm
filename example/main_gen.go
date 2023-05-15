@@ -66,6 +66,10 @@ func (m User) Count(column ...string) int {
 	return m.newRelation().Count(column...)
 }
 
+func (m User) All() *UserRelation {
+	return m.newRelation()
+}
+
 func (m *User) fieldPtrByName(name string) interface{} {
 	switch name {
 	case "id", "users.id":
