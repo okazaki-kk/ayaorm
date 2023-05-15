@@ -39,6 +39,12 @@ func (r *Relation) Limit(lim int) *Relation {
 	return r
 }
 
+func (r *Relation) Order(key, order string) *Relation {
+	r.Table.order = order
+	r.Table.orderKey = key
+	return r
+}
+
 func (r *Relation) QueryRow(dest ...interface{}) error {
 	query := r.BuildQuery()
 	log.Print("excute query: ", query)

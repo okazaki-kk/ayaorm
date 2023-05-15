@@ -79,6 +79,15 @@ func (r *UserRelation) Limit(limit int) *UserRelation {
 	return r
 }
 
+func (m User) Order(key, order string) *UserRelation {
+	return m.newRelation().Order(key, order)
+}
+
+func (r *UserRelation) Order(key, order string) *UserRelation {
+	r.Relation.Order(key, order)
+	return r
+}
+
 func (m *User) fieldPtrByName(name string) interface{} {
 	switch name {
 	case "id", "users.id":
