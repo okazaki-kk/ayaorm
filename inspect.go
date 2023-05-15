@@ -9,7 +9,7 @@ import (
 	"log"
 )
 
-func Inspect(path string) map[string]string {
+func Inspect(path string) (string, map[string]string) {
 	fset := token.NewFileSet()
 	f, err := parser.ParseFile(fset, path, nil, parser.ParseComments)
 	if err != nil {
@@ -17,6 +17,7 @@ func Inspect(path string) map[string]string {
 	}
 
 	fields := make(map[string]string)
+	var modelName string
 
 	ast.Inspect(f, func(n ast.Node) bool {
 		switch n.(type) {
@@ -26,6 +27,7 @@ func Inspect(path string) map[string]string {
 			if !ok {
 				return false
 			}
+			modelName = s.Name.Name
 			// 構造体かつその名前が対象のモデルの場合
 			for _, l := range v.Fields.List {
 				if len(l.Names) <= 0 {
@@ -54,5 +56,5 @@ func Inspect(path string) map[string]string {
 		return true
 	})
 
-	return fields
+	return modelName, fields
 }
