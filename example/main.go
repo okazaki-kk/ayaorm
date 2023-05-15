@@ -92,4 +92,7 @@ func main() {
 		fmt.Println("Age34:", user)
 	}
 
+	newUser := User{Name: "Gon", Age: 20}
+	newUser.Save()
+
 }

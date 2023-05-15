@@ -16,6 +16,7 @@ type Table struct {
 		key   string
 		value interface{}
 	}
+	insert struct{ params map[string]interface{} }
 }
 
 func (s *Table) SetTable(tableName string) *Table {
@@ -36,6 +37,21 @@ func (s *Table) Where(column string, value interface{}) *Table {
 	s.where.key = column
 	s.where.value = value
 	return s
+}
+
+func (s *Table) BuildInsert() (string, []interface{}) {
+	columns := []string{}
+	ph := []string{}
+	args := []interface{}{}
+	i := s.insert
+
+	for k, v := range i.params {
+		columns = append(columns, k)
+		ph = append(ph, "?")
+		args = append(args, v)
+	}
+
+	return fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s);", s.tableName, strings.Join(columns, ", "), strings.Join(ph, ", ")), args
 }
 
 func (s *Table) BuildQuery() string {

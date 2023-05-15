@@ -97,6 +97,26 @@ func (r *UserRelation) Where(column string, value interface{}) *UserRelation {
 	return r
 }
 
+func (m User) Save() error {
+	return m.newRelation().Save()
+}
+
+func (r *UserRelation) Save() error {
+	fieldMap := make(map[string]interface{})
+	for _, c := range r.Relation.GetColumns() {
+		switch c {
+		case "id", "users.id":
+			fieldMap["id"] = r.model.Id
+		case "name", "users.name":
+			fieldMap["name"] = r.model.Name
+		case "age", "users.age":
+			fieldMap["age"] = r.model.Age
+		}
+	}
+
+	return r.Relation.Save(fieldMap)
+}
+
 func (m *User) fieldPtrByName(name string) interface{} {
 	switch name {
 	case "id", "users.id":

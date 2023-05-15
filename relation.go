@@ -50,6 +50,14 @@ func (r *Relation) Where(column string, value interface{}) *Relation {
 	return r
 }
 
+func (r *Relation) Save(fieldMap map[string]interface{}) error {
+	r.Table.insert.params = fieldMap
+	query, args := r.BuildInsert()
+	log.Print("excute query: ", query, args)
+	_, err := r.db.Exec(query, args...)
+	return err
+}
+
 func (r *Relation) QueryRow(dest ...interface{}) error {
 	query := r.BuildQuery()
 	log.Print("excute query: ", query)
