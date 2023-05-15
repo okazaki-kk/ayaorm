@@ -16,13 +16,13 @@ func Generate(modelName string, field map[string]string) {
 			"github.com/okazaki-kk/ayaorm"
 		)
 
-		type UserRelation struct {
+		type {{.modelName}}Relation struct {
 			model *{{.modelName}}
 			*ayaorm.Relation
 		}
 
-		func (m *{{.modelName}}) newRelation() *UserRelation {
-			r := &UserRelation{
+		func (m *{{.modelName}}) newRelation() *{{.modelName}}Relation {
+			r := &{{.modelName}}Relation{
 				m,
 				ayaorm.NewRelation(db).SetTable("users"),
 			}
@@ -35,11 +35,11 @@ func Generate(modelName string, field map[string]string) {
 			return r
 		}
 
-		func (m {{.modelName}}) Select(columns ...string) *UserRelation {
+		func (m {{.modelName}}) Select(columns ...string) *{{.modelName}}Relation {
 			return m.newRelation().Select(columns...)
 		}
 
-		func (r *UserRelation) Select(columns ...string) *UserRelation {
+		func (r *{{.modelName}}Relation) Select(columns ...string) *{{.modelName}}Relation {
 			cs := []string{}
 			for _, c := range columns {
 				if r.model.isColumnName(c) {
@@ -62,7 +62,7 @@ func Generate(modelName string, field map[string]string) {
 			}
 		}
 
-		func (r *UserRelation) QueryRow() (*{{.modelName}}, error) {
+		func (r *{{.modelName}}Relation) QueryRow() (*{{.modelName}}, error) {
 			row := &{{.modelName}}{}
 			fmt.Println(r.Relation.GetColumns())
 			err := r.Relation.QueryRow(row.fieldPtrsByName(r.Relation.GetColumns())...)
@@ -76,33 +76,33 @@ func Generate(modelName string, field map[string]string) {
 			return m.newRelation().Count(column...)
 		}
 
-		func (m {{.modelName}}) All() *UserRelation {
+		func (m {{.modelName}}) All() *{{.modelName}}Relation {
 			return m.newRelation()
 		}
 
-		func (m {{.modelName}}) Limit(limit int) *UserRelation {
+		func (m {{.modelName}}) Limit(limit int) *{{.modelName}}Relation {
 			return m.newRelation().Limit(limit)
 		}
 
-		func (r *UserRelation) Limit(limit int) *UserRelation {
+		func (r *{{.modelName}}Relation) Limit(limit int) *{{.modelName}}Relation {
 			r.Relation.Limit(limit)
 			return r
 		}
 
-		func (m {{.modelName}}) Order(key, order string) *UserRelation {
+		func (m {{.modelName}}) Order(key, order string) *{{.modelName}}Relation {
 			return m.newRelation().Order(key, order)
 		}
 
-		func (r *UserRelation) Order(key, order string) *UserRelation {
+		func (r *{{.modelName}}Relation) Order(key, order string) *{{.modelName}}Relation {
 			r.Relation.Order(key, order)
 			return r
 		}
 
-		func (m {{.modelName}}) Where(column string, value interface{}) *UserRelation {
+		func (m {{.modelName}}) Where(column string, value interface{}) *{{.modelName}}Relation {
 			return m.newRelation().Where(column, value)
 		}
 
-		func (r *UserRelation) Where(column string, value interface{}) *UserRelation {
+		func (r *{{.modelName}}Relation) Where(column string, value interface{}) *{{.modelName}}Relation {
 			r.Relation.Where(column, value)
 			return r
 		}
@@ -111,7 +111,7 @@ func Generate(modelName string, field map[string]string) {
 			return m.newRelation().Save()
 		}
 
-		func (r *UserRelation) Save() error {
+		func (r *{{.modelName}}Relation) Save() error {
 			fieldMap := make(map[string]interface{})
 			for _, c := range r.Relation.GetColumns() {
 				switch c {
