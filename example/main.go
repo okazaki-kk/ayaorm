@@ -35,4 +35,19 @@ func main() {
 		}
 		fmt.Println("User.All.Scan:", user)
 	}
+
+	userRows, err = User{}.Limit(2).Query()
+	if err != nil {
+		log.Fatal("User.All.Error", err)
+	}
+	defer userRows.Close()
+
+	for userRows.Next() {
+		var user User
+		if err := userRows.Scan(&user.Id, &user.Name, &user.Age); err != nil {
+			log.Fatal("User.All.Scan.Error", err)
+		}
+		fmt.Println("User.All.Scan:", user)
+	}
+
 }

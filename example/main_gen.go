@@ -70,6 +70,15 @@ func (m User) All() *UserRelation {
 	return m.newRelation()
 }
 
+func (m User) Limit(limit int) *UserRelation {
+	return m.newRelation().Limit(limit)
+}
+
+func (r *UserRelation) Limit(limit int) *UserRelation {
+	r.Relation.Limit(limit)
+	return r
+}
+
 func (m *User) fieldPtrByName(name string) interface{} {
 	switch name {
 	case "id", "users.id":

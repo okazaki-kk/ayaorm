@@ -34,6 +34,11 @@ func (r *Relation) Count(column ...string) int {
 	return count
 }
 
+func (r *Relation) Limit(lim int) *Relation {
+	r.Table.limit = lim
+	return r
+}
+
 func (r *Relation) QueryRow(dest ...interface{}) error {
 	query := r.BuildQuery()
 	log.Print("excute query: ", query)
