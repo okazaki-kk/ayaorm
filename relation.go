@@ -45,6 +45,11 @@ func (r *Relation) Order(key, order string) *Relation {
 	return r
 }
 
+func (r *Relation) Where(column string, value interface{}) *Relation {
+	r.Table.Where(column, value)
+	return r
+}
+
 func (r *Relation) QueryRow(dest ...interface{}) error {
 	query := r.BuildQuery()
 	log.Print("excute query: ", query)

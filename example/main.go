@@ -64,4 +64,32 @@ func main() {
 		fmt.Println("User.All.Scan:", user)
 	}
 
+	Hanako, err := User{}.Where("Name", "Hanako").Query()
+	if err != nil {
+		log.Fatal("User.All.Error", err)
+	}
+	defer Hanako.Close()
+
+	for Hanako.Next() {
+		var user User
+		if err := Hanako.Scan(&user.Id, &user.Name, &user.Age); err != nil {
+			log.Fatal("User.All.Scan.Error", err)
+		}
+		fmt.Println("Hanako:", user)
+	}
+
+	Age34, err := User{}.Where("Age", 34).Query()
+	if err != nil {
+		log.Fatal("User.All.Error", err)
+	}
+	defer Age34.Close()
+
+	for Age34.Next() {
+		var user User
+		if err := Age34.Scan(&user.Id, &user.Name, &user.Age); err != nil {
+			log.Fatal("User.All.Scan.Error", err)
+		}
+		fmt.Println("Age34:", user)
+	}
+
 }

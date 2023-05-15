@@ -88,6 +88,15 @@ func (r *UserRelation) Order(key, order string) *UserRelation {
 	return r
 }
 
+func (m User) Where(column string, value interface{}) *UserRelation {
+	return m.newRelation().Where(column, value)
+}
+
+func (r *UserRelation) Where(column string, value interface{}) *UserRelation {
+	r.Relation.Where(column, value)
+	return r
+}
+
 func (m *User) fieldPtrByName(name string) interface{} {
 	switch name {
 	case "id", "users.id":
