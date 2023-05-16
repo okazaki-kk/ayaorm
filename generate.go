@@ -2,6 +2,8 @@ package ayaorm
 
 import (
 	"os"
+	"regexp"
+	"strings"
 	"text/template"
 )
 
@@ -24,7 +26,7 @@ func Generate(modelName string, field map[string]string) {
 		func (m *{{.modelName}}) newRelation() *{{.modelName}}Relation {
 			r := &{{.modelName}}Relation{
 				m,
-				ayaorm.NewRelation(db).SetTable("users"),
+				ayaorm.NewRelation(db).SetTable("{{toMultipleSnakeCase .modelName}}"),
 			}
 			r.Select(
 				"id",
@@ -43,7 +45,7 @@ func Generate(modelName string, field map[string]string) {
 			cs := []string{}
 			for _, c := range columns {
 				if r.model.isColumnName(c) {
-					cs = append(cs, fmt.Sprintf("users.%s", c))
+					cs = append(cs, fmt.Sprintf("{{toMultipleSnakeCase .modelName}}.%s", c))
 				} else {
 					cs = append(cs, c)
 				}
@@ -115,11 +117,11 @@ func Generate(modelName string, field map[string]string) {
 			fieldMap := make(map[string]interface{})
 			for _, c := range r.Relation.GetColumns() {
 				switch c {
-				case "id", "users.id":
+				case "id", "{{toMultipleSnakeCase .modelName}}.id":
 					fieldMap["id"] = r.model.Id
-				case "name", "users.name":
+				case "name", "{{toMultipleSnakeCase .modelName}}.name":
 					fieldMap["name"] = r.model.Name
-				case "age", "users.age":
+				case "age", "{{toMultipleSnakeCase .modelName}}.age":
 					fieldMap["age"] = r.model.Age
 				}
 			}
@@ -129,11 +131,11 @@ func Generate(modelName string, field map[string]string) {
 
 		func (m *{{.modelName}}) fieldPtrByName(name string) interface{} {
 			switch name {
-			case "id", "users.id":
+			case "id", "{{toMultipleSnakeCase .modelName}}.id":
 				return &m.Id
-			case "name", "users.name":
+			case "name", "{{toMultipleSnakeCase .modelName}}.name":
 				return &m.Name
-			case "age", "users.age":
+			case "age", "{{toMultipleSnakeCase .modelName}}.age":
 				return &m.Age
 			default:
 				return nil
@@ -169,10 +171,20 @@ func Generate(modelName string, field map[string]string) {
 		{{end}}
 	`
 
-	t, _ := template.New("Base").Parse(textBody)
+	funcMap := template.FuncMap{
+		"toMultipleSnakeCase": toMultipleSnakeCase,
+	}
+	t, _ := template.New("Base").Funcs(funcMap).Parse(textBody)
 	f, _ := os.Create("./main_gen.go")
 	defer f.Close()
-	params := make(map[string]string)
-	params["modelName"] = modelName
-	t.Execute(f, params)
+	tmp := make(map[string]string)
+	tmp["modelName"] = modelName
+	t.Execute(f, tmp)
+}
+
+func toMultipleSnakeCase(s string) string {
+	const snake = "${1}_${2}"
+	reg1 := regexp.MustCompile("([A-Z]+)([A-Z][a-z])")
+	reg2 := regexp.MustCompile("([a-z])([A-Z])")
+	return strings.ToLower(reg2.ReplaceAllString(reg1.ReplaceAllString(s, snake), snake)) + "s"
 }
