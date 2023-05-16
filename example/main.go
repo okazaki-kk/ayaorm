@@ -93,6 +93,9 @@ func main() {
 	}
 
 	newUser := User{Name: "Gon", Age: 20}
-	newUser.Save()
+	err = newUser.Save()
+	if err != nil {
+		log.Fatal("User.Save.Error", err)
+	}
 
 }

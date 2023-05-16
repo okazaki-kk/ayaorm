@@ -2,6 +2,7 @@ package ayaorm
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"regexp"
@@ -182,8 +183,14 @@ func Generate(modelName string, field map[string]string) {
 	params["modelName"] = modelName
 	params["columns"] = columns
 	params["columnsWithPrefixStruct"] = columnsWithPrefixStruct
-	t.Execute(f, params)
-	exec.Command("go", "fmt", "./main_gen.go").Run()
+	err := t.Execute(f, params)
+	if err != nil {
+		log.Fatal("template error: ", err)
+	}
+	err = exec.Command("go", "fmt", "./main_gen.go").Run()
+	if err != nil {
+		log.Fatal("go fmt error: ", err)
+	}
 }
 
 func toMultipleSnakeCase(s string) string {
