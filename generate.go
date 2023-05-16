@@ -1,7 +1,6 @@
 package ayaorm
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"os/exec"
@@ -29,10 +28,12 @@ func Generate(modelName string, field map[string]string) {
 		func (m *{{.modelName}}) newRelation() *{{.modelName}}Relation {
 			r := &{{.modelName}}Relation{
 				m,
-				ayaorm.NewRelation(db).SetTable("{{toMultipleSnakeCase .modelName}}"),
+				ayaorm.NewRelation(db).SetTable("{{.snakeCaseModelName}}"),
 			}
 			r.Select(
-				{{.columns}}
+				{{ range $column := .columns }}
+				"{{- $column -}}",
+				{{ end }}
 			)
 
 			return r
@@ -46,7 +47,7 @@ func Generate(modelName string, field map[string]string) {
 			cs := []string{}
 			for _, c := range columns {
 				if r.model.isColumnName(c) {
-					cs = append(cs, fmt.Sprintf("{{toMultipleSnakeCase .modelName}}.%s", c))
+					cs = append(cs, fmt.Sprintf("{{.modelName}}.%s", c))
 				} else {
 					cs = append(cs, c)
 				}
@@ -59,7 +60,9 @@ func Generate(modelName string, field map[string]string) {
 
 		func (m {{.modelName}}) Build(p UserParams) *{{.modelName}} {
 			return &{{.modelName}}{
-				{{.columnsWithPrefixStruct}}
+				{{ range $column := .columns }}
+				{{ $column }}: p.{{ $column }},
+				{{ end }}
 			}
 		}
 
@@ -116,11 +119,11 @@ func Generate(modelName string, field map[string]string) {
 			fieldMap := make(map[string]interface{})
 			for _, c := range r.Relation.GetColumns() {
 				switch c {
-				case "id", "{{toMultipleSnakeCase .modelName}}.id":
+				case "id", "{{.snakeCaseModelName}}.id":
 					fieldMap["id"] = r.model.Id
-				case "name", "{{toMultipleSnakeCase .modelName}}.name":
+				case "name", "{{.snakeCaseModelName}}.name":
 					fieldMap["name"] = r.model.Name
-				case "age", "{{toMultipleSnakeCase .modelName}}.age":
+				case "age", "{{.snakeCaseModelName}}.age":
 					fieldMap["age"] = r.model.Age
 				}
 			}
@@ -130,11 +133,11 @@ func Generate(modelName string, field map[string]string) {
 
 		func (m *{{.modelName}}) fieldPtrByName(name string) interface{} {
 			switch name {
-			case "id", "{{toMultipleSnakeCase .modelName}}.id":
+			case "id", "{{.snakeCaseModelName}}.id":
 				return &m.Id
-			case "name", "{{toMultipleSnakeCase .modelName}}.name":
+			case "name", "{{.snakeCaseModelName}}.name":
 				return &m.Name
-			case "age", "{{toMultipleSnakeCase .modelName}}.age":
+			case "age", "{{.snakeCaseModelName}}.age":
 				return &m.Age
 			default:
 				return nil
@@ -162,48 +165,45 @@ func Generate(modelName string, field map[string]string) {
 
 		func (m *{{.modelName}}) columnNames() []string {
 			return []string{
-				{{.columns}}
+				{{ range $column := .columns }}
+				"{{ $column }}",
+				{{ end }}
 			}
 		}
 		{{end}}
 	`
 
-	funcMap := template.FuncMap{
-		"toMultipleSnakeCase": toMultipleSnakeCase,
-	}
-	columns := ""
+	var columns []string
+	var columnNames []string
 	for f := range field {
-		columns += fmt.Sprintf("\"%s\",\n", f)
+		columns = append(columns, f)
+		columnNames = append(columnNames, toSnakeCase(f))
 	}
-	columnsWithPrefixStruct := columnsWithPrefixStruct("p", field)
-	t, _ := template.New("Base").Funcs(funcMap).Parse(textBody)
+
+	t, _ := template.New("Base").Parse(textBody)
 	f, _ := os.Create("./main_gen.go")
 	defer f.Close()
-	params := make(map[string]string)
+
+	params := make(map[string]interface{})
 	params["modelName"] = modelName
+	params["snakeCaseModelName"] = toSnakeCase(modelName) + "s"
 	params["columns"] = columns
-	params["columnsWithPrefixStruct"] = columnsWithPrefixStruct
+	params["columnNames"] = columnNames
+
 	err := t.Execute(f, params)
 	if err != nil {
 		log.Fatal("template error: ", err)
 	}
+
 	err = exec.Command("go", "fmt", "./main_gen.go").Run()
 	if err != nil {
 		log.Fatal("go fmt error: ", err)
 	}
 }
 
-func toMultipleSnakeCase(s string) string {
+func toSnakeCase(s string) string {
 	const snake = "${1}_${2}"
 	reg1 := regexp.MustCompile("([A-Z]+)([A-Z][a-z])")
 	reg2 := regexp.MustCompile("([a-z])([A-Z])")
-	return strings.ToLower(reg2.ReplaceAllString(reg1.ReplaceAllString(s, snake), snake)) + "s"
-}
-
-func columnsWithPrefixStruct(prefix string, columns map[string]string) string {
-	var result string
-	for c := range columns {
-		result += fmt.Sprintf("%s: %s.%s,\n", c, prefix, c)
-	}
-	return result
+	return strings.ToLower(reg2.ReplaceAllString(reg1.ReplaceAllString(s, snake), snake))
 }
