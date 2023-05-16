@@ -58,9 +58,7 @@ func Generate(modelName string, field map[string]string) {
 
 		func (m {{.modelName}}) Build(p UserParams) *{{.modelName}} {
 			return &{{.modelName}}{
-				Id:   p.Id,
-				Name: p.Name,
-				Age:  p.Age,
+				{{.columnsWithPrefixStruct}}
 			}
 		}
 
@@ -172,18 +170,18 @@ func Generate(modelName string, field map[string]string) {
 	funcMap := template.FuncMap{
 		"toMultipleSnakeCase": toMultipleSnakeCase,
 	}
-
 	columns := ""
 	for f := range field {
 		columns += fmt.Sprintf("\"%s\",\n", f)
 	}
-
+	columnsWithPrefixStruct := columnsWithPrefixStruct("p", field)
 	t, _ := template.New("Base").Funcs(funcMap).Parse(textBody)
 	f, _ := os.Create("./main_gen.go")
 	defer f.Close()
 	params := make(map[string]string)
 	params["modelName"] = modelName
 	params["columns"] = columns
+	params["columnsWithPrefixStruct"] = columnsWithPrefixStruct
 	t.Execute(f, params)
 	exec.Command("go", "fmt", "./main_gen.go").Run()
 }
@@ -193,4 +191,12 @@ func toMultipleSnakeCase(s string) string {
 	reg1 := regexp.MustCompile("([A-Z]+)([A-Z][a-z])")
 	reg2 := regexp.MustCompile("([a-z])([A-Z])")
 	return strings.ToLower(reg2.ReplaceAllString(reg1.ReplaceAllString(s, snake), snake)) + "s"
+}
+
+func columnsWithPrefixStruct(prefix string, columns map[string]string) string {
+	var result string
+	for c := range columns {
+		result += fmt.Sprintf("%s: %s.%s,\n", c, prefix, c)
+	}
+	return result
 }
