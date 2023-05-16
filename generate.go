@@ -1,7 +1,9 @@
 package ayaorm
 
 import (
+	"fmt"
 	"os"
+	"os/exec"
 	"regexp"
 	"strings"
 	"text/template"
@@ -29,9 +31,7 @@ func Generate(modelName string, field map[string]string) {
 				ayaorm.NewRelation(db).SetTable("{{toMultipleSnakeCase .modelName}}"),
 			}
 			r.Select(
-				"id",
-				"name",
-				"age",
+				{{.columns}}
 			)
 
 			return r
@@ -163,9 +163,7 @@ func Generate(modelName string, field map[string]string) {
 
 		func (m *{{.modelName}}) columnNames() []string {
 			return []string{
-				"id",
-				"name",
-				"age",
+				{{.columns}}
 			}
 		}
 		{{end}}
@@ -174,12 +172,20 @@ func Generate(modelName string, field map[string]string) {
 	funcMap := template.FuncMap{
 		"toMultipleSnakeCase": toMultipleSnakeCase,
 	}
+
+	columns := ""
+	for f := range field {
+		columns += fmt.Sprintf("\"%s\",\n", f)
+	}
+
 	t, _ := template.New("Base").Funcs(funcMap).Parse(textBody)
 	f, _ := os.Create("./main_gen.go")
 	defer f.Close()
-	tmp := make(map[string]string)
-	tmp["modelName"] = modelName
-	t.Execute(f, tmp)
+	params := make(map[string]string)
+	params["modelName"] = modelName
+	params["columns"] = columns
+	t.Execute(f, params)
+	exec.Command("go", "fmt", "./main_gen.go").Run()
 }
 
 func toMultipleSnakeCase(s string) string {
