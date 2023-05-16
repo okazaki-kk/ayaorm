@@ -31,9 +31,9 @@ func Generate(modelName string, field map[string]string) {
 				ayaorm.NewRelation(db).SetTable("{{.snakeCaseModelName}}"),
 			}
 			r.Select(
-				{{ range $column := .columns }}
-				"{{- $column -}}",
-				{{ end }}
+				{{ range $column := .columns -}}
+				"{{ $column }}",
+				{{ end -}}
 			)
 
 			return r
@@ -60,9 +60,9 @@ func Generate(modelName string, field map[string]string) {
 
 		func (m {{.modelName}}) Build(p UserParams) *{{.modelName}} {
 			return &{{.modelName}}{
-				{{ range $column := .columns }}
+				{{ range $column := .columns -}}
 				{{ $column }}: p.{{ $column }},
-				{{ end }}
+				{{ end -}}
 			}
 		}
 
@@ -119,10 +119,10 @@ func Generate(modelName string, field map[string]string) {
 			fieldMap := make(map[string]interface{})
 			for _, c := range r.Relation.GetColumns() {
 				switch c {
-					{{ range $column := .columns }}
+					{{ range $column := .columns -}}
 					case "{{ toSnakeCase  $column}}", "{{$.snakeCaseModelName}}.{{toSnakeCase $column}}":
 						fieldMap["{{$column}}"] = r.model.{{$column}}
-					{{ end }}
+					{{ end -}}
 				}
 			}
 
@@ -131,10 +131,10 @@ func Generate(modelName string, field map[string]string) {
 
 		func (m *{{.modelName}}) fieldPtrByName(name string) interface{} {
 			switch name {
-				{{ range $column := .columns }}
+				{{ range $column := .columns -}}
 				case "{{ toSnakeCase  $column}}", "{{$.snakeCaseModelName}}.{{toSnakeCase $column}}":
 					return &m.{{$column}}
-				{{ end }}
+				{{ end -}}
 			default:
 				return nil
 			}
@@ -161,9 +161,9 @@ func Generate(modelName string, field map[string]string) {
 
 		func (m *{{.modelName}}) columnNames() []string {
 			return []string{
-				{{ range $column := .columns }}
+				{{ range $column := .columns -}}
 				"{{ $column }}",
-				{{ end }}
+				{{ end -}}
 			}
 		}
 		{{end}}
