@@ -119,12 +119,10 @@ func Generate(modelName string, field map[string]string) {
 			fieldMap := make(map[string]interface{})
 			for _, c := range r.Relation.GetColumns() {
 				switch c {
-				case "id", "{{.snakeCaseModelName}}.id":
-					fieldMap["id"] = r.model.Id
-				case "name", "{{.snakeCaseModelName}}.name":
-					fieldMap["name"] = r.model.Name
-				case "age", "{{.snakeCaseModelName}}.age":
-					fieldMap["age"] = r.model.Age
+					{{ range $column := .columns }}
+					case "{{ toSnakeCase  $column}}", "{{$.snakeCaseModelName}}.{{toSnakeCase $column}}":
+						fieldMap["{{$column}}"] = r.model.{{$column}}
+					{{ end }}
 				}
 			}
 
@@ -133,12 +131,10 @@ func Generate(modelName string, field map[string]string) {
 
 		func (m *{{.modelName}}) fieldPtrByName(name string) interface{} {
 			switch name {
-			case "id", "{{.snakeCaseModelName}}.id":
-				return &m.Id
-			case "name", "{{.snakeCaseModelName}}.name":
-				return &m.Name
-			case "age", "{{.snakeCaseModelName}}.age":
-				return &m.Age
+				{{ range $column := .columns }}
+				case "{{ toSnakeCase  $column}}", "{{$.snakeCaseModelName}}.{{toSnakeCase $column}}":
+					return &m.{{$column}}
+				{{ end }}
 			default:
 				return nil
 			}
@@ -173,6 +169,10 @@ func Generate(modelName string, field map[string]string) {
 		{{end}}
 	`
 
+	funcMap := template.FuncMap{
+		"toSnakeCase": toSnakeCase,
+	}
+
 	var columns []string
 	var columnNames []string
 	for f := range field {
@@ -180,7 +180,7 @@ func Generate(modelName string, field map[string]string) {
 		columnNames = append(columnNames, toSnakeCase(f))
 	}
 
-	t, _ := template.New("Base").Parse(textBody)
+	t, _ := template.New("Base").Funcs(funcMap).Parse(textBody)
 	f, _ := os.Create("./main_gen.go")
 	defer f.Close()
 
