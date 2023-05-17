@@ -10,13 +10,6 @@ import (
 
 var db *sql.DB
 
-// +AYAORM
-type User struct {
-	Id   int `db:"pk"`
-	Name string
-	Age  int
-}
-
 func main() {
 	db, _ = sql.Open("sqlite3", "./ayaorm.db")
 
