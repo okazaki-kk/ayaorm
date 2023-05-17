@@ -9,14 +9,15 @@ import (
 	"log"
 )
 
-func Inspect(path string) (string, map[string]string) {
+func Inspect(path string) (string, []string, []string) {
 	fset := token.NewFileSet()
 	f, err := parser.ParseFile(fset, path, nil, parser.ParseComments)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fields := make(map[string]string)
+	fieldKeys := []string{}
+	fieldValues := []string{}
 	var modelName string
 
 	ast.Inspect(f, func(n ast.Node) bool {
@@ -36,12 +37,14 @@ func Inspect(path string) (string, map[string]string) {
 				switch l.Type.(type) {
 				case *ast.Ident: // intやstringのようなプリミティブな型の場合
 					t, _ := l.Type.(*ast.Ident)
-					fields[l.Names[0].Name] = t.Name
+					fieldKeys = append(fieldKeys, l.Names[0].Name)
+					fieldValues = append(fieldValues, t.Name)
 				case *ast.SelectorExpr: // time.Timeやnull.Stringのような型
 					t, _ := l.Type.(*ast.SelectorExpr)
 					x, _ := t.X.(*ast.Ident)
 					name := x.Name + "." + t.Sel.Name
-					fields[l.Names[0].Name] = name
+					fieldKeys = append(fieldKeys, l.Names[0].Name)
+					fieldValues = append(fieldValues, name)
 				case *ast.StarExpr:
 					t, _ := l.Type.(*ast.StarExpr)
 					switch t.X.(type) {
@@ -56,5 +59,5 @@ func Inspect(path string) (string, map[string]string) {
 		return true
 	})
 
-	return modelName, fields
+	return modelName, fieldKeys, fieldValues
 }
