@@ -9,21 +9,19 @@ import (
 	"text/template"
 )
 
-func Generate(modelName string, field map[string]string) {
+func Generate(filePath string, modelName string, field []string) {
 	funcMap := template.FuncMap{
 		"toSnakeCase": toSnakeCase,
 	}
 
 	var columns []string
 	var columnNames []string
-	for f := range field {
+	for _, f := range field {
 		columns = append(columns, f)
 		columnNames = append(columnNames, toSnakeCase(f))
 	}
 
 	t, _ := template.New("Base").Funcs(funcMap).Parse(textBody)
-	f, _ := os.Create("./main_gen.go")
-	defer f.Close()
 
 	params := make(map[string]interface{})
 	params["modelName"] = modelName
@@ -31,12 +29,17 @@ func Generate(modelName string, field map[string]string) {
 	params["columns"] = columns
 	params["columnNames"] = columnNames
 
-	err := t.Execute(f, params)
+	file, err := os.Create(filePath)
+	if err != nil {
+		log.Fatal("file create error: ", err)
+	}
+	defer file.Close()
+	err = t.Execute(file, params)
 	if err != nil {
 		log.Fatal("template error: ", err)
 	}
 
-	err = exec.Command("go", "fmt", "./main_gen.go").Run()
+	err = exec.Command("go", "fmt", filePath).Run()
 	if err != nil {
 		log.Fatal("go fmt error: ", err)
 	}

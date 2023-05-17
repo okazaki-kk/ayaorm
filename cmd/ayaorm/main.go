@@ -6,6 +6,7 @@ import (
 )
 
 func main() {
-	modelName, field := ayaorm.Inspect("./example/user.go")
-	template.Generate(modelName, field)
+	modelName, fieldKeys, _ := ayaorm.Inspect("./example/user.go")
+	filePath := "./main_gen.go"
+	template.Generate(filePath, modelName, fieldKeys)
 }
