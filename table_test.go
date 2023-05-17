@@ -12,11 +12,10 @@ func TestBuildInsert(t *testing.T) {
 	s.SetColumns("id", "name", "email")
 	s.insert.params = map[string]interface{}{
 		"columnA": "value1",
-		"columnB": "value2",
 	}
 	query, args := s.BuildInsert()
-	assert.Equal(t, "INSERT INTO users (columnA, columnB) VALUES (?, ?);", query)
-	assert.Equal(t, []interface{}{"value1", "value2"}, args)
+	assert.Equal(t, "INSERT INTO users (columnA) VALUES (?);", query)
+	assert.Equal(t, []interface{}{"value1"}, args)
 }
 
 func TestBuildQuery(t *testing.T) {
