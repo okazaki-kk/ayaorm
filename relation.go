@@ -28,7 +28,7 @@ func (r *Relation) SetColumns(columns ...string) *Relation {
 func (r *Relation) Count(column ...string) int {
 	var count int
 	if err := r.SetColumns("COUNT(*)").QueryRow(&count); err != nil {
-		log.Print("ERROR IN COUNTR", err)
+		log.Print("ERROR IN COUNTER ", err)
 		return 0
 	}
 	return count
