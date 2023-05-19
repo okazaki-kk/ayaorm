@@ -27,7 +27,8 @@ func TestImport(t *testing.T) {
 	}
 	`
 
-	file.Write([]byte(userStruct))
+	_, err = file.Write([]byte(userStruct))
+	assert.NoError(t, err)
 
 	modelName, fieldKeys, fieldValues := Inspect(filePath)
 	assert.Equal(t, modelName, "User")

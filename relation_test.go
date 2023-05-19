@@ -17,12 +17,15 @@ func TestCount(t *testing.T) {
 	table := Table{tableName: "users"}
 	relation := Relation{Table: table, db: db}
 
-	db.Exec("DROP TABLE IF EXISTS users")
-	db.Exec("CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, age INTEGER)")
-	db.Exec("INSERT INTO users (name, age) VALUES ('Hanako', 20)")
-	db.Exec("INSERT INTO users (name, age) VALUES ('Hanako', 20)")
-	db.Exec("INSERT INTO users (name, age) VALUES ('Hanako', 20)")
+	_, err := db.Exec("DROP TABLE IF EXISTS users")
+	assert.NoError(t, err)
+	_, err = db.Exec("CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, age INTEGER)")
+	assert.NoError(t, err)
+	_, err = db.Exec("INSERT INTO users (name, age) VALUES ('Hanako', 20)")
+	assert.NoError(t, err)
+	_, err = db.Exec("INSERT INTO users (name, age) VALUES ('Taro', 23)")
+	assert.NoError(t, err)
 
 	count := relation.Count()
-	assert.Equal(t, count, 3)
+	assert.Equal(t, count, 2)
 }
