@@ -56,11 +56,11 @@ func (s *Table) BuildInsert() (string, []interface{}) {
 
 func (s *Table) BuildQuery() string {
 	query := fmt.Sprintf("SELECT % s FROM %s", strings.Join(s.columns, ", "), s.tableName)
-	if s.limit > 0 {
-		query = fmt.Sprintf("%s LIMIT %d", query, s.limit)
-	}
 	if s.order != "" {
 		query = fmt.Sprintf("%s ORDER BY %s %s", query, s.orderKey, s.order)
+	}
+	if s.limit > 0 {
+		query = fmt.Sprintf("%s LIMIT %d", query, s.limit)
 	}
 	if s.where.key != "" {
 		if reflect.TypeOf(s.where.value).Kind() == reflect.String {

@@ -52,4 +52,10 @@ func main() {
 	if err != nil {
 		log.Fatal("User.Save.Error", err)
 	}
+
+	firstUser, err := User{}.First().QueryRow()
+	if err != nil {
+		log.Fatal("User.First.Error", err)
+	}
+	fmt.Printf("%v\n", firstUser)
 }

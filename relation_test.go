@@ -53,7 +53,7 @@ func TestSave(t *testing.T) {
 	assert.NoError(t, err)
 
 	countAfter := relation.Count()
-	assert.Equal(t, countBefore + 1, countAfter)
+	assert.Equal(t, countBefore+1, countAfter)
 }
 
 func TestWhere(t *testing.T) {
@@ -70,4 +70,16 @@ func TestWhere(t *testing.T) {
 		assert.Equal(t, user.Age, 20)
 	}
 	assert.NoError(t, err)
+}
+
+func TestFirst(t *testing.T) {
+	table := Table{tableName: "users"}
+	relation := Relation{Table: table, db: db}
+
+	var user TestUser
+	err := relation.SetColumns("*").First().QueryRow(&user.Id, &user.Name, &user.Age)
+	assert.NoError(t, err)
+	assert.Equal(t, user.Age, 20)
+	assert.Equal(t, user.Name, "Hanako")
+
 }
