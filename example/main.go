@@ -20,7 +20,7 @@ func main() {
 		log.Fatal("User.All.Error", err)
 	}
 	for _, user := range users {
-		fmt.Printf("%v\n", user)
+		fmt.Println(user)
 	}
 
 	users, err = User{}.Limit(2).Query()
@@ -28,7 +28,7 @@ func main() {
 		log.Fatal("User.All.Error", err)
 	}
 	for _, user := range users {
-		fmt.Printf("%v\n", user)
+		fmt.Println(user)
 	}
 
 	reverseUsers, err := User{}.Order("Age", "desc").Query()
@@ -36,7 +36,7 @@ func main() {
 		log.Fatal("User.All.Error", err)
 	}
 	for _, user := range reverseUsers {
-		fmt.Printf("%v\n", user)
+		fmt.Println(user)
 	}
 
 	Hanakos, err := User{}.Where("Name", "Hanako").Query()
@@ -44,33 +44,33 @@ func main() {
 		log.Fatal("User.All.Error", err)
 	}
 	for _, hanako := range Hanakos {
-		fmt.Printf("%v\n", hanako)
+		fmt.Println(hanako)
 	}
 
-	newUser := User{Name: "Gin", Age: 34}
+	newUser := User{Name: "Hanako", Age: 34}
 	err = newUser.Save()
 	if err != nil {
 		log.Fatal("User.Save.Error", err)
 	}
-	fmt.Printf("%v\n", newUser)
+	fmt.Println(newUser)
 
 	firstUser, err := User{}.First()
 	if err != nil {
 		log.Fatal("User.First.Error", err)
 	}
-	fmt.Printf("%v\n", firstUser)
+	fmt.Println(firstUser)
 
 	secondUser, err := User{}.Find(2)
 	if err != nil {
 		log.Fatal("User.Find.Error", err)
 	}
-	fmt.Printf("%v\n", secondUser)
+	fmt.Println(secondUser)
 
 	Hanako, err := User{}.FindBy("Name", "Hanako")
 	if err != nil {
 		log.Fatal("User.FindBy.Error", err)
 	}
-	fmt.Printf("%v\n", Hanako)
+	fmt.Println(Hanako)
 
 	lastUser, _ := User{}.Last()
 	err = lastUser.Delete()
@@ -82,11 +82,11 @@ func main() {
 	if err != nil {
 		log.Fatal("User.Create.Error", err)
 	}
-	fmt.Printf("%v\n", kurapika)
+	fmt.Println(kurapika)
 
 	err = kurapika.Update(UserParams{Age: 18})
 	if err != nil {
 		log.Fatal("User.Update.Error", err)
 	}
-	fmt.Printf("%v\n", kurapika)
+	fmt.Println(kurapika)
 }
