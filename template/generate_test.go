@@ -135,6 +135,25 @@ func (r *UserRelation) Save() error {
 	return r.Relation.Save(fieldMap)
 }
 
+func (r *UserRelation) Query() ([]*User, error) {
+	rows, err := r.Relation.Query()
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	results := []*User{}
+	for rows.Next() {
+		row := &User{}
+		err := rows.Scan(row.fieldPtrsByName(r.Relation.GetColumns())...)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, row)
+	}
+	return results, nil
+}
+
 func (m *User) fieldPtrByName(name string) interface{} {
 	switch name {
 	case "id", "users.id":
