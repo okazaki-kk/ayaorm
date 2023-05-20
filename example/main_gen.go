@@ -3,6 +3,8 @@ package main
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/okazaki-kk/ayaorm"
 )
 
@@ -20,6 +22,7 @@ func (m *User) newRelation() *UserRelation {
 		"id",
 		"name",
 		"age",
+		"created_at",
 	)
 
 	return r
@@ -198,7 +201,13 @@ func (r *UserRelation) Query() ([]*User, error) {
 	results := []*User{}
 	for rows.Next() {
 		row := &User{}
-		err := rows.Scan(row.fieldPtrsByName(r.Relation.GetColumns())...)
+		var created_at string
+		//err := rows.Scan(row.fieldPtrsByName(r.Relation.GetColumns())...)
+		err := rows.Scan(&row.Id, &row.Name, &row.Age, &created_at)
+		if err != nil {
+			return nil, err
+		}
+		row.CreatedAt, err = time.Parse("2006-01-02 15:04:05", created_at)
 		if err != nil {
 			return nil, err
 		}
@@ -215,6 +224,8 @@ func (m *User) fieldPtrByName(name string) interface{} {
 		return &m.Name
 	case "age", "users.age":
 		return &m.Age
+	case "created_at", "users.created_at":
+		return &m.CreatedAt
 	default:
 		return nil
 	}
@@ -243,9 +254,10 @@ func (m *User) columnNames() []string {
 		"id",
 		"name",
 		"age",
+		"created_at",
 	}
 }
 
 func (u User) String() string {
-	return fmt.Sprintf("{ID: %d, Age: %d, Name: %s}", u.Id, u.Age, u.Name)
+	return fmt.Sprintf("{ID: %d, Age: %d, Name: %s, CreatedAt: %s}", u.Id, u.Age, u.Name, u.CreatedAt.Format("2006/01/02 15:04:05.000"))
 }
