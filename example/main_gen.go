@@ -114,40 +114,40 @@ func (r *UserRelation) Save() error {
 	return r.Relation.Save(fieldMap)
 }
 
-func (m User) First() *UserRelation {
+func (m User) First() (*User, error) {
 	return m.newRelation().First()
 }
 
-func (r *UserRelation) First() *UserRelation {
+func (r *UserRelation) First() (*User, error) {
 	r.Relation.First()
-	return r
+	return r.QueryRow()
 }
 
-func (m User) Last() *UserRelation {
+func (m User) Last() (*User, error) {
 	return m.newRelation().Last()
 }
 
-func (r *UserRelation) Last() *UserRelation {
+func (r *UserRelation) Last() (*User, error) {
 	r.Relation.Last()
-	return r
+	return r.QueryRow()
 }
 
-func (m User) Find(id int) *UserRelation {
+func (m User) Find(id int) (*User, error) {
 	return m.newRelation().Find(id)
 }
 
-func (r *UserRelation) Find(id int) *UserRelation {
+func (r *UserRelation) Find(id int) (*User, error) {
 	r.Relation.Find(id)
-	return r
+	return r.QueryRow()
 }
 
-func (m User) FindBy(column string, value interface{}) *UserRelation {
+func (m User) FindBy(column string, value interface{}) (*User, error) {
 	return m.newRelation().FindBy(column, value)
 }
 
-func (r *UserRelation) FindBy(column string, value interface{}) *UserRelation {
+func (r *UserRelation) FindBy(column string, value interface{}) (*User, error) {
 	r.Relation.FindBy(column, value)
-	return r
+	return r.QueryRow()
 }
 
 func (r *UserRelation) Query() ([]*User, error) {

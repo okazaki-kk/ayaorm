@@ -53,19 +53,19 @@ func main() {
 		log.Fatal("User.Save.Error", err)
 	}
 
-	firstUser, err := User{}.First().QueryRow()
+	firstUser, err := User{}.First()
 	if err != nil {
 		log.Fatal("User.First.Error", err)
 	}
 	fmt.Printf("%v\n", firstUser)
 
-	secondUser, err := User{}.Find(2).QueryRow()
+	secondUser, err := User{}.Find(2)
 	if err != nil {
 		log.Fatal("User.Find.Error", err)
 	}
 	fmt.Printf("%v\n", secondUser)
 
-	Hanako, err := User{}.FindBy("Name", "Hanako").QueryRow()
+	Hanako, err := User{}.FindBy("Name", "Hanako")
 	if err != nil {
 		log.Fatal("User.FindBy.Error", err)
 	}
