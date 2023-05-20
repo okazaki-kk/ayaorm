@@ -53,6 +53,12 @@ func TestSave(t *testing.T) {
 	assert.NoError(t, err)
 
 	countAfter := relation.Count()
+	var lastUser TestUser
+	err = relation.SetColumns("*").Last().QueryRow(&lastUser.Id, &lastUser.Name, &lastUser.Age)
+
+	assert.NoError(t, err)
+	assert.Equal(t, 25, lastUser.Age)
+	assert.Equal(t, "Jiro", lastUser.Name)
 	assert.Equal(t, countBefore+1, countAfter)
 }
 
@@ -81,5 +87,15 @@ func TestFirst(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, 20, user.Age)
 	assert.Equal(t, "Hanako", user.Name)
+}
 
+func TestFind(t *testing.T) {
+	table := Table{tableName: "users"}
+	relation := Relation{Table: table, db: db}
+
+	var user TestUser
+	err := relation.SetColumns("*").Find(2).QueryRow(&user.Id, &user.Name, &user.Age)
+	assert.NoError(t, err)
+	assert.Equal(t, 23, user.Age)
+	assert.Equal(t, "Taro", user.Name)
 }

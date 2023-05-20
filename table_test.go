@@ -29,5 +29,5 @@ func TestBuildQuery(t *testing.T) {
 		key   string
 		value interface{}
 	}{"name", "Taro"}
-	assert.Equal(t, "SELECT id, name, email FROM users ORDER BY email DESC LIMIT 10 WHERE name = 'Taro';", s.BuildQuery())
+	assert.Equal(t, "SELECT id, name, email FROM users WHERE name = 'Taro' ORDER BY email DESC LIMIT 10;", s.BuildQuery())
 }

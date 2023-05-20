@@ -58,4 +58,10 @@ func main() {
 		log.Fatal("User.First.Error", err)
 	}
 	fmt.Printf("%v\n", firstUser)
+
+	secondUser, err := User{}.Find(2).QueryRow()
+	if err != nil {
+		log.Fatal("User.Find.Error", err)
+	}
+	fmt.Printf("%v\n", secondUser)
 }
