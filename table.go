@@ -17,6 +17,7 @@ type Table struct {
 		value interface{}
 	}
 	insert struct{ params map[string]interface{} }
+	update struct{ params map[string]interface{} }
 }
 
 func (s *Table) SetTable(tableName string) *Table {
@@ -70,6 +71,24 @@ func (s *Table) BuildQuery() string {
 		query = fmt.Sprintf("%s LIMIT %d", query, s.limit)
 	}
 	return query + ";"
+}
+
+func (s *Table) BuildUpdate() (string, []interface{}) {
+	args := []interface{}{}
+	i := s.update
+
+	updateObj := ""
+
+	for k, v := range i.params {
+		updateObj = fmt.Sprintf("%s %s = ?,", updateObj, k)
+		args = append(args, v)
+	}
+	updateObj = updateObj[:len(updateObj)-1]
+	fmt.Println(updateObj, "update")
+
+	ans := fmt.Sprintf("UPDATE %s SET %s WHERE id = %d;", s.tableName, updateObj, 1)
+	fmt.Println(ans, args)
+	return ans, args
 }
 
 func (s *Table) BuildDelete(id int) string {

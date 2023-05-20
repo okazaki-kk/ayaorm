@@ -67,6 +67,19 @@ func (r *Relation) Save(fieldMap map[string]interface{}) (int, error) {
 	return int(lastId), err
 }
 
+func (r *Relation) Update(fieldMap map[string]interface{}) error {
+	r.Table.update.params = fieldMap
+	query, args := r.BuildUpdate()
+	log.Print("excute query: ", query, args)
+
+	_, err := r.db.Exec(query, args...)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (r *Relation) Delete(id int) error {
 	query := r.BuildDelete(id)
 	log.Print("excute query: ", query)
