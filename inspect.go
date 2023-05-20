@@ -16,8 +16,8 @@ func Inspect(path string) (string, []string, []string) {
 		log.Fatal(err)
 	}
 
-	fieldKeys := []string{}
-	fieldValues := []string{}
+	fieldKeys := []string{"Id"}
+	fieldValues := []string{"int"}
 	var modelName string
 
 	ast.Inspect(f, func(n ast.Node) bool {
@@ -58,6 +58,11 @@ func Inspect(path string) (string, []string, []string) {
 		}
 		return true
 	})
+
+	fieldKeys = append(fieldKeys, "CreatedAt")
+	fieldKeys = append(fieldKeys, "UpdatedAt")
+	fieldValues = append(fieldValues, "time.Time")
+	fieldValues = append(fieldValues, "time.Time")
 
 	return modelName, fieldKeys, fieldValues
 }

@@ -21,7 +21,7 @@ func TestImport(t *testing.T) {
 
 	// +AYAORM
 	type User struct {
-		Id   int ` + "`" + `db:"pk"` + "`" + `
+		ayaorm.Schema
 		Name string
 		Age  int
 	}
@@ -32,6 +32,6 @@ func TestImport(t *testing.T) {
 
 	modelName, fieldKeys, fieldValues := Inspect(filePath)
 	assert.Equal(t, "User", modelName)
-	assert.Equal(t, []string{"Id", "Name", "Age"}, fieldKeys)
-	assert.Equal(t, []string{"int", "string", "int"}, fieldValues)
+	assert.Equal(t, []string{"Id", "Name", "Age", "CreatedAt", "UpdatedAt"}, fieldKeys)
+	assert.Equal(t, []string{"int", "string", "int", "time.Time", "time.Time"}, fieldValues)
 }
