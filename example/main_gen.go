@@ -204,9 +204,6 @@ func (r *UserRelation) Query() ([]*User, error) {
 		if err != nil {
 			return nil, err
 		}
-		if err != nil {
-			return nil, err
-		}
 		results = append(results, row)
 	}
 	return results, nil
