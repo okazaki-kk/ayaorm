@@ -68,6 +68,12 @@ func (r *Relation) Last() *Relation {
 	return r
 }
 
+func (r *Relation) Find(id int) *Relation {
+	r.Where("id", id)
+	r.Limit(1)
+	return r
+}
+
 func (r *Relation) QueryRow(dest ...interface{}) error {
 	query := r.BuildQuery()
 	log.Print("excute query: ", query)

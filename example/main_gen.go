@@ -132,6 +132,15 @@ func (r *UserRelation) Last() *UserRelation {
 	return r
 }
 
+func (m User) Find(id int) *UserRelation {
+	return m.newRelation().Find(id)
+}
+
+func (r *UserRelation) Find(id int) *UserRelation {
+	r.Relation.Find(id)
+	return r
+}
+
 func (r *UserRelation) Query() ([]*User, error) {
 	rows, err := r.Relation.Query()
 	if err != nil {
