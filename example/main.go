@@ -15,80 +15,41 @@ func main() {
 
 	fmt.Println("USER COUNT:", User{}.Count())
 
-	userRows, err := User{}.All().Query()
+	users, err := User{}.All().Query()
 	if err != nil {
 		log.Fatal("User.All.Error", err)
 	}
-	defer userRows.Close()
-
-	for userRows.Next() {
-		var user User
-		if err := userRows.Scan(&user.Id, &user.Name, &user.Age); err != nil {
-			log.Fatal("User.All.Scan.Error", err)
-		}
-		fmt.Println("User.All.Scan:", user)
+	for _, user := range users {
+		fmt.Printf("%v\n", user)
 	}
 
-	userRows, err = User{}.Limit(2).Query()
+	users, err = User{}.Limit(2).Query()
 	if err != nil {
 		log.Fatal("User.All.Error", err)
 	}
-	defer userRows.Close()
-
-	for userRows.Next() {
-		var user User
-		if err := userRows.Scan(&user.Id, &user.Name, &user.Age); err != nil {
-			log.Fatal("User.All.Scan.Error", err)
-		}
-		fmt.Println("User.All.Scan:", user)
+	for _, user := range users {
+		fmt.Printf("%v\n", user)
 	}
 
-	reverseUserRows, err := User{}.Order("Age", "desc").Query()
+	reverseUsers, err := User{}.Order("Age", "desc").Query()
 	if err != nil {
 		log.Fatal("User.All.Error", err)
 	}
-	defer reverseUserRows.Close()
-
-	for reverseUserRows.Next() {
-		var user User
-		if err := reverseUserRows.Scan(&user.Id, &user.Name, &user.Age); err != nil {
-			log.Fatal("User.All.Scan.Error", err)
-		}
-		fmt.Println("User.All.Scan:", user)
+	for _, user := range reverseUsers {
+		fmt.Printf("%v\n", user)
 	}
 
-	Hanako, err := User{}.Where("Name", "Hanako").Query()
+	Hanakos, err := User{}.Where("Name", "Hanako").Query()
 	if err != nil {
 		log.Fatal("User.All.Error", err)
 	}
-	defer Hanako.Close()
-
-	for Hanako.Next() {
-		var user User
-		if err := Hanako.Scan(&user.Id, &user.Name, &user.Age); err != nil {
-			log.Fatal("User.All.Scan.Error", err)
-		}
-		fmt.Println("Hanako:", user)
+	for _, hanako := range Hanakos {
+		fmt.Printf("%v\n", hanako)
 	}
 
-	Age34, err := User{}.Where("Age", 34).Query()
-	if err != nil {
-		log.Fatal("User.All.Error", err)
-	}
-	defer Age34.Close()
-
-	for Age34.Next() {
-		var user User
-		if err := Age34.Scan(&user.Id, &user.Name, &user.Age); err != nil {
-			log.Fatal("User.All.Scan.Error", err)
-		}
-		fmt.Println("Age34:", user)
-	}
-
-	newUser := User{Name: "Gon", Age: 20}
+	newUser := User{Name: "Gin", Age: 34}
 	err = newUser.Save()
 	if err != nil {
 		log.Fatal("User.Save.Error", err)
 	}
-
 }
