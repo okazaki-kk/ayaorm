@@ -63,6 +63,28 @@ func TestSave(t *testing.T) {
 	assert.Equal(t, countBefore+1, countAfter)
 }
 
+func TestUpdate(t *testing.T) {
+	table := Table{tableName: "users"}
+	relation := Relation{Table: table, db: db}
+
+	var user TestUser
+	err := relation.SetColumns("*").Last().QueryRow(&user.Id, &user.Name, &user.Age)
+	assert.NoError(t, err)
+
+	id := user.Id
+	age := user.Age
+
+	fieldMap := make(map[string]interface{})
+	fieldMap["Name"] = "DigDag"
+
+	relation.Update(id, fieldMap)
+
+	err = relation.SetColumns("*").Last().QueryRow(&user.Id, &user.Name, &user.Age)
+	assert.NoError(t, err)
+	assert.Equal(t, age, user.Age)
+	assert.Equal(t, "DigDag", user.Name)
+}
+
 func TestWhere(t *testing.T) {
 	table := Table{tableName: "users"}
 	relation := Relation{Table: table, db: db}
