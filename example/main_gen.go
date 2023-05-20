@@ -141,6 +141,15 @@ func (r *UserRelation) Find(id int) *UserRelation {
 	return r
 }
 
+func (m User) FindBy(column string, value interface{}) *UserRelation {
+	return m.newRelation().FindBy(column, value)
+}
+
+func (r *UserRelation) FindBy(column string, value interface{}) *UserRelation {
+	r.Relation.FindBy(column, value)
+	return r
+}
+
 func (r *UserRelation) Query() ([]*User, error) {
 	rows, err := r.Relation.Query()
 	if err != nil {

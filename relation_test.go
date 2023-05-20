@@ -99,3 +99,14 @@ func TestFind(t *testing.T) {
 	assert.Equal(t, 23, user.Age)
 	assert.Equal(t, "Taro", user.Name)
 }
+
+func TestFindBy(t *testing.T) {
+	table := Table{tableName: "users"}
+	relation := Relation{Table: table, db: db}
+
+	var user TestUser
+	err := relation.SetColumns("*").FindBy("Name", "Taro").QueryRow(&user.Id, &user.Name, &user.Age)
+	assert.NoError(t, err)
+	assert.Equal(t, 23, user.Age)
+	assert.Equal(t, "Taro", user.Name)
+}

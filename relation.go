@@ -74,6 +74,12 @@ func (r *Relation) Find(id int) *Relation {
 	return r
 }
 
+func (r *Relation) FindBy(column string, value interface{}) *Relation {
+	r.Where(column, value)
+	r.Limit(1)
+	return r
+}
+
 func (r *Relation) QueryRow(dest ...interface{}) error {
 	query := r.BuildQuery()
 	log.Print("excute query: ", query)
