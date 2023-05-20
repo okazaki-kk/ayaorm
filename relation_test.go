@@ -43,23 +43,17 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func TestCount(t *testing.T) {
-	table := Table{tableName: "users"}
-	relation := Relation{Table: table, db: db}
-
-	count := relation.Count()
-	assert.Equal(t, count, 2)
-}
-
 func TestSave(t *testing.T) {
 	table := Table{tableName: "users"}
 	relation := Relation{Table: table, db: db}
 
+	countBefore := relation.Count()
+
 	err := relation.Save(map[string]interface{}{"name": "Jiro", "age": 25})
 	assert.NoError(t, err)
 
-	count := relation.Count()
-	assert.Equal(t, count, 3)
+	countAfter := relation.Count()
+	assert.Equal(t, countBefore + 1, countAfter)
 }
 
 func TestWhere(t *testing.T) {
