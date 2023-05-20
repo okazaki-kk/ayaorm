@@ -52,6 +52,19 @@ func (m User) Build(p UserParams) *User {
 	}
 }
 
+func (u User) Create(params UserParams) (*User, error) {
+	user := u.Build(params)
+	return u.newRelation().Create(user)
+}
+
+func (r *UserRelation) Create(user *User) (*User, error) {
+	err := user.Save()
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
 func (r *UserRelation) QueryRow() (*User, error) {
 	row := &User{}
 	err := r.Relation.QueryRow(row.fieldPtrsByName(r.Relation.GetColumns())...)
