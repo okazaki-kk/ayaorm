@@ -5,3 +5,6 @@ test:
 
 lint:
 	golangci-lint run ./...
+
+build:
+	go build -o ayaorm ./cmd/ayaorm/
