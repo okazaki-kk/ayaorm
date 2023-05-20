@@ -8,7 +8,7 @@ import (
 )
 
 func TestGenerate(t *testing.T) {
-	field := []string{"Id", "Name", "Age"}
+	field := []string{"Id", "Name", "Age", "CreatedAt", "UpdatedAt"}
 	filePath := "./temp.go"
 	defer os.Remove(filePath)
 	Generate(filePath, "User", field)
@@ -37,9 +37,11 @@ func (m *User) newRelation() *UserRelation {
 		ayaorm.NewRelation(db).SetTable("users"),
 	}
 	r.Select(
-		"Id",
-		"Name",
-		"Age",
+		"id",
+		"name",
+		"age",
+		"created_at",
+		"updated_at",
 	)
 
 	return r
@@ -53,7 +55,7 @@ func (r *UserRelation) Select(columns ...string) *UserRelation {
 	cs := []string{}
 	for _, c := range columns {
 		if r.model.isColumnName(c) {
-			cs = append(cs, fmt.Sprintf("User.%s", c))
+			cs = append(cs, fmt.Sprintf("users.%s", c))
 		} else {
 			cs = append(cs, c)
 		}
@@ -66,15 +68,44 @@ type UserParams User
 
 func (m User) Build(p UserParams) *User {
 	return &User{
-		Id:   p.Id,
-		Name: p.Name,
-		Age:  p.Age,
+		Schema: ayaorm.Schema{Id: p.Id},
+		Name:   p.Name,
+		Age:    p.Age,
 	}
+}
+
+func (u User) Create(params UserParams) (*User, error) {
+	user := u.Build(params)
+	return u.newRelation().Create(user)
+}
+
+func (r *UserRelation) Create(user *User) (*User, error) {
+	err := user.Save()
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+func (u *User) Update(params UserParams) error {
+	return u.newRelation().Update(u.Id, params)
+}
+
+func (r *UserRelation) Update(id int, params UserParams) error {
+	fieldMap := make(map[string]interface{})
+	for _, c := range r.Relation.GetColumns() {
+		switch c {
+		case "name", "users.name":
+			fieldMap["name"] = r.model.Name
+		case "age", "users.age":
+			fieldMap["age"] = r.model.Age
+		}
+	}
+	return r.Relation.Update(id, fieldMap)
 }
 
 func (r *UserRelation) QueryRow() (*User, error) {
 	row := &User{}
-	fmt.Println(r.Relation.GetColumns())
 	err := r.Relation.QueryRow(row.fieldPtrsByName(r.Relation.GetColumns())...)
 	if err != nil {
 		return nil, err
@@ -117,22 +148,66 @@ func (r *UserRelation) Where(column string, value interface{}) *UserRelation {
 	return r
 }
 
-func (m User) Save() error {
-	return m.newRelation().Save()
+func (m *User) Save() error {
+	lastId, err := m.newRelation().Save()
+	if m.Id == 0 {
+		m.Id = lastId
+	}
+	return err
 }
 
-func (r *UserRelation) Save() error {
+func (r *UserRelation) Save() (int, error) {
 	fieldMap := make(map[string]interface{})
 	for _, c := range r.Relation.GetColumns() {
 		switch c {
 		case "name", "users.name":
-			fieldMap["Name"] = r.model.Name
+			fieldMap["name"] = r.model.Name
 		case "age", "users.age":
-			fieldMap["Age"] = r.model.Age
+			fieldMap["age"] = r.model.Age
 		}
 	}
 
 	return r.Relation.Save(fieldMap)
+}
+
+func (m *User) Delete() error {
+	return m.newRelation().Delete(m.Id)
+}
+
+func (m User) First() (*User, error) {
+	return m.newRelation().First()
+}
+
+func (r *UserRelation) First() (*User, error) {
+	r.Relation.First()
+	return r.QueryRow()
+}
+
+func (m User) Last() (*User, error) {
+	return m.newRelation().Last()
+}
+
+func (r *UserRelation) Last() (*User, error) {
+	r.Relation.Last()
+	return r.QueryRow()
+}
+
+func (m User) Find(id int) (*User, error) {
+	return m.newRelation().Find(id)
+}
+
+func (r *UserRelation) Find(id int) (*User, error) {
+	r.Relation.Find(id)
+	return r.QueryRow()
+}
+
+func (m User) FindBy(column string, value interface{}) (*User, error) {
+	return m.newRelation().FindBy(column, value)
+}
+
+func (r *UserRelation) FindBy(column string, value interface{}) (*User, error) {
+	r.Relation.FindBy(column, value)
+	return r.QueryRow()
 }
 
 func (r *UserRelation) Query() ([]*User, error) {
@@ -162,6 +237,10 @@ func (m *User) fieldPtrByName(name string) interface{} {
 		return &m.Name
 	case "age", "users.age":
 		return &m.Age
+	case "created_at", "users.created_at":
+		return &m.CreatedAt
+	case "updated_at", "users.updated_at":
+		return &m.UpdatedAt
 	default:
 		return nil
 	}
@@ -172,7 +251,6 @@ func (m *User) fieldPtrsByName(names []string) []interface{} {
 	for _, n := range names {
 		f := m.fieldPtrByName(n)
 		fields = append(fields, f)
-		fmt.Println(&f)
 	}
 	return fields
 }
@@ -188,9 +266,11 @@ func (m *User) isColumnName(name string) bool {
 
 func (m *User) columnNames() []string {
 	return []string{
-		"Id",
-		"Name",
-		"Age",
+		"id",
+		"name",
+		"age",
+		"created_at",
+		"updated_at",
 	}
 }
 `

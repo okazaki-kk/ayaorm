@@ -22,7 +22,7 @@ var textBody = `
 			}
 			r.Select(
 				{{ range $column := .columns -}}
-				"{{ $column }}",
+				"{{ toSnakeCase $column }}",
 				{{ end -}}
 			)
 
@@ -37,7 +37,7 @@ var textBody = `
 			cs := []string{}
 			for _, c := range columns {
 				if r.model.isColumnName(c) {
-					cs = append(cs, fmt.Sprintf("{{.modelName}}.%s", c))
+					cs = append(cs, fmt.Sprintf("{{.snakeCaseModelName}}.%s", c))
 				} else {
 					cs = append(cs, c)
 				}
@@ -50,15 +50,54 @@ var textBody = `
 
 		func (m {{.modelName}}) Build(p UserParams) *{{.modelName}} {
 			return &{{.modelName}}{
+				Schema: ayaorm.Schema{Id: p.Id},
 				{{ range $column := .columns -}}
+				{{ if eq $column "CreatedAt" -}}
+				{{ continue }}
+				{{ end -}}
+				{{ if eq $column "UpdatedAt" -}}
+				{{ continue }}
+				{{ end -}}
+				{{ if eq $column "Id" -}}
+				{{ continue }}
+				{{ end -}}
 				{{ $column }}: p.{{ $column }},
 				{{ end -}}
 			}
 		}
 
+		func (u User) Create(params UserParams) (*User, error) {
+			user := u.Build(params)
+			return u.newRelation().Create(user)
+		}
+		
+		func (r *UserRelation) Create(user *User) (*User, error) {
+			err := user.Save()
+			if err != nil {
+				return nil, err
+			}
+			return user, nil
+		}
+		
+		func (u *User) Update(params UserParams) error {
+			return u.newRelation().Update(u.Id, params)
+		}
+		
+		func (r *UserRelation) Update(id int, params UserParams) error {
+			fieldMap := make(map[string]interface{})
+			for _, c := range r.Relation.GetColumns() {
+				switch c {
+				case "name", "users.name":
+					fieldMap["name"] = r.model.Name
+				case "age", "users.age":
+					fieldMap["age"] = r.model.Age
+				}
+			}
+			return r.Relation.Update(id, fieldMap)
+		}
+
 		func (r *{{.modelName}}Relation) QueryRow() (*{{.modelName}}, error) {
 			row := &{{.modelName}}{}
-			fmt.Println(r.Relation.GetColumns())
 			err := r.Relation.QueryRow(row.fieldPtrsByName(r.Relation.GetColumns())...)
 			if err != nil {
 				return nil, err
@@ -101,11 +140,15 @@ var textBody = `
 			return r
 		}
 
-		func (m {{.modelName}}) Save() error {
-			return m.newRelation().Save()
+		func (m *{{.modelName}}) Save() error {
+			lastId, err := m.newRelation().Save()
+			if m.Id == 0 {
+				m.Id = lastId
+			}
+			return err
 		}
 
-		func (r *{{.modelName}}Relation) Save() error {
+		func (r *{{.modelName}}Relation) Save() (int, error) {
 			fieldMap := make(map[string]interface{})
 			for _, c := range r.Relation.GetColumns() {
 				switch c {
@@ -113,13 +156,59 @@ var textBody = `
 					{{ if eq $column "Id" -}}
 					{{ continue }}
 					{{ end -}}
+					{{ if eq $column "CreatedAt" -}}
+					{{ continue }}
+					{{ end -}}
+					{{ if eq $column "UpdatedAt" -}}
+					{{ continue }}
+					{{ end -}}
 					case "{{ toSnakeCase  $column}}", "{{$.snakeCaseModelName}}.{{toSnakeCase $column}}":
-						fieldMap["{{$column}}"] = r.model.{{$column}}
+						fieldMap["{{toSnakeCase $column}}"] = r.model.{{$column}}
 					{{ end -}}
 				}
 			}
 
 			return r.Relation.Save(fieldMap)
+		}
+
+		func (m *User) Delete() error {
+			return m.newRelation().Delete(m.Id)
+		}
+		
+		func (m User) First() (*User, error) {
+			return m.newRelation().First()
+		}
+		
+		func (r *UserRelation) First() (*User, error) {
+			r.Relation.First()
+			return r.QueryRow()
+		}
+		
+		func (m User) Last() (*User, error) {
+			return m.newRelation().Last()
+		}
+		
+		func (r *UserRelation) Last() (*User, error) {
+			r.Relation.Last()
+			return r.QueryRow()
+		}
+		
+		func (m User) Find(id int) (*User, error) {
+			return m.newRelation().Find(id)
+		}
+		
+		func (r *UserRelation) Find(id int) (*User, error) {
+			r.Relation.Find(id)
+			return r.QueryRow()
+		}
+		
+		func (m User) FindBy(column string, value interface{}) (*User, error) {
+			return m.newRelation().FindBy(column, value)
+		}
+		
+		func (r *UserRelation) FindBy(column string, value interface{}) (*User, error) {
+			r.Relation.FindBy(column, value)
+			return r.QueryRow()
 		}
 
 		func (r *{{.modelName}}Relation) Query() ([]*{{.modelName}}, error) {
@@ -157,7 +246,6 @@ var textBody = `
 			for _, n := range names {
 				f := m.fieldPtrByName(n)
 				fields = append(fields, f)
-				fmt.Println(&f)
 			}
 			return fields
 		}
@@ -174,7 +262,7 @@ var textBody = `
 		func (m *{{.modelName}}) columnNames() []string {
 			return []string{
 				{{ range $column := .columns -}}
-				"{{ $column }}",
+				"{{ toSnakeCase $column }}",
 				{{ end -}}
 			}
 		}
