@@ -20,6 +20,8 @@ func (m *User) newRelation() *UserRelation {
 		"id",
 		"name",
 		"age",
+		"created_at",
+		"updated_at",
 	)
 
 	return r
@@ -202,6 +204,9 @@ func (r *UserRelation) Query() ([]*User, error) {
 		if err != nil {
 			return nil, err
 		}
+		if err != nil {
+			return nil, err
+		}
 		results = append(results, row)
 	}
 	return results, nil
@@ -215,6 +220,10 @@ func (m *User) fieldPtrByName(name string) interface{} {
 		return &m.Name
 	case "age", "users.age":
 		return &m.Age
+	case "created_at", "users.created_at":
+		return &m.CreatedAt
+	case "updated_at", "users.updated_at":
+		return &m.UpdatedAt
 	default:
 		return nil
 	}
@@ -243,9 +252,11 @@ func (m *User) columnNames() []string {
 		"id",
 		"name",
 		"age",
+		"created_at",
+		"updated_at",
 	}
 }
 
 func (u User) String() string {
-	return fmt.Sprintf("{ID: %d, Age: %d, Name: %s}", u.Id, u.Age, u.Name)
+	return fmt.Sprintf("{ID: %d, Age: %d, Name: %s, CreatedAt: %s, UpdatedAt: %s}", u.Id, u.Age, u.Name, u.CreatedAt.Format("2006/01/02 15:04:05.000"), u.UpdatedAt.Format("2006/01/02 15:04:05.000"))
 }
