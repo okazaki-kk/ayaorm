@@ -68,7 +68,7 @@ func TestUpdate(t *testing.T) {
 	relation := Relation{Table: table, db: db}
 
 	var user TestUser
-	err := relation.SetColumns("*").Last().QueryRow(&user.Id, &user.Name, &user.Age)
+	err := relation.SetColumns("*").Last().QueryRow(&user.Id, &user.Name, &user.Age, &user.CreatedAt, &user.UpdatedAt)
 	assert.NoError(t, err)
 
 	id := user.Id
