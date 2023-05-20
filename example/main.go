@@ -83,4 +83,10 @@ func main() {
 		log.Fatal("User.Create.Error", err)
 	}
 	fmt.Printf("%v\n", kurapika)
+
+	err = kurapika.Update(UserParams{Age: 18})
+	if err != nil {
+		log.Fatal("User.Update.Error", err)
+	}
+	fmt.Printf("%v\n", kurapika)
 }
