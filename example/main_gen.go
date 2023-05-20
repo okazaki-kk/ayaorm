@@ -245,3 +245,7 @@ func (m *User) columnNames() []string {
 		"age",
 	}
 }
+
+func (u User) String() string {
+	return fmt.Sprintf("{ID: %d, Age: %d, Name: %s}", u.Id, u.Age, u.Name)
+}
