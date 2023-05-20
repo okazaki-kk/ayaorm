@@ -114,6 +114,24 @@ func (r *UserRelation) Save() error {
 	return r.Relation.Save(fieldMap)
 }
 
+func (m User) First() *UserRelation {
+	return m.newRelation().First()
+}
+
+func (r *UserRelation) First() *UserRelation {
+	r.Relation.First()
+	return r
+}
+
+func (m User) Last() *UserRelation {
+	return m.newRelation().Last()
+}
+
+func (r *UserRelation) Last() *UserRelation {
+	r.Relation.Last()
+	return r
+}
+
 func (r *UserRelation) Query() ([]*User, error) {
 	rows, err := r.Relation.Query()
 	if err != nil {

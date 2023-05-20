@@ -58,6 +58,16 @@ func (r *Relation) Save(fieldMap map[string]interface{}) error {
 	return err
 }
 
+func (r *Relation) First() *Relation {
+	r.Limit(1).Order("id", "asc")
+	return r
+}
+
+func (r *Relation) Last() *Relation {
+	r.Limit(1).Order("id", "desc")
+	return r
+}
+
 func (r *Relation) QueryRow(dest ...interface{}) error {
 	query := r.BuildQuery()
 	log.Print("excute query: ", query)
