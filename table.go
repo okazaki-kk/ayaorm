@@ -73,7 +73,7 @@ func (s *Table) BuildQuery() string {
 	return query + ";"
 }
 
-func (s *Table) BuildUpdate() (string, []interface{}) {
+func (s *Table) BuildUpdate(id int) (string, []interface{}) {
 	args := []interface{}{}
 	i := s.update
 
@@ -86,7 +86,7 @@ func (s *Table) BuildUpdate() (string, []interface{}) {
 	updateObj = updateObj[:len(updateObj)-1]
 	fmt.Println(updateObj, "update")
 
-	ans := fmt.Sprintf("UPDATE %s SET %s WHERE id = %d;", s.tableName, updateObj, 1)
+	ans := fmt.Sprintf("UPDATE %s SET %s WHERE id = %d;", s.tableName, updateObj, id)
 	fmt.Println(ans, args)
 	return ans, args
 }

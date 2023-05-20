@@ -66,10 +66,10 @@ func (r *UserRelation) Create(user *User) (*User, error) {
 }
 
 func (u *User) Update(params UserParams) error {
-	return u.newRelation().Update(params)
+	return u.newRelation().Update(u.Id, params)
 }
 
-func (r *UserRelation) Update(params UserParams) error {
+func (r *UserRelation) Update(id int, params UserParams) error {
 	fieldMap := make(map[string]interface{})
 	for _, c := range r.Relation.GetColumns() {
 		switch c {
@@ -79,7 +79,7 @@ func (r *UserRelation) Update(params UserParams) error {
 			fieldMap["age"] = r.model.Age
 		}
 	}
-	return r.Relation.Update(fieldMap)
+	return r.Relation.Update(id, fieldMap)
 }
 
 func (r *UserRelation) QueryRow() (*User, error) {
@@ -128,7 +128,7 @@ func (r *UserRelation) Where(column string, value interface{}) *UserRelation {
 
 func (m *User) Save() error {
 	lastId, err := m.newRelation().Save()
-	if m.Id != 0 {
+	if m.Id == 0 {
 		m.Id = lastId
 	}
 	return err
