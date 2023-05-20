@@ -23,7 +23,7 @@ func main() {
 		fmt.Println(user)
 	}
 
-	/*users, err = User{}.Limit(2).Query()
+	users, err = User{}.Limit(2).Query()
 	if err != nil {
 		log.Fatal("User.All.Error", err)
 	}
@@ -88,5 +88,5 @@ func main() {
 	if err != nil {
 		log.Fatal("User.Update.Error", err)
 	}
-	fmt.Println(kurapika)*/
+	fmt.Println(kurapika)
 }
