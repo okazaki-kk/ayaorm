@@ -110,6 +110,9 @@ var textBody = `
 			for _, c := range r.Relation.GetColumns() {
 				switch c {
 					{{ range $column := .columns -}}
+					{{ if eq $column "Id" -}}
+					{{ continue }}
+					{{ end -}}
 					case "{{ toSnakeCase  $column}}", "{{$.snakeCaseModelName}}.{{toSnakeCase $column}}":
 						fieldMap["{{$column}}"] = r.model.{{$column}}
 					{{ end -}}

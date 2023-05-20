@@ -125,8 +125,6 @@ func (r *UserRelation) Save() error {
 	fieldMap := make(map[string]interface{})
 	for _, c := range r.Relation.GetColumns() {
 		switch c {
-		case "id", "users.id":
-			fieldMap["Id"] = r.model.Id
 		case "name", "users.name":
 			fieldMap["Name"] = r.model.Name
 		case "age", "users.age":
