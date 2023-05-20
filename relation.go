@@ -50,12 +50,21 @@ func (r *Relation) Where(column string, value interface{}) *Relation {
 	return r
 }
 
-func (r *Relation) Save(fieldMap map[string]interface{}) error {
+func (r *Relation) Save(fieldMap map[string]interface{}) (int, error) {
 	r.Table.insert.params = fieldMap
 	query, args := r.BuildInsert()
 	log.Print("excute query: ", query, args)
-	_, err := r.db.Exec(query, args...)
-	return err
+
+	res, err := r.db.Exec(query, args...)
+	if err != nil {
+		return 0, err
+	}
+
+	lastId, err := res.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+	return int(lastId), err
 }
 
 func (r *Relation) Delete(id int) error {

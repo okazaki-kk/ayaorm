@@ -49,8 +49,9 @@ func TestSave(t *testing.T) {
 
 	countBefore := relation.Count()
 
-	err := relation.Save(map[string]interface{}{"name": "Jiro", "age": 25})
+	id, err := relation.Save(map[string]interface{}{"name": "Jiro", "age": 25})
 	assert.NoError(t, err)
+	assert.NotZero(t, id)
 
 	countAfter := relation.Count()
 	var lastUser TestUser

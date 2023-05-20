@@ -109,11 +109,13 @@ func (r *UserRelation) Where(column string, value interface{}) *UserRelation {
 	return r
 }
 
-func (m User) Save() error {
-	return m.newRelation().Save()
+func (m *User) Save() error {
+	lastId, err := m.newRelation().Save()
+	m.Id = lastId
+	return err
 }
 
-func (r *UserRelation) Save() error {
+func (r *UserRelation) Save() (int, error) {
 	fieldMap := make(map[string]interface{})
 	for _, c := range r.Relation.GetColumns() {
 		switch c {
