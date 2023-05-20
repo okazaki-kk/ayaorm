@@ -76,4 +76,10 @@ func main() {
 	if err != nil {
 		log.Fatal("user.Delete.Error", err)
 	}
+
+	kurapika, err := User{}.Create(UserParams{Name: "Kurapika", Age: 16})
+	if err != nil {
+		log.Fatal("User.Create.Error", err)
+	}
+	fmt.Printf("%v\n", kurapika)
 }
