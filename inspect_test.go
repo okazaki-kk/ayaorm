@@ -31,7 +31,7 @@ func TestImport(t *testing.T) {
 	assert.NoError(t, err)
 
 	modelName, fieldKeys, fieldValues := Inspect(filePath)
-	assert.Equal(t, modelName, "User")
-	assert.Equal(t, fieldKeys, []string{"Id", "Name", "Age"})
-	assert.Equal(t, fieldValues, []string{"int", "string", "int"})
+	assert.Equal(t, "User", modelName)
+	assert.Equal(t, []string{"Id", "Name", "Age"}, fieldKeys)
+	assert.Equal(t, []string{"int", "string", "int"}, fieldValues)
 }

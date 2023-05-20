@@ -66,8 +66,8 @@ func TestWhere(t *testing.T) {
 		var user TestUser
 		err := Hanako.Scan(&user.Id, &user.Name, &user.Age)
 		assert.NoError(t, err)
-		assert.Equal(t, user.Name, "Hanako")
-		assert.Equal(t, user.Age, 20)
+		assert.Equal(t, "Hanako", user.Name)
+		assert.Equal(t, 20, user.Age)
 	}
 	assert.NoError(t, err)
 }
@@ -79,7 +79,7 @@ func TestFirst(t *testing.T) {
 	var user TestUser
 	err := relation.SetColumns("*").First().QueryRow(&user.Id, &user.Name, &user.Age)
 	assert.NoError(t, err)
-	assert.Equal(t, user.Age, 20)
-	assert.Equal(t, user.Name, "Hanako")
+	assert.Equal(t, 20, user.Age)
+	assert.Equal(t, "Hanako", user.Name)
 
 }
