@@ -46,9 +46,9 @@ var textBody = `
 			return r
 		}
 
-		type UserParams {{.modelName}}
+		type {{.modelName}}Params {{.modelName}}
 
-		func (m {{.modelName}}) Build(p UserParams) *{{.modelName}} {
+		func (m {{.modelName}}) Build(p {{.modelName}}Params) *{{.modelName}} {
 			return &{{.modelName}}{
 				Schema: ayaorm.Schema{Id: p.Id},
 				{{ range $column := .columns -}}
@@ -66,31 +66,40 @@ var textBody = `
 			}
 		}
 
-		func (u User) Create(params UserParams) (*User, error) {
-			user := u.Build(params)
-			return u.newRelation().Create(user)
+		func (u {{.modelName}}) Create(params {{.modelName}}Params) (*{{.modelName}}, error) {
+			{{toSnakeCase .modelName}} := u.Build(params)
+			return u.newRelation().Create({{toSnakeCase .modelName}})
 		}
 		
-		func (r *UserRelation) Create(user *User) (*User, error) {
-			err := user.Save()
+		func (r *{{.modelName}}Relation) Create({{toSnakeCase .modelName}} *{{.modelName}}) (*{{.modelName}}, error) {
+			err := {{toSnakeCase .modelName}}.Save()
 			if err != nil {
 				return nil, err
 			}
-			return user, nil
+			return {{toSnakeCase .modelName}}, nil
 		}
 		
-		func (u *User) Update(params UserParams) error {
+		func (u *{{.modelName}}) Update(params {{.modelName}}Params) error {
 			return u.newRelation().Update(u.Id, params)
 		}
 		
-		func (r *UserRelation) Update(id int, params UserParams) error {
+		func (r *{{.modelName}}Relation) Update(id int, params {{.modelName}}Params) error {
 			fieldMap := make(map[string]interface{})
 			for _, c := range r.Relation.GetColumns() {
 				switch c {
-				case "name", "users.name":
-					fieldMap["name"] = r.model.Name
-				case "age", "users.age":
-					fieldMap["age"] = r.model.Age
+					{{ range $column := .columns -}}
+					{{ if eq $column "Id" -}}
+					{{ continue }}
+					{{ end -}}
+					{{ if eq $column "CreatedAt" -}}
+					{{ continue }}
+					{{ end -}}
+					{{ if eq $column "UpdatedAt" -}}
+					{{ continue }}
+					{{ end -}}
+					case "{{ toSnakeCase  $column}}", "{{$.snakeCaseModelName}}.{{toSnakeCase $column}}":
+						fieldMap["{{toSnakeCase $column}}"] = r.model.{{$column}}
+					{{ end -}}
 				}
 			}
 			return r.Relation.Update(id, fieldMap)
@@ -171,42 +180,42 @@ var textBody = `
 			return r.Relation.Save(fieldMap)
 		}
 
-		func (m *User) Delete() error {
+		func (m *{{.modelName}}) Delete() error {
 			return m.newRelation().Delete(m.Id)
 		}
 		
-		func (m User) First() (*User, error) {
+		func (m {{.modelName}}) First() (*{{.modelName}}, error) {
 			return m.newRelation().First()
 		}
 		
-		func (r *UserRelation) First() (*User, error) {
+		func (r *{{.modelName}}Relation) First() (*{{.modelName}}, error) {
 			r.Relation.First()
 			return r.QueryRow()
 		}
 		
-		func (m User) Last() (*User, error) {
+		func (m {{.modelName}}) Last() (*{{.modelName}}, error) {
 			return m.newRelation().Last()
 		}
 		
-		func (r *UserRelation) Last() (*User, error) {
+		func (r *{{.modelName}}Relation) Last() (*{{.modelName}}, error) {
 			r.Relation.Last()
 			return r.QueryRow()
 		}
 		
-		func (m User) Find(id int) (*User, error) {
+		func (m {{.modelName}}) Find(id int) (*{{.modelName}}, error) {
 			return m.newRelation().Find(id)
 		}
 		
-		func (r *UserRelation) Find(id int) (*User, error) {
+		func (r *{{.modelName}}Relation) Find(id int) (*{{.modelName}}, error) {
 			r.Relation.Find(id)
 			return r.QueryRow()
 		}
 		
-		func (m User) FindBy(column string, value interface{}) (*User, error) {
+		func (m {{.modelName}}) FindBy(column string, value interface{}) (*{{.modelName}}, error) {
 			return m.newRelation().FindBy(column, value)
 		}
 		
-		func (r *UserRelation) FindBy(column string, value interface{}) (*User, error) {
+		func (r *{{.modelName}}Relation) FindBy(column string, value interface{}) (*{{.modelName}}, error) {
 			r.Relation.FindBy(column, value)
 			return r.QueryRow()
 		}
