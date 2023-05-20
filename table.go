@@ -86,9 +86,7 @@ func (s *Table) BuildUpdate(id int) (string, []interface{}) {
 	updateObj = updateObj[:len(updateObj)-1]
 	fmt.Println(updateObj, "update")
 
-	ans := fmt.Sprintf("UPDATE %s SET %s WHERE id = %d;", s.tableName, updateObj, id)
-	fmt.Println(ans, args)
-	return ans, args
+	return fmt.Sprintf("UPDATE %s SET %s WHERE id = %d;", s.tableName, updateObj, id), args
 }
 
 func (s *Table) BuildDelete(id int) string {
