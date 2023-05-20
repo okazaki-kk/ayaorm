@@ -52,6 +52,7 @@ func main() {
 	if err != nil {
 		log.Fatal("User.Save.Error", err)
 	}
+	fmt.Printf("%v\n", newUser)
 
 	firstUser, err := User{}.First()
 	if err != nil {
