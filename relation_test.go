@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 
@@ -25,6 +26,15 @@ func TestMain(m *testing.M) {
 		os.Exit(1)
 	}
 	_, err = db.Exec(`CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, age INTEGER, created_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now', 'localtime')), updated_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now','localtime')));`)
+	if err != nil {
+		os.Exit(1)
+	}
+	_, err = db.Exec(`
+		CREATE TRIGGER trigger_test_updated_at AFTER UPDATE ON users
+		BEGIN
+			UPDATE users SET updated_at = DATETIME('now', 'localtime') WHERE rowid == NEW.rowid;
+		END;
+	`)
 	if err != nil {
 		os.Exit(1)
 	}
@@ -73,16 +83,19 @@ func TestUpdate(t *testing.T) {
 
 	id := user.Id
 	age := user.Age
+	updated_at := user.UpdatedAt
 
 	fieldMap := make(map[string]interface{})
 	fieldMap["Name"] = "DigDag"
 
+	time.Sleep(1 * time.Second)
 	relation.Update(id, fieldMap)
 
 	err = relation.SetColumns("*").Last().QueryRow(&user.Id, &user.Name, &user.Age, &user.CreatedAt, &user.UpdatedAt)
 	assert.NoError(t, err)
 	assert.Equal(t, age, user.Age)
 	assert.Equal(t, "DigDag", user.Name)
+	assert.True(t, user.UpdatedAt.After(updated_at))
 }
 
 func TestWhere(t *testing.T) {
