@@ -70,4 +70,10 @@ func main() {
 		log.Fatal("User.FindBy.Error", err)
 	}
 	fmt.Printf("%v\n", Hanako)
+
+	lastUser, _ := User{}.Last()
+	err = lastUser.Delete()
+	if err != nil {
+		log.Fatal("user.Delete.Error", err)
+	}
 }

@@ -71,3 +71,8 @@ func (s *Table) BuildQuery() string {
 	}
 	return query + ";"
 }
+
+func (s *Table) BuildDelete(id int) string {
+	query := fmt.Sprintf("DELETE FROM %s WHERE id = %d;", s.tableName, id)
+	return query
+}
