@@ -46,9 +46,9 @@ type UserParams User
 
 func (m User) Build(p UserParams) *User {
 	return &User{
-		Id:   p.Id,
-		Name: p.Name,
-		Age:  p.Age,
+		Schema: ayaorm.Schema{Id: p.Id},
+		Name:   p.Name,
+		Age:    p.Age,
 	}
 }
 

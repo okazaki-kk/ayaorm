@@ -1,8 +1,10 @@
 package main
 
+import "github.com/okazaki-kk/ayaorm"
+
 // +AYAORM
 type User struct {
-	Id   int `db:"pk"`
+	ayaorm.Schema
 	Name string
 	Age  int
 }
