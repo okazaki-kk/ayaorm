@@ -110,3 +110,22 @@ func TestFindBy(t *testing.T) {
 	assert.Equal(t, 23, user.Age)
 	assert.Equal(t, "Taro", user.Name)
 }
+
+func TestDelete(t *testing.T) {
+	table := Table{tableName: "users"}
+	relation := Relation{Table: table, db: db}
+
+	countBefore := relation.Count()
+
+	var user TestUser
+	err := relation.SetColumns("*").Last().QueryRow(&user.Id, &user.Name, &user.Age)
+	assert.NoError(t, err)
+
+	err = relation.Delete(user.Id)
+	assert.NoError(t, err)
+
+	afterCount := relation.Count()
+
+	assert.Equal(t, countBefore-1, afterCount)
+
+}

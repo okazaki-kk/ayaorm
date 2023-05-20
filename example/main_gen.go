@@ -114,6 +114,10 @@ func (r *UserRelation) Save() error {
 	return r.Relation.Save(fieldMap)
 }
 
+func (m *User) Delete() error {
+	return m.newRelation().Delete(m.Id)
+}
+
 func (m User) First() (*User, error) {
 	return m.newRelation().First()
 }
