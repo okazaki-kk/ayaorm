@@ -7,10 +7,10 @@ import (
 )
 
 type Query struct {
-	limit     int
-	order     string
-	orderKey  string
-	where     struct {
+	limit    int
+	order    string
+	orderKey string
+	where    struct {
 		key   string
 		value interface{}
 	}
