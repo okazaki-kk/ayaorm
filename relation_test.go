@@ -111,7 +111,6 @@ func TestWhere(t *testing.T) {
 		assert.Equal(t, "Hanako", user.Name)
 		assert.Equal(t, 20, user.Age)
 	}
-	assert.NoError(t, err)
 }
 
 func TestFirst(t *testing.T) {
@@ -164,4 +163,39 @@ func TestDelete(t *testing.T) {
 
 	assert.Equal(t, countBefore-1, afterCount)
 
+}
+
+type TestComment struct {
+	Schema
+	Content string
+	UserId  int
+}
+
+func TestInnerJoin(t *testing.T) {
+	_, err := db.Exec(`drop table if exists comments`)
+	assert.NoError(t, err)
+
+	_, err = db.Exec(`create table comments (id integer primary key autoincrement, content text, user_id integer, created_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now', 'localtime')), updated_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now','localtime')), foreign key (user_id) references users(id) );`)
+	assert.NoError(t, err)
+
+	_, err = db.Exec(`insert into comments (content, user_id) values ('Wonderful', 1)`)
+	assert.NoError(t, err)
+
+	_, err = db.Exec(`insert into comments (content, user_id) values ('Bad', 1)`)
+	assert.NoError(t, err)
+
+	table := Table{tableName: "users"}
+	relation := Relation{Table: table, db: db}
+
+	rows, err := relation.SetColumns("users.id, users.name, users.age, users.created_at, users.updated_at").InnerJoin("users", "comments").Query()
+	assert.NoError(t, err)
+
+	for rows.Next() {
+		var user TestUser
+		err := rows.Scan(&user.Id, &user.Name, &user.Age, &user.CreatedAt, &user.UpdatedAt)
+		assert.NoError(t, err)
+		assert.Equal(t, user.Id, 1)
+		assert.Equal(t, user.Name, "Hanako")
+		assert.Equal(t, user.Age, 20)
+	}
 }
