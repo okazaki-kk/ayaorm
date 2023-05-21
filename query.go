@@ -22,6 +22,18 @@ type Query struct {
 	}
 }
 
+func (q *Query) Where(column string, value interface{}) *Query {
+	q.where.key = column
+	q.where.value = value
+	return q
+}
+
+func (q *Query) InnerJoin(left, right string) *Query {
+	q.innerJoin.left = left
+	q.innerJoin.right = right
+	return q
+}
+
 func (q *Query) BuildQuery(columns []string, tableName string) string {
 	query := fmt.Sprintf("SELECT % s FROM %s", strings.Join(columns, ", "), tableName)
 	if q.where.key != "" {

@@ -19,15 +19,3 @@ func (s *Table) SetColumns(columns ...string) *Table {
 func (s *Table) GetColumns() []string {
 	return s.columns
 }
-
-func (s *Table) Where(column string, value interface{}) *Table {
-	s.query.where.key = column
-	s.query.where.value = value
-	return s
-}
-
-func (s *Table) InnerJoin(left, right string) *Table {
-	s.query.innerJoin.left = left
-	s.query.innerJoin.right = right
-	return s
-}

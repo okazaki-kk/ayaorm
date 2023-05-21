@@ -46,7 +46,7 @@ func (r *Relation) Order(key, order string) *Relation {
 }
 
 func (r *Relation) Where(column string, value interface{}) *Relation {
-	r.Table.Where(column, value)
+	r.Table.query.Where(column, value)
 	return r
 }
 
@@ -110,7 +110,7 @@ func (r *Relation) FindBy(column string, value interface{}) *Relation {
 }
 
 func (r *Relation) InnerJoin(left, right string) *Relation {
-	r.Table.InnerJoin(left, right)
+	r.Table.query.InnerJoin(left, right)
 	return r
 }
 
