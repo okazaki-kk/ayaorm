@@ -47,8 +47,21 @@ func main() {
 	for _, comment := range comments {
 		fmt.Println(comment)
 	}
+
+	posts, err := Post{}.JoinComments().Query()
+
+	if err != nil {
+		log.Fatal("joinComment.Error", err)
+	}
+	for _, post := range posts {
+		fmt.Println(post, "post")
+	}
 }
 
 func (c Comment) String() string {
+	return fmt.Sprintf("{ID: %d, Author: %s, Content: %s, CreatedAt: %s, UpdatedAt: %s}", c.Id, c.Author, c.Content, c.CreatedAt.Format("2006/01/02 15:04:05.000"), c.UpdatedAt.Format("2006/01/02 15:04:05.000"))
+}
+
+func (c Post) String() string {
 	return fmt.Sprintf("{ID: %d, Author: %s, Content: %s, CreatedAt: %s, UpdatedAt: %s}", c.Id, c.Author, c.Content, c.CreatedAt.Format("2006/01/02 15:04:05.000"), c.UpdatedAt.Format("2006/01/02 15:04:05.000"))
 }

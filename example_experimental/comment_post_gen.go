@@ -7,3 +7,12 @@ func (m Post) Comments() ([]*Comment, error) {
 	}
 	return comments, nil
 }
+
+func (u Post) JoinComments() *PostRelation {
+	return u.newRelation().JoinComments()
+}
+
+func (u *PostRelation) JoinComments() *PostRelation {
+	u.Relation.InnerJoin("posts", "comments")
+	return u
+}

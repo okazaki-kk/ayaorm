@@ -109,6 +109,11 @@ func (r *Relation) FindBy(column string, value interface{}) *Relation {
 	return r
 }
 
+func (r *Relation) InnerJoin(left, right string) *Relation {
+	r.Table.InnerJoin(left, right)
+	return r
+}
+
 func (r *Relation) QueryRow(dest ...interface{}) error {
 	query := r.BuildQuery()
 	log.Print("excute query: ", query)
