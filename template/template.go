@@ -70,7 +70,7 @@ var textBody = `
 			{{toSnakeCase .modelName}} := u.Build(params)
 			return u.newRelation().Create({{toSnakeCase .modelName}})
 		}
-		
+
 		func (r *{{.modelName}}Relation) Create({{toSnakeCase .modelName}} *{{.modelName}}) (*{{.modelName}}, error) {
 			err := {{toSnakeCase .modelName}}.Save()
 			if err != nil {
@@ -78,11 +78,11 @@ var textBody = `
 			}
 			return {{toSnakeCase .modelName}}, nil
 		}
-		
+
 		func (u *{{.modelName}}) Update(params {{.modelName}}Params) error {
 			return u.newRelation().Update(u.Id, params)
 		}
-		
+
 		func (r *{{.modelName}}Relation) Update(id int, params {{.modelName}}Params) error {
 			fieldMap := make(map[string]interface{})
 			for _, c := range r.Relation.GetColumns() {
@@ -183,41 +183,49 @@ var textBody = `
 		func (m *{{.modelName}}) Delete() error {
 			return m.newRelation().Delete(m.Id)
 		}
-		
+
 		func (m {{.modelName}}) First() (*{{.modelName}}, error) {
 			return m.newRelation().First()
 		}
-		
+
 		func (r *{{.modelName}}Relation) First() (*{{.modelName}}, error) {
 			r.Relation.First()
 			return r.QueryRow()
 		}
-		
+
 		func (m {{.modelName}}) Last() (*{{.modelName}}, error) {
 			return m.newRelation().Last()
 		}
-		
+
 		func (r *{{.modelName}}Relation) Last() (*{{.modelName}}, error) {
 			r.Relation.Last()
 			return r.QueryRow()
 		}
-		
+
 		func (m {{.modelName}}) Find(id int) (*{{.modelName}}, error) {
 			return m.newRelation().Find(id)
 		}
-		
+
 		func (r *{{.modelName}}Relation) Find(id int) (*{{.modelName}}, error) {
 			r.Relation.Find(id)
 			return r.QueryRow()
 		}
-		
+
 		func (m {{.modelName}}) FindBy(column string, value interface{}) (*{{.modelName}}, error) {
 			return m.newRelation().FindBy(column, value)
 		}
-		
+
 		func (r *{{.modelName}}Relation) FindBy(column string, value interface{}) (*{{.modelName}}, error) {
 			r.Relation.FindBy(column, value)
 			return r.QueryRow()
+		}
+
+		func (m {{.modelName}}) Pluck(column string) ([]interface{}, error) {
+			return m.newRelation().Pluck(column)
+		}
+
+		func (r *{{.modelName}}Relation) Pluck(column string) ([]interface{}, error) {
+			return r.Relation.Pluck(column)
 		}
 
 		func (r *{{.modelName}}Relation) Query() ([]*{{.modelName}}, error) {
