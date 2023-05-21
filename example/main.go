@@ -12,6 +12,20 @@ var db *sql.DB
 
 func main() {
 	db, _ = sql.Open("sqlite3", "./ayaorm.db")
+	defer db.Close()
+	_, err := db.Exec("DROP TABLE IF EXISTS users")
+	if err != nil {
+		log.Fatal("DROP TABLE ERROR", err)
+	}
+	_, err = db.Exec(`CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, age INTEGER, created_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now', 'localtime')), updated_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now','localtime')));`)
+	if err != nil {
+		log.Fatal("CREATE TABLE ERROR", err)
+	}
+
+	_, err = User{}.Create(UserParams{Name: "Taro", Age: 20})
+	if err != nil {
+		log.Fatal("User.Create.Error", err)
+	}
 
 	fmt.Println("USER COUNT:", User{}.Count())
 
@@ -39,6 +53,13 @@ func main() {
 		fmt.Println(user)
 	}
 
+	newUser := User{Name: "Hanako", Age: 34}
+	err = newUser.Save()
+	if err != nil {
+		log.Fatal("User.Save.Error", err)
+	}
+	fmt.Println(newUser)
+
 	Hanakos, err := User{}.Where("Name", "Hanako").Query()
 	if err != nil {
 		log.Fatal("User.All.Error", err)
@@ -46,13 +67,6 @@ func main() {
 	for _, hanako := range Hanakos {
 		fmt.Println(hanako)
 	}
-
-	newUser := User{Name: "Hanako", Age: 34}
-	err = newUser.Save()
-	if err != nil {
-		log.Fatal("User.Save.Error", err)
-	}
-	fmt.Println(newUser)
 
 	firstUser, err := User{}.First()
 	if err != nil {
@@ -89,4 +103,10 @@ func main() {
 		log.Fatal("User.Update.Error", err)
 	}
 	fmt.Println(kurapika)
+
+	arr, err := User{}.Pluck("Name")
+	if err != nil {
+		log.Fatal("User.Pluck.Error", err)
+	}
+	fmt.Println(arr)
 }

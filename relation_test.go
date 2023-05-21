@@ -89,13 +89,24 @@ func TestUpdate(t *testing.T) {
 	fieldMap["Name"] = "DigDag"
 
 	time.Sleep(1 * time.Second)
-	relation.Update(id, fieldMap)
+	err = relation.Update(id, fieldMap)
+	assert.NoError(t, err)
 
 	err = relation.SetColumns("*").Last().QueryRow(&user.Id, &user.Name, &user.Age, &user.CreatedAt, &user.UpdatedAt)
 	assert.NoError(t, err)
 	assert.Equal(t, age, user.Age)
 	assert.Equal(t, "DigDag", user.Name)
 	assert.True(t, user.UpdatedAt.After(updated_at))
+}
+
+func TestPluck(t *testing.T) {
+	table := Table{tableName: "users"}
+	relation := Relation{Table: table, db: db}
+
+	ages, err := relation.Pluck("age")
+	assert.NoError(t, err)
+	assert.Equal(t, int64(20), ages[0])
+	assert.Equal(t, int64(23), ages[1])
 }
 
 func TestWhere(t *testing.T) {
