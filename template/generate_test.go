@@ -210,6 +210,14 @@ func (r *UserRelation) FindBy(column string, value interface{}) (*User, error) {
 	return r.QueryRow()
 }
 
+func (m User) Pluck(column string) ([]interface{}, error) {
+	return m.newRelation().Pluck(column)
+}
+
+func (r *UserRelation) Pluck(column string) ([]interface{}, error) {
+	return r.Relation.Pluck(column)
+}
+
 func (r *UserRelation) Query() ([]*User, error) {
 	rows, err := r.Relation.Query()
 	if err != nil {
