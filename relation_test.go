@@ -98,6 +98,16 @@ func TestUpdate(t *testing.T) {
 	assert.True(t, user.UpdatedAt.After(updated_at))
 }
 
+func TestPluck(t *testing.T) {
+	table := Table{tableName: "users"}
+	relation := Relation{Table: table, db: db}
+
+	ages, err := relation.Pluck("age")
+	assert.NoError(t, err)
+	assert.Equal(t, int64(20), ages[0])
+	assert.Equal(t, int64(23), ages[1])
+}
+
 func TestWhere(t *testing.T) {
 	table := Table{tableName: "users"}
 	relation := Relation{Table: table, db: db}
