@@ -13,10 +13,19 @@ var db *sql.DB
 func main() {
 	db, _ = sql.Open("sqlite3", "./ayaorm.db")
 	defer db.Close()
-	db.Exec("DROP TABLE IF EXISTS users")
-	db.Exec(`CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, age INTEGER, created_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now', 'localtime')), updated_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now','localtime')));`)
+	_, err := db.Exec("DROP TABLE IF EXISTS users")
+	if err != nil {
+		log.Fatal("DROP TABLE ERROR", err)
+	}
+	_, err = db.Exec(`CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, age INTEGER, created_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now', 'localtime')), updated_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now','localtime')));`)
+	if err != nil {
+		log.Fatal("CREATE TABLE ERROR", err)
+	}
 
-	User{}.Create(UserParams{Name: "Taro", Age: 20})
+	_, err = User{}.Create(UserParams{Name: "Taro", Age: 20})
+	if err != nil {
+		log.Fatal("User.Create.Error", err)
+	}
 
 	fmt.Println("USER COUNT:", User{}.Count())
 

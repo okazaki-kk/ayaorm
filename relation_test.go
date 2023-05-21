@@ -89,7 +89,8 @@ func TestUpdate(t *testing.T) {
 	fieldMap["Name"] = "DigDag"
 
 	time.Sleep(1 * time.Second)
-	relation.Update(id, fieldMap)
+	err = relation.Update(id, fieldMap)
+	assert.NoError(t, err)
 
 	err = relation.SetColumns("*").Last().QueryRow(&user.Id, &user.Name, &user.Age, &user.CreatedAt, &user.UpdatedAt)
 	assert.NoError(t, err)
