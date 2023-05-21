@@ -115,13 +115,13 @@ func (r *Relation) InnerJoin(left, right string) *Relation {
 }
 
 func (r *Relation) QueryRow(dest ...interface{}) error {
-	query := r.BuildQuery()
+	query := r.Table.query.BuildQuery(r.Table.columns, r.tableName)
 	log.Print("excute query: ", query)
 	return r.db.QueryRow(query).Scan(dest...)
 }
 
 func (r *Relation) Query() (*sql.Rows, error) {
-	query := r.BuildQuery()
+	query := r.Table.query.BuildQuery(r.Table.columns, r.tableName)
 	log.Print("excute query: ", query)
 	rows, err := r.db.Query(query)
 	return rows, err

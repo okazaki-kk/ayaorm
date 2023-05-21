@@ -2,7 +2,6 @@ package ayaorm
 
 import (
 	"fmt"
-	"reflect"
 	"strings"
 )
 
@@ -51,28 +50,6 @@ func (s *Table) BuildInsert() (string, []interface{}) {
 	}
 
 	return fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s);", s.tableName, strings.Join(columns, ", "), strings.Join(ph, ", ")), args
-}
-
-func (s *Table) BuildQuery() string {
-	query := fmt.Sprintf("SELECT % s FROM %s", strings.Join(s.columns, ", "), s.tableName)
-	if s.query.where.key != "" {
-		if reflect.TypeOf(s.query.where.value).Kind() == reflect.String {
-			query = fmt.Sprintf("%s WHERE %s = '%s'", query, s.query.where.key, s.query.where.value)
-		} else {
-			query = fmt.Sprintf("%s WHERE %s = %d", query, s.query.where.key, s.query.where.value)
-		}
-	}
-	if s.query.order != "" {
-		query = fmt.Sprintf("%s ORDER BY %s %s", query, s.query.orderKey, s.query.order)
-	}
-	if s.query.limit > 0 {
-		query = fmt.Sprintf("%s LIMIT %d", query, s.query.limit)
-	}
-	if s.query.innerJoin.left != "" {
-		text := s.query.innerJoin.left[:len(s.query.innerJoin.left)-1]
-		query = fmt.Sprintf("%s INNER JOIN %s on %s.id = %s.%s_id", query, s.query.innerJoin.right, s.query.innerJoin.left, s.query.innerJoin.right, text)
-	}
-	return query + ";"
 }
 
 func (s *Table) BuildUpdate(id int) (string, []interface{}) {
