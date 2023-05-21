@@ -22,6 +22,18 @@ type Query struct {
 	}
 }
 
+func (q *Query) Where(column string, value interface{}) *Query {
+	q.where.key = column
+	q.where.value = value
+	return q
+}
+
+func (q *Query) InnerJoin(left, right string) *Query {
+	q.innerJoin.left = left
+	q.innerJoin.right = right
+	return q
+}
+
 func (q *Query) BuildQuery(columns []string, tableName string) string {
 	query := fmt.Sprintf("SELECT % s FROM %s", strings.Join(columns, ", "), tableName)
 	if q.where.key != "" {
@@ -42,4 +54,45 @@ func (q *Query) BuildQuery(columns []string, tableName string) string {
 		query = fmt.Sprintf("%s INNER JOIN %s on %s.id = %s.%s_id", query, q.innerJoin.right, q.innerJoin.left, q.innerJoin.right, text)
 	}
 	return query + ";"
+}
+
+func (q *Query) BuildInsert(tableName string) (string, []interface{}) {
+	columns := []string{}
+	ph := []string{}
+	args := []interface{}{}
+	i := q.insert
+
+	for k, v := range i.params {
+		columns = append(columns, k)
+		ph = append(ph, "?")
+		args = append(args, v)
+	}
+
+	return fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s);", tableName, strings.Join(columns, ", "), strings.Join(ph, ", ")), args
+}
+
+func (q *Query) BuildUpdate(tableName string, id int) (string, []interface{}) {
+	args := []interface{}{}
+	i := q.update
+
+	updateObj := ""
+
+	for k, v := range i.params {
+		updateObj = fmt.Sprintf("%s %s = ?,", updateObj, k)
+		args = append(args, v)
+	}
+	updateObj = updateObj[:len(updateObj)-1]
+	fmt.Println(updateObj, "update")
+
+	return fmt.Sprintf("UPDATE %s SET %s WHERE id = %d;", tableName, updateObj, id), args
+}
+
+func (q *Query) BuildDelete(tableName string, id int) string {
+	query := fmt.Sprintf("DELETE FROM %s WHERE id = %d;", tableName, id)
+	return query
+}
+
+func (q *Query) BuildInnerJoin(left, right string) string {
+	query := fmt.Sprintf("SELECT * FROM %s inner join %s on %s.id = %s.post_id", left, right, left, right)
+	return query
 }
