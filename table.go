@@ -9,19 +9,7 @@ import (
 type Table struct {
 	tableName string
 	columns   []string
-	limit     int
-	order     string
-	orderKey  string
-	where     struct {
-		key   string
-		value interface{}
-	}
-	insert    struct{ params map[string]interface{} }
-	update    struct{ params map[string]interface{} }
-	innerJoin struct {
-		left  string
-		right string
-	}
+	query     Query
 }
 
 func (s *Table) SetTable(tableName string) *Table {
@@ -39,14 +27,14 @@ func (s *Table) GetColumns() []string {
 }
 
 func (s *Table) Where(column string, value interface{}) *Table {
-	s.where.key = column
-	s.where.value = value
+	s.query.where.key = column
+	s.query.where.value = value
 	return s
 }
 
 func (s *Table) InnerJoin(left, right string) *Table {
-	s.innerJoin.left = left
-	s.innerJoin.right = right
+	s.query.innerJoin.left = left
+	s.query.innerJoin.right = right
 	return s
 }
 
@@ -54,7 +42,7 @@ func (s *Table) BuildInsert() (string, []interface{}) {
 	columns := []string{}
 	ph := []string{}
 	args := []interface{}{}
-	i := s.insert
+	i := s.query.insert
 
 	for k, v := range i.params {
 		columns = append(columns, k)
@@ -67,29 +55,29 @@ func (s *Table) BuildInsert() (string, []interface{}) {
 
 func (s *Table) BuildQuery() string {
 	query := fmt.Sprintf("SELECT % s FROM %s", strings.Join(s.columns, ", "), s.tableName)
-	if s.where.key != "" {
-		if reflect.TypeOf(s.where.value).Kind() == reflect.String {
-			query = fmt.Sprintf("%s WHERE %s = '%s'", query, s.where.key, s.where.value)
+	if s.query.where.key != "" {
+		if reflect.TypeOf(s.query.where.value).Kind() == reflect.String {
+			query = fmt.Sprintf("%s WHERE %s = '%s'", query, s.query.where.key, s.query.where.value)
 		} else {
-			query = fmt.Sprintf("%s WHERE %s = %d", query, s.where.key, s.where.value)
+			query = fmt.Sprintf("%s WHERE %s = %d", query, s.query.where.key, s.query.where.value)
 		}
 	}
-	if s.order != "" {
-		query = fmt.Sprintf("%s ORDER BY %s %s", query, s.orderKey, s.order)
+	if s.query.order != "" {
+		query = fmt.Sprintf("%s ORDER BY %s %s", query, s.query.orderKey, s.query.order)
 	}
-	if s.limit > 0 {
-		query = fmt.Sprintf("%s LIMIT %d", query, s.limit)
+	if s.query.limit > 0 {
+		query = fmt.Sprintf("%s LIMIT %d", query, s.query.limit)
 	}
-	if s.innerJoin.left != "" {
-		text := s.innerJoin.left[:len(s.innerJoin.left)-1]
-		query = fmt.Sprintf("%s INNER JOIN %s on %s.id = %s.%s_id", query, s.innerJoin.right, s.innerJoin.left, s.innerJoin.right, text)
+	if s.query.innerJoin.left != "" {
+		text := s.query.innerJoin.left[:len(s.query.innerJoin.left)-1]
+		query = fmt.Sprintf("%s INNER JOIN %s on %s.id = %s.%s_id", query, s.query.innerJoin.right, s.query.innerJoin.left, s.query.innerJoin.right, text)
 	}
 	return query + ";"
 }
 
 func (s *Table) BuildUpdate(id int) (string, []interface{}) {
 	args := []interface{}{}
-	i := s.update
+	i := s.query.update
 
 	updateObj := ""
 

@@ -35,13 +35,13 @@ func (r *Relation) Count(column ...string) int {
 }
 
 func (r *Relation) Limit(lim int) *Relation {
-	r.Table.limit = lim
+	r.Table.query.limit = lim
 	return r
 }
 
 func (r *Relation) Order(key, order string) *Relation {
-	r.Table.order = order
-	r.Table.orderKey = key
+	r.Table.query.order = order
+	r.Table.query.orderKey = key
 	return r
 }
 
@@ -51,7 +51,7 @@ func (r *Relation) Where(column string, value interface{}) *Relation {
 }
 
 func (r *Relation) Save(fieldMap map[string]interface{}) (int, error) {
-	r.Table.insert.params = fieldMap
+	r.Table.query.insert.params = fieldMap
 	query, args := r.BuildInsert()
 	log.Print("excute query: ", query, args)
 
@@ -68,7 +68,7 @@ func (r *Relation) Save(fieldMap map[string]interface{}) (int, error) {
 }
 
 func (r *Relation) Update(id int, fieldMap map[string]interface{}) error {
-	r.Table.update.params = fieldMap
+	r.Table.query.update.params = fieldMap
 	query, args := r.BuildUpdate(id)
 	log.Print("excute query: ", query, args)
 

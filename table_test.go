@@ -10,7 +10,7 @@ func TestBuildInsert(t *testing.T) {
 	s := &Table{}
 	s.SetTable("users")
 	s.SetColumns("id", "name", "email")
-	s.insert.params = map[string]interface{}{
+	s.query.insert.params = map[string]interface{}{
 		"columnA": "value1",
 	}
 	query, args := s.BuildInsert()
@@ -22,10 +22,10 @@ func TestBuildQuery(t *testing.T) {
 	s := &Table{}
 	s.SetTable("users")
 	s.SetColumns("id", "name", "email")
-	s.limit = 10
-	s.order = "DESC"
-	s.orderKey = "email"
-	s.where = struct {
+	s.query.limit = 10
+	s.query.order = "DESC"
+	s.query.orderKey = "email"
+	s.query.where = struct {
 		key   string
 		value interface{}
 	}{"name", "Taro"}
