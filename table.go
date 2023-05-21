@@ -16,8 +16,12 @@ type Table struct {
 		key   string
 		value interface{}
 	}
-	insert struct{ params map[string]interface{} }
-	update struct{ params map[string]interface{} }
+	insert    struct{ params map[string]interface{} }
+	update    struct{ params map[string]interface{} }
+	innerJoin struct {
+		left  string
+		right string
+	}
 }
 
 func (s *Table) SetTable(tableName string) *Table {
@@ -37,6 +41,12 @@ func (s *Table) GetColumns() []string {
 func (s *Table) Where(column string, value interface{}) *Table {
 	s.where.key = column
 	s.where.value = value
+	return s
+}
+
+func (s *Table) InnerJoin(left, right string) *Table {
+	s.innerJoin.left = left
+	s.innerJoin.right = right
 	return s
 }
 
@@ -70,6 +80,10 @@ func (s *Table) BuildQuery() string {
 	if s.limit > 0 {
 		query = fmt.Sprintf("%s LIMIT %d", query, s.limit)
 	}
+	if s.innerJoin.left != "" {
+		text := s.innerJoin.left[:len(s.innerJoin.left)-1]
+		query = fmt.Sprintf("%s INNER JOIN %s on %s.id = %s.%s_id", query, s.innerJoin.right, s.innerJoin.left, s.innerJoin.right, text)
+	}
 	return query + ";"
 }
 
@@ -91,5 +105,10 @@ func (s *Table) BuildUpdate(id int) (string, []interface{}) {
 
 func (s *Table) BuildDelete(id int) string {
 	query := fmt.Sprintf("DELETE FROM %s WHERE id = %d;", s.tableName, id)
+	return query
+}
+
+func (s *Table) BuildInnerJoin(left, right string) string {
+	query := fmt.Sprintf("SELECT * FROM %s inner join %s on %s.id = %s.post_id", left, right, left, right)
 	return query
 }

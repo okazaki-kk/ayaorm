@@ -48,7 +48,7 @@ func main() {
 		fmt.Println(comment)
 	}
 
-	posts, err := Post{}.JoinComments()
+	posts, err := Post{}.JoinComments().Query()
 
 	if err != nil {
 		log.Fatal("joinComment.Error", err)
