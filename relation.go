@@ -34,6 +34,25 @@ func (r *Relation) Count(column ...string) int {
 	return count
 }
 
+func (r *Relation) Pluck(column string) ([]interface{}, error) {
+	var res []interface{}
+	rows, err := r.SetColumns(column).Query()
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var tmp interface{}
+		err := rows.Scan(&tmp)
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, tmp)
+	}
+	return res, nil
+}
+
 func (r *Relation) Limit(lim int) *Relation {
 	r.Table.query.limit = lim
 	return r
