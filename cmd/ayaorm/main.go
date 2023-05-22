@@ -15,5 +15,14 @@ func main() {
 	from := os.Args[1]
 
 	fileInspect := ayaorm.Inspect(from)
-	template.Generate(fileInspect[0].ModelName, fileInspect[0].FieldKeys)
+	for _, f := range fileInspect {
+		if err := template.Generate(f.ModelName, f.FieldKeys); err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	err := template.GenerateDB()
+	if err != nil {
+		log.Fatal(err)
+	}
 }

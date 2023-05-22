@@ -10,7 +10,8 @@ import (
 
 func TestGenerate(t *testing.T) {
 	field := []string{"Id", "Name", "Age", "CreatedAt", "UpdatedAt"}
-	Generate("User", field)
+	err := Generate("User", field)
+	assert.NoError(t, err)
 
 	filePath := strings.ToLower("User") + "_gen.go"
 	defer os.Remove(filePath)
