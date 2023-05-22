@@ -9,7 +9,7 @@ import (
 	"text/template"
 )
 
-func Generate(filePath string, modelName string, field []string) {
+func Generate(modelName string, field []string) {
 	funcMap := template.FuncMap{
 		"toSnakeCase": toSnakeCase,
 	}
@@ -29,6 +29,7 @@ func Generate(filePath string, modelName string, field []string) {
 	params["columns"] = columns
 	params["columnNames"] = columnNames
 
+	filePath := strings.ToLower(modelName) + "_gen.go"
 	file, err := os.Create(filePath)
 	if err != nil {
 		log.Fatal("file create error: ", err)
