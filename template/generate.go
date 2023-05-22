@@ -9,7 +9,7 @@ import (
 	"text/template"
 )
 
-func Generate(filePath string, modelName string, field []string) {
+func Generate(modelName string, field []string) {
 	funcMap := template.FuncMap{
 		"toSnakeCase": toSnakeCase,
 	}
@@ -29,6 +29,7 @@ func Generate(filePath string, modelName string, field []string) {
 	params["columns"] = columns
 	params["columnNames"] = columnNames
 
+	filePath := strings.ToLower(modelName) + "_gen.go"
 	file, err := os.Create(filePath)
 	if err != nil {
 		log.Fatal("file create error: ", err)
@@ -40,6 +41,20 @@ func Generate(filePath string, modelName string, field []string) {
 	}
 
 	err = exec.Command("go", "fmt", filePath).Run()
+	if err != nil {
+		log.Fatal("go fmt error: ", err)
+	}
+
+	f, err := os.Create("db_gen.go")
+	if err != nil {
+		log.Fatal("file create error: ", err)
+	}
+	defer f.Close()
+	_, err = f.Write([]byte(dbTextBody))
+	if err != nil {
+		log.Fatal("file write error: ", err)
+	}
+	err = exec.Command("go", "fmt", "db_gen.go").Run()
 	if err != nil {
 		log.Fatal("go fmt error: ", err)
 	}
