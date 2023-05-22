@@ -20,18 +20,29 @@ func TestImport(t *testing.T) {
 	var userStruct = `package main
 
 	// +AYAORM
-	type User struct {
+	type Post struct {
 		ayaorm.Schema
-		Name string
-		Age  int
+		Content string
+		Author  string
+	}
+
+	type Comment struct {
+		ayaorm.Schema
+		Content string
+		Author  string
+		PostId  int
 	}
 	`
 
 	_, err = file.Write([]byte(userStruct))
 	assert.NoError(t, err)
 
-	modelName, fieldKeys, fieldValues := Inspect(filePath)
-	assert.Equal(t, "User", modelName)
-	assert.Equal(t, []string{"Id", "Name", "Age", "CreatedAt", "UpdatedAt"}, fieldKeys)
-	assert.Equal(t, []string{"int", "string", "int", "time.Time", "time.Time"}, fieldValues)
+	fileInspect := Inspect(filePath)
+	assert.Equal(t, "Post", fileInspect[0].ModelName)
+	assert.Equal(t, []string{"Id", "Content", "Author", "CreatedAt", "UpdatedAt"}, fileInspect[0].FieldKeys)
+	assert.Equal(t, []string{"int", "string", "string", "time.Time", "time.Time"}, fileInspect[0].FieldValues)
+
+	assert.Equal(t, "Comment", fileInspect[1].ModelName)
+	assert.Equal(t, []string{"Id", "Content", "Author", "PostId", "CreatedAt", "UpdatedAt"}, fileInspect[1].FieldKeys)
+	assert.Equal(t, []string{"int", "string", "string", "int", "time.Time", "time.Time"}, fileInspect[1].FieldValues)
 }
