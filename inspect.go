@@ -9,16 +9,20 @@ import (
 	"log"
 )
 
-func Inspect(path string) (string, []string, []string) {
+type FileInspect struct {
+	ModelName   string
+	FieldKeys   []string
+	FieldValues []string
+}
+
+func Inspect(path string) []FileInspect {
 	fset := token.NewFileSet()
 	f, err := parser.ParseFile(fset, path, nil, parser.ParseComments)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fieldKeys := []string{"Id"}
-	fieldValues := []string{"int"}
-	var modelName string
+	var fileInspect []FileInspect
 
 	ast.Inspect(f, func(n ast.Node) bool {
 		switch n.(type) {
@@ -28,7 +32,10 @@ func Inspect(path string) (string, []string, []string) {
 			if !ok {
 				return false
 			}
-			modelName = s.Name.Name
+			var fi FileInspect
+			fi.ModelName = s.Name.Name
+			fi.FieldKeys = append(fi.FieldKeys, "Id")
+			fi.FieldValues = append(fi.FieldValues, "int")
 			// 構造体かつその名前が対象のモデルの場合
 			for _, l := range v.Fields.List {
 				if len(l.Names) <= 0 {
@@ -37,14 +44,14 @@ func Inspect(path string) (string, []string, []string) {
 				switch l.Type.(type) {
 				case *ast.Ident: // intやstringのようなプリミティブな型の場合
 					t, _ := l.Type.(*ast.Ident)
-					fieldKeys = append(fieldKeys, l.Names[0].Name)
-					fieldValues = append(fieldValues, t.Name)
+					fi.FieldKeys = append(fi.FieldKeys, l.Names[0].Name)
+					fi.FieldValues = append(fi.FieldValues, t.Name)
 				case *ast.SelectorExpr: // time.Timeやnull.Stringのような型
 					t, _ := l.Type.(*ast.SelectorExpr)
 					x, _ := t.X.(*ast.Ident)
 					name := x.Name + "." + t.Sel.Name
-					fieldKeys = append(fieldKeys, l.Names[0].Name)
-					fieldValues = append(fieldValues, name)
+					fi.FieldKeys = append(fi.FieldKeys, l.Names[0].Name)
+					fi.FieldValues = append(fi.FieldValues, name)
 				case *ast.StarExpr:
 					t, _ := l.Type.(*ast.StarExpr)
 					switch t.X.(type) {
@@ -55,14 +62,13 @@ func Inspect(path string) (string, []string, []string) {
 					}
 				}
 			}
+			fi.FieldKeys = append(fi.FieldKeys, "CreatedAt")
+			fi.FieldValues = append(fi.FieldValues, "time.Time")
+			fi.FieldKeys = append(fi.FieldKeys, "UpdatedAt")
+			fi.FieldValues = append(fi.FieldValues, "time.Time")
+			fileInspect = append(fileInspect, fi)
 		}
 		return true
 	})
-
-	fieldKeys = append(fieldKeys, "CreatedAt")
-	fieldKeys = append(fieldKeys, "UpdatedAt")
-	fieldValues = append(fieldValues, "time.Time")
-	fieldValues = append(fieldValues, "time.Time")
-
-	return modelName, fieldKeys, fieldValues
+	return fileInspect
 }

@@ -16,6 +16,6 @@ func main() {
 	from := os.Args[1]
 	filePath := strings.Split(from, ".go")[0] + "_gen.go"
 
-	modelName, fieldKeys, _ := ayaorm.Inspect(from)
-	template.Generate(filePath, modelName, fieldKeys)
+	fileInspect := ayaorm.Inspect(from)
+	template.Generate(filePath, fileInspect[0].ModelName, fileInspect[0].FieldKeys)
 }
