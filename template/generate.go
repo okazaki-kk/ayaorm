@@ -1,7 +1,6 @@
 package template
 
 import (
-	"log"
 	"os"
 	"os/exec"
 	"regexp"
@@ -9,7 +8,7 @@ import (
 	"text/template"
 )
 
-func Generate(modelName string, field []string) {
+func Generate(modelName string, field []string) error {
 	funcMap := template.FuncMap{
 		"toSnakeCase": toSnakeCase,
 	}
@@ -32,32 +31,36 @@ func Generate(modelName string, field []string) {
 	filePath := strings.ToLower(modelName) + "_gen.go"
 	file, err := os.Create(filePath)
 	if err != nil {
-		log.Fatal("file create error: ", err)
+		return err
 	}
 	defer file.Close()
 	err = t.Execute(file, params)
 	if err != nil {
-		log.Fatal("template error: ", err)
+		return err
 	}
 
 	err = exec.Command("go", "fmt", filePath).Run()
 	if err != nil {
-		log.Fatal("go fmt error: ", err)
+		return err
 	}
+	return nil
+}
 
+func GenerateDB() error {
 	f, err := os.Create("db_gen.go")
 	if err != nil {
-		log.Fatal("file create error: ", err)
+		return err
 	}
 	defer f.Close()
 	_, err = f.Write([]byte(dbTextBody))
 	if err != nil {
-		log.Fatal("file write error: ", err)
+		return err
 	}
 	err = exec.Command("go", "fmt", "db_gen.go").Run()
 	if err != nil {
-		log.Fatal("go fmt error: ", err)
+		return err
 	}
+	return nil
 }
 
 func toSnakeCase(s string) string {
