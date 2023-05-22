@@ -44,6 +44,20 @@ func Generate(modelName string, field []string) {
 	if err != nil {
 		log.Fatal("go fmt error: ", err)
 	}
+
+	f, err := os.Create("db_gen.go")
+	if err != nil {
+		log.Fatal("file create error: ", err)
+	}
+	defer f.Close()
+	_, err = f.Write([]byte(dbTextBody))
+	if err != nil {
+		log.Fatal("file write error: ", err)
+	}
+	err = exec.Command("go", "fmt", "db_gen.go").Run()
+	if err != nil {
+		log.Fatal("go fmt error: ", err)
+	}
 }
 
 func toSnakeCase(s string) string {

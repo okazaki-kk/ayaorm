@@ -8,8 +8,6 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-var db *sql.DB
-
 func main() {
 	db, _ = sql.Open("sqlite3", "./ayaorm.db")
 	defer db.Close()
