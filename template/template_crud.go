@@ -1,7 +1,7 @@
 package template
 
-var createUpdateTextBody = `
-	{{define "CreateUpdate"}}
+var crudTextBody = `
+	{{define "CRUD"}}
 	func (m {{.modelName}}) Build(p {{.modelName}}Params) *{{.modelName}} {
 		return &{{.modelName}}{
 			Schema: ayaorm.Schema{Id: p.Id},

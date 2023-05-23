@@ -8,7 +8,7 @@ var textBody = `
 
 		{{ template "Relation" . }}
 
-		{{ template "CreateUpdate" . }}
+		{{ template "CRUD" . }}
 
 		{{ template "Search" . }}
 
