@@ -6,6 +6,8 @@ import (
 	"regexp"
 	"strings"
 	"text/template"
+
+	"github.com/okazaki-kk/ayaorm/template/templates"
 )
 
 func Generate(modelName string, field []string) error {
@@ -21,13 +23,13 @@ func Generate(modelName string, field []string) error {
 	}
 
 	t, _ := template.New("Base").Funcs(funcMap).Parse(textBody)
-	t.New("Package").Parse(packageTextBody)
-	t.New("Import").Parse(importTextBody)
-	t.New("Relation").Parse(relationTextBody)
-	t.New("Columns").Parse(columnsTextBody)
-	t.New("CRUD").Parse(crudTextBody)
-	t.New("Search").Parse(searchTextBody)
-	t.New("Query").Parse(queryTextBody)
+	t.New("Package").Parse(templates.PackageTextBody)
+	t.New("Import").Parse(templates.ImportTextBody)
+	t.New("Relation").Parse(templates.RelationTextBody)
+	t.New("Columns").Parse(templates.ColumnsTextBody)
+	t.New("CRUD").Parse(templates.CrudTextBody)
+	t.New("Search").Parse(templates.SearchTextBody)
+	t.New("Query").Parse(templates.QueryTextBody)
 
 	params := make(map[string]interface{})
 	params["modelName"] = modelName

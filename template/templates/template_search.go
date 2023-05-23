@@ -1,6 +1,6 @@
-package template
+package templates
 
-var searchTextBody = `
+var SearchTextBody = `
 	{{define "Search"}}
 	func (m {{.modelName}}) Count(column ...string) int {
 		return m.newRelation().Count(column...)

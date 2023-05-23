@@ -1,6 +1,6 @@
-package template
+package templates
 
-var crudTextBody = `
+var CrudTextBody = `
 	{{define "CRUD"}}
 	func (m {{.modelName}}) Build(p {{.modelName}}Params) *{{.modelName}} {
 		return &{{.modelName}}{
