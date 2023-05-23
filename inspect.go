@@ -21,17 +21,19 @@ type FuncInspect struct {
 	Args     []string
 }
 
-func Inspect(path string) ([]StructInspect, FuncInspect) {
+func Inspect(path string) (string, []StructInspect, FuncInspect) {
 	fset := token.NewFileSet()
 	f, err := parser.ParseFile(fset, path, nil, parser.ParseComments)
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	var packageName string
 	var structInspect []StructInspect
 	var funcInspect FuncInspect
 
 	ast.Inspect(f, func(n ast.Node) bool {
+		packageName = f.Name.Name
 		switch n.(type) {
 		case *ast.TypeSpec:
 			s, _ := n.(*ast.TypeSpec)
@@ -83,5 +85,5 @@ func Inspect(path string) ([]StructInspect, FuncInspect) {
 		}
 		return true
 	})
-	return structInspect, funcInspect
+	return packageName, structInspect, funcInspect
 }
