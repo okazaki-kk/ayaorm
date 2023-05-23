@@ -17,12 +17,8 @@ var importTextBody = `
 		{{end}}
 		`
 
-var textBody = `
-		{{define "Base"}}
-		{{ template "Package" }}
-
-		{{ template "Import" }}
-
+var relationTextBody = `
+		{{define "Relation"}}
 		type {{.modelName}}Relation struct {
 			model *{{.modelName}}
 			*ayaorm.Relation
@@ -60,6 +56,16 @@ var textBody = `
 		}
 
 		type {{.modelName}}Params {{.modelName}}
+		{{end}}
+`
+
+var textBody = `
+		{{define "Base"}}
+		{{ template "Package" . }}
+
+		{{ template "Import" . }}
+
+		{{ template "Relation" . }}
 
 		func (m {{.modelName}}) Build(p {{.modelName}}Params) *{{.modelName}} {
 			return &{{.modelName}}{
