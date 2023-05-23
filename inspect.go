@@ -9,20 +9,27 @@ import (
 	"log"
 )
 
-type FileInspect struct {
+type StructInspect struct {
 	ModelName   string
 	FieldKeys   []string
 	FieldValues []string
 }
 
-func Inspect(path string) []FileInspect {
+type FuncInspect struct {
+	FuncName string
+	Recv     string
+	Args     []string
+}
+
+func Inspect(path string) ([]StructInspect, FuncInspect) {
 	fset := token.NewFileSet()
 	f, err := parser.ParseFile(fset, path, nil, parser.ParseComments)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	var fileInspect []FileInspect
+	var structInspect []StructInspect
+	var funcInspect FuncInspect
 
 	ast.Inspect(f, func(n ast.Node) bool {
 		switch n.(type) {
@@ -32,7 +39,7 @@ func Inspect(path string) []FileInspect {
 			if !ok {
 				return false
 			}
-			var fi FileInspect
+			var fi StructInspect
 			fi.ModelName = s.Name.Name
 			fi.FieldKeys = append(fi.FieldKeys, "Id")
 			fi.FieldValues = append(fi.FieldValues, "int")
@@ -66,9 +73,15 @@ func Inspect(path string) []FileInspect {
 			fi.FieldValues = append(fi.FieldValues, "time.Time")
 			fi.FieldKeys = append(fi.FieldKeys, "UpdatedAt")
 			fi.FieldValues = append(fi.FieldValues, "time.Time")
-			fileInspect = append(fileInspect, fi)
+			structInspect = append(structInspect, fi)
+
+		case *ast.FuncDecl:
+			funcName := n.(*ast.FuncDecl).Name.Name
+			recv := n.(*ast.FuncDecl).Recv.List[0].Type.(*ast.Ident).Name
+			funcInspect.FuncName = funcName
+			funcInspect.Recv = recv
 		}
 		return true
 	})
-	return fileInspect
+	return structInspect, funcInspect
 }

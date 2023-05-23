@@ -14,7 +14,7 @@ func main() {
 	}
 	from := os.Args[1]
 
-	fileInspect := ayaorm.Inspect(from)
+	fileInspect, _ := ayaorm.Inspect(from)
 	for _, f := range fileInspect {
 		if err := template.Generate(f.ModelName, f.FieldKeys); err != nil {
 			log.Fatal(err)
