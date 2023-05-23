@@ -17,8 +17,8 @@ type StructInspect struct {
 
 type FuncInspect struct {
 	FuncName string
-	Recv string
-	Args []string
+	Recv     string
+	Args     []string
 }
 
 func Inspect(path string) ([]StructInspect, FuncInspect) {
