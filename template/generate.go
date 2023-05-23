@@ -25,6 +25,8 @@ func Generate(modelName string, field []string) error {
 	t.New("Import").Parse(importTextBody)
 	t.New("Relation").Parse(relationTextBody)
 	t.New("Columns").Parse(columnsTextBody)
+	t.New("CreateUpdate").Parse(createUpdateTextBody)
+	t.New("Search").Parse(searchTextBody)
 
 	params := make(map[string]interface{})
 	params["modelName"] = modelName
