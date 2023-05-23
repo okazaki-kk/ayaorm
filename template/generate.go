@@ -21,6 +21,8 @@ func Generate(modelName string, field []string) error {
 	}
 
 	t, _ := template.New("Base").Funcs(funcMap).Parse(textBody)
+	t.New("Package").Parse(packageTextBody)
+	t.New("Import").Parse(importTextBody)
 
 	params := make(map[string]interface{})
 	params["modelName"] = modelName
