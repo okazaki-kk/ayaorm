@@ -10,51 +10,7 @@ var textBody = `
 
 		{{ template "CreateUpdate" . }}
 
-		func (r *{{.modelName}}Relation) QueryRow() (*{{.modelName}}, error) {
-			row := &{{.modelName}}{}
-			err := r.Relation.QueryRow(row.fieldPtrsByName(r.Relation.GetColumns())...)
-			if err != nil {
-				return nil, err
-			}
-			return row, nil
-		}
-
 		{{ template "Search" . }}
-
-		func (m *{{.modelName}}) Save() error {
-			lastId, err := m.newRelation().Save()
-			if m.Id == 0 {
-				m.Id = lastId
-			}
-			return err
-		}
-
-		func (r *{{.modelName}}Relation) Save() (int, error) {
-			fieldMap := make(map[string]interface{})
-			for _, c := range r.Relation.GetColumns() {
-				switch c {
-					{{ range $column := .columns -}}
-					{{ if eq $column "Id" -}}
-					{{ continue }}
-					{{ end -}}
-					{{ if eq $column "CreatedAt" -}}
-					{{ continue }}
-					{{ end -}}
-					{{ if eq $column "UpdatedAt" -}}
-					{{ continue }}
-					{{ end -}}
-					case "{{ toSnakeCase  $column}}", "{{$.snakeCaseModelName}}.{{toSnakeCase $column}}":
-						fieldMap["{{toSnakeCase $column}}"] = r.model.{{$column}}
-					{{ end -}}
-				}
-			}
-
-			return r.Relation.Save(fieldMap)
-		}
-
-		func (m *{{.modelName}}) Delete() error {
-			return m.newRelation().Delete(m.Id)
-		}
 
 		func (m {{.modelName}}) First() (*{{.modelName}}, error) {
 			return m.newRelation().First()
@@ -117,6 +73,15 @@ var textBody = `
 				results = append(results, row)
 			}
 			return results, nil
+		}
+
+		func (r *{{.modelName}}Relation) QueryRow() (*{{.modelName}}, error) {
+			row := &{{.modelName}}{}
+			err := r.Relation.QueryRow(row.fieldPtrsByName(r.Relation.GetColumns())...)
+			if err != nil {
+				return nil, err
+			}
+			return row, nil
 		}
 
 		{{ template "Columns" . }}
