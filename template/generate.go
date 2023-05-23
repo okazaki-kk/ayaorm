@@ -27,6 +27,7 @@ func Generate(modelName string, field []string) error {
 	t.New("Columns").Parse(columnsTextBody)
 	t.New("CRUD").Parse(crudTextBody)
 	t.New("Search").Parse(searchTextBody)
+	t.New("Query").Parse(queryTextBody)
 
 	params := make(map[string]interface{})
 	params["modelName"] = modelName
