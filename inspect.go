@@ -9,6 +9,11 @@ import (
 	"log"
 )
 
+type FileInspect struct {
+	StructInspect []StructInspect
+	FuncInspect   []FuncInspect
+}
+
 type StructInspect struct {
 	ModelName   string
 	FieldKeys   []string
@@ -21,7 +26,8 @@ type FuncInspect struct {
 	Args     []string
 }
 
-func Inspect(path string) (string, []StructInspect, FuncInspect) {
+// scan file and return package name and file info
+func Inspect(path string) (string, FileInspect) {
 	fset := token.NewFileSet()
 	f, err := parser.ParseFile(fset, path, nil, parser.ParseComments)
 	if err != nil {
@@ -30,7 +36,8 @@ func Inspect(path string) (string, []StructInspect, FuncInspect) {
 
 	var packageName string
 	var structInspect []StructInspect
-	var funcInspect FuncInspect
+	var funcInspect []FuncInspect
+	var fileInspect FileInspect
 
 	ast.Inspect(f, func(n ast.Node) bool {
 		packageName = f.Name.Name
@@ -41,26 +48,31 @@ func Inspect(path string) (string, []StructInspect, FuncInspect) {
 			if !ok {
 				return false
 			}
+
 			var fi StructInspect
 			fi.ModelName = s.Name.Name
 			fi.FieldKeys = append(fi.FieldKeys, "Id")
 			fi.FieldValues = append(fi.FieldValues, "int")
+
 			// 構造体かつその名前が対象のモデルの場合
 			for _, l := range v.Fields.List {
 				if len(l.Names) <= 0 {
 					continue
 				}
+
 				switch l.Type.(type) {
 				case *ast.Ident: // intやstringのようなプリミティブな型の場合
 					t, _ := l.Type.(*ast.Ident)
 					fi.FieldKeys = append(fi.FieldKeys, l.Names[0].Name)
 					fi.FieldValues = append(fi.FieldValues, t.Name)
+
 				case *ast.SelectorExpr: // time.Timeやnull.Stringのような型
 					t, _ := l.Type.(*ast.SelectorExpr)
 					x, _ := t.X.(*ast.Ident)
 					name := x.Name + "." + t.Sel.Name
 					fi.FieldKeys = append(fi.FieldKeys, l.Names[0].Name)
 					fi.FieldValues = append(fi.FieldValues, name)
+
 				case *ast.StarExpr:
 					t, _ := l.Type.(*ast.StarExpr)
 					switch t.X.(type) {
@@ -71,6 +83,7 @@ func Inspect(path string) (string, []StructInspect, FuncInspect) {
 					}
 				}
 			}
+
 			fi.FieldKeys = append(fi.FieldKeys, "CreatedAt")
 			fi.FieldValues = append(fi.FieldValues, "time.Time")
 			fi.FieldKeys = append(fi.FieldKeys, "UpdatedAt")
@@ -80,10 +93,12 @@ func Inspect(path string) (string, []StructInspect, FuncInspect) {
 		case *ast.FuncDecl:
 			funcName := n.(*ast.FuncDecl).Name.Name
 			recv := n.(*ast.FuncDecl).Recv.List[0].Type.(*ast.Ident).Name
-			funcInspect.FuncName = funcName
-			funcInspect.Recv = recv
+			funcInspect = append(funcInspect, FuncInspect{FuncName: funcName, Recv: recv})
 		}
 		return true
 	})
-	return packageName, structInspect, funcInspect
+
+	fileInspect.StructInspect = structInspect
+	fileInspect.FuncInspect = funcInspect
+	return packageName, fileInspect
 }
