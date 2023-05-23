@@ -10,7 +10,7 @@ import (
 	"github.com/okazaki-kk/ayaorm/template/templates"
 )
 
-func Generate(modelName string, field []string) error {
+func Generate(packageName, modelName string, field []string) error {
 	funcMap := template.FuncMap{
 		"toSnakeCase": toSnakeCase,
 	}
@@ -36,6 +36,7 @@ func Generate(modelName string, field []string) error {
 	params["snakeCaseModelName"] = toSnakeCase(modelName) + "s"
 	params["columns"] = columns
 	params["columnNames"] = columnNames
+	params["packageName"] = packageName
 
 	filePath := strings.ToLower(modelName) + "_gen.go"
 	file, err := os.Create(filePath)
