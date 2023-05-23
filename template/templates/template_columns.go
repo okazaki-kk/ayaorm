@@ -1,6 +1,6 @@
-package template
+package templates
 
-var columnsTextBody = `
+var ColumnsTextBody = `
 		{{define "Columns"}}
 		func (m *{{.modelName}}) fieldPtrByName(name string) interface{} {
 			switch name {

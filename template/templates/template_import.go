@@ -1,6 +1,6 @@
-package template
+package templates
 
-var importTextBody = `
+var ImportTextBody = `
 		{{define "Import"}}
 		import (
 			"fmt"

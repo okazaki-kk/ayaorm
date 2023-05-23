@@ -8,116 +8,11 @@ var textBody = `
 
 		{{ template "Relation" . }}
 
-		{{ template "CreateUpdate" . }}
-
-		func (r *{{.modelName}}Relation) QueryRow() (*{{.modelName}}, error) {
-			row := &{{.modelName}}{}
-			err := r.Relation.QueryRow(row.fieldPtrsByName(r.Relation.GetColumns())...)
-			if err != nil {
-				return nil, err
-			}
-			return row, nil
-		}
+		{{ template "CRUD" . }}
 
 		{{ template "Search" . }}
 
-		func (m *{{.modelName}}) Save() error {
-			lastId, err := m.newRelation().Save()
-			if m.Id == 0 {
-				m.Id = lastId
-			}
-			return err
-		}
-
-		func (r *{{.modelName}}Relation) Save() (int, error) {
-			fieldMap := make(map[string]interface{})
-			for _, c := range r.Relation.GetColumns() {
-				switch c {
-					{{ range $column := .columns -}}
-					{{ if eq $column "Id" -}}
-					{{ continue }}
-					{{ end -}}
-					{{ if eq $column "CreatedAt" -}}
-					{{ continue }}
-					{{ end -}}
-					{{ if eq $column "UpdatedAt" -}}
-					{{ continue }}
-					{{ end -}}
-					case "{{ toSnakeCase  $column}}", "{{$.snakeCaseModelName}}.{{toSnakeCase $column}}":
-						fieldMap["{{toSnakeCase $column}}"] = r.model.{{$column}}
-					{{ end -}}
-				}
-			}
-
-			return r.Relation.Save(fieldMap)
-		}
-
-		func (m *{{.modelName}}) Delete() error {
-			return m.newRelation().Delete(m.Id)
-		}
-
-		func (m {{.modelName}}) First() (*{{.modelName}}, error) {
-			return m.newRelation().First()
-		}
-
-		func (r *{{.modelName}}Relation) First() (*{{.modelName}}, error) {
-			r.Relation.First()
-			return r.QueryRow()
-		}
-
-		func (m {{.modelName}}) Last() (*{{.modelName}}, error) {
-			return m.newRelation().Last()
-		}
-
-		func (r *{{.modelName}}Relation) Last() (*{{.modelName}}, error) {
-			r.Relation.Last()
-			return r.QueryRow()
-		}
-
-		func (m {{.modelName}}) Find(id int) (*{{.modelName}}, error) {
-			return m.newRelation().Find(id)
-		}
-
-		func (r *{{.modelName}}Relation) Find(id int) (*{{.modelName}}, error) {
-			r.Relation.Find(id)
-			return r.QueryRow()
-		}
-
-		func (m {{.modelName}}) FindBy(column string, value interface{}) (*{{.modelName}}, error) {
-			return m.newRelation().FindBy(column, value)
-		}
-
-		func (r *{{.modelName}}Relation) FindBy(column string, value interface{}) (*{{.modelName}}, error) {
-			r.Relation.FindBy(column, value)
-			return r.QueryRow()
-		}
-
-		func (m {{.modelName}}) Pluck(column string) ([]interface{}, error) {
-			return m.newRelation().Pluck(column)
-		}
-
-		func (r *{{.modelName}}Relation) Pluck(column string) ([]interface{}, error) {
-			return r.Relation.Pluck(column)
-		}
-
-		func (r *{{.modelName}}Relation) Query() ([]*{{.modelName}}, error) {
-			rows, err := r.Relation.Query()
-			if err != nil {
-				return nil, err
-			}
-			defer rows.Close()
-
-			results := []*{{.modelName}}{}
-			for rows.Next() {
-				row := &{{.modelName}}{}
-				err := rows.Scan(row.fieldPtrsByName(r.Relation.GetColumns())...)
-				if err != nil {
-					return nil, err
-				}
-				results = append(results, row)
-			}
-			return results, nil
-		}
+		{{ template "Query" . }}
 
 		{{ template "Columns" . }}
 		{{end}}

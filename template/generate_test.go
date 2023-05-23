@@ -120,13 +120,30 @@ func (r *UserRelation) Update(id int, params UserParams) error {
 	return r.Relation.Update(id, fieldMap)
 }
 
-func (r *UserRelation) QueryRow() (*User, error) {
-	row := &User{}
-	err := r.Relation.QueryRow(row.fieldPtrsByName(r.Relation.GetColumns())...)
-	if err != nil {
-		return nil, err
+func (m *User) Save() error {
+	lastId, err := m.newRelation().Save()
+	if m.Id == 0 {
+		m.Id = lastId
 	}
-	return row, nil
+	return err
+}
+
+func (r *UserRelation) Save() (int, error) {
+	fieldMap := make(map[string]interface{})
+	for _, c := range r.Relation.GetColumns() {
+		switch c {
+		case "name", "users.name":
+			fieldMap["name"] = r.model.Name
+		case "age", "users.age":
+			fieldMap["age"] = r.model.Age
+		}
+	}
+
+	return r.Relation.Save(fieldMap)
+}
+
+func (m *User) Delete() error {
+	return m.newRelation().Delete(m.Id)
 }
 
 func (m User) Count(column ...string) int {
@@ -162,32 +179,6 @@ func (m User) Where(column string, value interface{}) *UserRelation {
 func (r *UserRelation) Where(column string, value interface{}) *UserRelation {
 	r.Relation.Where(column, value)
 	return r
-}
-
-func (m *User) Save() error {
-	lastId, err := m.newRelation().Save()
-	if m.Id == 0 {
-		m.Id = lastId
-	}
-	return err
-}
-
-func (r *UserRelation) Save() (int, error) {
-	fieldMap := make(map[string]interface{})
-	for _, c := range r.Relation.GetColumns() {
-		switch c {
-		case "name", "users.name":
-			fieldMap["name"] = r.model.Name
-		case "age", "users.age":
-			fieldMap["age"] = r.model.Age
-		}
-	}
-
-	return r.Relation.Save(fieldMap)
-}
-
-func (m *User) Delete() error {
-	return m.newRelation().Delete(m.Id)
 }
 
 func (m User) First() (*User, error) {
@@ -251,6 +242,15 @@ func (r *UserRelation) Query() ([]*User, error) {
 		results = append(results, row)
 	}
 	return results, nil
+}
+
+func (r *UserRelation) QueryRow() (*User, error) {
+	row := &User{}
+	err := r.Relation.QueryRow(row.fieldPtrsByName(r.Relation.GetColumns())...)
+	if err != nil {
+		return nil, err
+	}
+	return row, nil
 }
 
 func (m *User) fieldPtrByName(name string) interface{} {

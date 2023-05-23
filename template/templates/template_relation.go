@@ -1,6 +1,6 @@
-package template
+package templates
 
-var relationTextBody = `
+var RelationTextBody = `
 		{{define "Relation"}}
 		type {{.modelName}}Relation struct {
 			model *{{.modelName}}
