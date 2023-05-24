@@ -41,7 +41,11 @@ func TestImport(t *testing.T) {
 	assert.NoError(t, err)
 
 	packageName, fileInspect := Inspect(filePath)
+
 	assert.Equal(t, "main", packageName)
+	assert.Equal(t, 2, len(fileInspect.StructInspect))
+	assert.Equal(t, 1, len(fileInspect.FuncInspect))
+
 	assert.Equal(t, "Post", fileInspect.StructInspect[0].ModelName)
 	assert.Equal(t, []string{"Id", "Content", "Author", "CreatedAt", "UpdatedAt"}, fileInspect.StructInspect[0].FieldKeys)
 	assert.Equal(t, []string{"int", "string", "string", "time.Time", "time.Time"}, fileInspect.StructInspect[0].FieldValues)
@@ -50,22 +54,6 @@ func TestImport(t *testing.T) {
 	assert.Equal(t, []string{"Id", "Content", "Author", "PostId", "CreatedAt", "UpdatedAt"}, fileInspect.StructInspect[1].FieldKeys)
 	assert.Equal(t, []string{"int", "string", "string", "int", "time.Time", "time.Time"}, fileInspect.StructInspect[1].FieldValues)
 
-	var funcStruct = `package ayaorm
-
-	// +AYAORM
-	func (m Post) hasManyComments() {
-	}
-	`
-
-	filePath1 := "./temp_inspect.go"
-	file, err = os.Create(filePath1)
-	assert.NoError(t, err)
-	defer os.Remove(filePath)
-	_, err = file.Write([]byte(funcStruct))
-	assert.NoError(t, err)
-
-	packageName, fileInspect = Inspect(filePath)
-	assert.Equal(t, "ayaorm", packageName)
-	assert.Equal(t, "hasManyComments", fileInspect.FuncInspect[0].FuncName)
+	assert.Equal(t, "hasManyPosts", fileInspect.FuncInspect[0].FuncName)
 	assert.Equal(t, "Post", fileInspect.FuncInspect[0].Recv)
 }
