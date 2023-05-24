@@ -40,9 +40,9 @@ func TestImport(t *testing.T) {
 	_, err = file.Write([]byte(userStruct))
 	assert.NoError(t, err)
 
-	packageName, fileInspect := Inspect(filePath)
+	fileInspect := Inspect(filePath)
 
-	assert.Equal(t, "main", packageName)
+	assert.Equal(t, "main", fileInspect.PackageName)
 	assert.Equal(t, 2, len(fileInspect.StructInspect))
 	assert.Equal(t, 1, len(fileInspect.FuncInspect))
 

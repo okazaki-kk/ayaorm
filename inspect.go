@@ -10,6 +10,7 @@ import (
 )
 
 type FileInspect struct {
+	PackageName   string
 	StructInspect []StructInspect
 	FuncInspect   []FuncInspect
 }
@@ -27,20 +28,19 @@ type FuncInspect struct {
 }
 
 // scan file and return package name and file info
-func Inspect(path string) (string, FileInspect) {
+func Inspect(path string) FileInspect {
 	fset := token.NewFileSet()
 	f, err := parser.ParseFile(fset, path, nil, parser.ParseComments)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	var packageName string
 	var structInspect []StructInspect
 	var funcInspect []FuncInspect
 	var fileInspect FileInspect
 
 	ast.Inspect(f, func(n ast.Node) bool {
-		packageName = f.Name.Name
+		fileInspect.PackageName = f.Name.Name
 		switch n.(type) {
 		case *ast.TypeSpec:
 			s, _ := n.(*ast.TypeSpec)
@@ -100,5 +100,5 @@ func Inspect(path string) (string, FileInspect) {
 
 	fileInspect.StructInspect = structInspect
 	fileInspect.FuncInspect = funcInspect
-	return packageName, fileInspect
+	return fileInspect
 }
