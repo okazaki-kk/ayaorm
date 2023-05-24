@@ -2,18 +2,18 @@ package templates
 
 var RelationTextBody = `
 		{{define "Relation"}}
-		type {{.modelName}}Relation struct {
-			model *{{.modelName}}
+		type {{.ModelName}}Relation struct {
+			model *{{.ModelName}}
 			*ayaorm.Relation
 		}
 
-		func (m *{{.modelName}}) newRelation() *{{.modelName}}Relation {
-			r := &{{.modelName}}Relation{
+		func (m *{{.ModelName}}) newRelation() *{{.ModelName}}Relation {
+			r := &{{.ModelName}}Relation{
 				m,
-				ayaorm.NewRelation(db).SetTable("{{.snakeCaseModelName}}"),
+				ayaorm.NewRelation(db).SetTable("{{.SnakeCaseModelName}}"),
 			}
 			r.Select(
-				{{ range $column := .columns -}}
+				{{ range $column := .Columns -}}
 				"{{ toSnakeCase $column }}",
 				{{ end -}}
 			)
@@ -21,15 +21,15 @@ var RelationTextBody = `
 			return r
 		}
 
-		func (m {{.modelName}}) Select(columns ...string) *{{.modelName}}Relation {
+		func (m {{.ModelName}}) Select(columns ...string) *{{.ModelName}}Relation {
 			return m.newRelation().Select(columns...)
 		}
 
-		func (r *{{.modelName}}Relation) Select(columns ...string) *{{.modelName}}Relation {
+		func (r *{{.ModelName}}Relation) Select(columns ...string) *{{.ModelName}}Relation {
 			cs := []string{}
 			for _, c := range columns {
 				if r.model.isColumnName(c) {
-					cs = append(cs, fmt.Sprintf("{{.snakeCaseModelName}}.%s", c))
+					cs = append(cs, fmt.Sprintf("{{.SnakeCaseModelName}}.%s", c))
 				} else {
 					cs = append(cs, c)
 				}
@@ -38,6 +38,6 @@ var RelationTextBody = `
 			return r
 		}
 
-		type {{.modelName}}Params {{.modelName}}
+		type {{.ModelName}}Params {{.ModelName}}
 		{{end}}
 `

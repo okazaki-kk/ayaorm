@@ -2,10 +2,10 @@ package templates
 
 var ColumnsTextBody = `
 		{{define "Columns"}}
-		func (m *{{.modelName}}) fieldPtrByName(name string) interface{} {
+		func (m *{{.ModelName}}) fieldPtrByName(name string) interface{} {
 			switch name {
-				{{ range $column := .columns -}}
-				case "{{ toSnakeCase  $column}}", "{{$.snakeCaseModelName}}.{{toSnakeCase $column}}":
+				{{ range $column := .Columns -}}
+				case "{{ toSnakeCase  $column}}", "{{$.SnakeCaseModelName}}.{{toSnakeCase $column}}":
 					return &m.{{$column}}
 				{{ end -}}
 			default:
@@ -13,7 +13,7 @@ var ColumnsTextBody = `
 			}
 		}
 
-		func (m *{{.modelName}}) fieldPtrsByName(names []string) []interface{} {
+		func (m *{{.ModelName}}) fieldPtrsByName(names []string) []interface{} {
 			fields := []interface{}{}
 			for _, n := range names {
 				f := m.fieldPtrByName(n)
@@ -22,7 +22,7 @@ var ColumnsTextBody = `
 			return fields
 		}
 
-		func (m *{{.modelName}}) isColumnName(name string) bool {
+		func (m *{{.ModelName}}) isColumnName(name string) bool {
 			for _, c := range m.columnNames() {
 				if c == name {
 					return true
@@ -31,9 +31,9 @@ var ColumnsTextBody = `
 			return false
 		}
 
-		func (m *{{.modelName}}) columnNames() []string {
+		func (m *{{.ModelName}}) columnNames() []string {
 			return []string{
-				{{ range $column := .columns -}}
+				{{ range $column := .Columns -}}
 				"{{ toSnakeCase $column }}",
 				{{ end -}}
 			}

@@ -14,13 +14,12 @@ func main() {
 	from := os.Args[1]
 
 	fileInspect := template.Inspect(from)
-	for _, f := range fileInspect.StructInspect {
-		if err := template.Generate(fileInspect.PackageName, f.ModelName, f.FieldKeys); err != nil {
-			log.Fatal(err)
-		}
+	err := template.Generate(fileInspect)
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	err := template.GenerateDB()
+	err = template.GenerateDB()
 	if err != nil {
 		log.Fatal(err)
 	}

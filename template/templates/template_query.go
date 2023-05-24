@@ -2,16 +2,16 @@ package templates
 
 var QueryTextBody = `
 	{{define "Query"}}
-	func (r *{{.modelName}}Relation) Query() ([]*{{.modelName}}, error) {
+	func (r *{{.ModelName}}Relation) Query() ([]*{{.ModelName}}, error) {
 		rows, err := r.Relation.Query()
 		if err != nil {
 			return nil, err
 		}
 		defer rows.Close()
 
-		results := []*{{.modelName}}{}
+		results := []*{{.ModelName}}{}
 		for rows.Next() {
-			row := &{{.modelName}}{}
+			row := &{{.ModelName}}{}
 			err := rows.Scan(row.fieldPtrsByName(r.Relation.GetColumns())...)
 			if err != nil {
 				return nil, err
@@ -21,8 +21,8 @@ var QueryTextBody = `
 		return results, nil
 	}
 
-	func (r *{{.modelName}}Relation) QueryRow() (*{{.modelName}}, error) {
-		row := &{{.modelName}}{}
+	func (r *{{.ModelName}}Relation) QueryRow() (*{{.ModelName}}, error) {
+		row := &{{.ModelName}}{}
 		err := r.Relation.QueryRow(row.fieldPtrsByName(r.Relation.GetColumns())...)
 		if err != nil {
 			return nil, err
