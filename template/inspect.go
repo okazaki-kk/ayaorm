@@ -1,4 +1,4 @@
-package ayaorm
+package template
 
 // ref: https://tech.buysell-technologies.com/entry/adventcalendar2022-12-06
 
