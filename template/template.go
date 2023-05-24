@@ -1,6 +1,6 @@
 package template
 
-var textBody = `
+var TextBody = `
 		{{define "Base"}}
 		{{ template "Package" . }}
 

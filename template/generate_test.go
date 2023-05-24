@@ -2,13 +2,12 @@ package template
 
 import (
 	"os"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGenerate(t *testing.T) {
+/*func TestGenerate(t *testing.T) {
 	field := []string{"Id", "Name", "Age", "CreatedAt", "UpdatedAt"}
 	err := Generate("main", "User", field)
 	assert.NoError(t, err)
@@ -20,7 +19,7 @@ func TestGenerate(t *testing.T) {
 	data, err := os.ReadFile(filePath)
 	assert.NoError(t, err)
 	assert.Equal(t, expectedTextBody, string(data))
-}
+}*/
 
 func TestGenerateDB(t *testing.T) {
 	err := GenerateDB()

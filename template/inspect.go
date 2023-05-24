@@ -1,4 +1,4 @@
-package ayaorm
+package template
 
 // ref: https://tech.buysell-technologies.com/entry/adventcalendar2022-12-06
 
@@ -13,6 +13,22 @@ type FileInspect struct {
 	PackageName   string
 	StructInspect []StructInspect
 	FuncInspect   []FuncInspect
+}
+
+func (f FileInspect) ModelName() string {
+	return f.StructInspect[0].ModelName
+}
+
+func (f FileInspect) SnakeCaseModelName() string {
+	return toSnakeCase(f.StructInspect[0].ModelName) + "s"
+}
+
+func (f FileInspect) Columns() []string {
+	var columns []string
+	for _, s := range f.StructInspect {
+		columns = append(columns, s.FieldKeys...)
+	}
+	return columns
 }
 
 type StructInspect struct {

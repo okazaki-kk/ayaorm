@@ -2,10 +2,10 @@ package templates
 
 var CrudTextBody = `
 	{{define "CRUD"}}
-	func (m {{.modelName}}) Build(p {{.modelName}}Params) *{{.modelName}} {
-		return &{{.modelName}}{
+	func (m {{.ModelName}}) Build(p {{.ModelName}}Params) *{{.ModelName}} {
+		return &{{.ModelName}}{
 			Schema: ayaorm.Schema{Id: p.Id},
-			{{ range $column := .columns -}}
+			{{ range $column := .Columns -}}
 			{{ if eq $column "CreatedAt" -}}
 			{{ continue }}
 			{{ end -}}
@@ -20,28 +20,28 @@ var CrudTextBody = `
 		}
 	}
 
-	func (u {{.modelName}}) Create(params {{.modelName}}Params) (*{{.modelName}}, error) {
-		{{toSnakeCase .modelName}} := u.Build(params)
-		return u.newRelation().Create({{toSnakeCase .modelName}})
+	func (u {{.ModelName}}) Create(params {{.ModelName}}Params) (*{{.ModelName}}, error) {
+		{{toSnakeCase .ModelName}} := u.Build(params)
+		return u.newRelation().Create({{toSnakeCase .ModelName}})
 	}
 
-	func (r *{{.modelName}}Relation) Create({{toSnakeCase .modelName}} *{{.modelName}}) (*{{.modelName}}, error) {
-		err := {{toSnakeCase .modelName}}.Save()
+	func (r *{{.ModelName}}Relation) Create({{toSnakeCase .ModelName}} *{{.ModelName}}) (*{{.ModelName}}, error) {
+		err := {{toSnakeCase .ModelName}}.Save()
 		if err != nil {
 			return nil, err
 		}
-		return {{toSnakeCase .modelName}}, nil
+		return {{toSnakeCase .ModelName}}, nil
 	}
 
-	func (u *{{.modelName}}) Update(params {{.modelName}}Params) error {
+	func (u *{{.ModelName}}) Update(params {{.ModelName}}Params) error {
 		return u.newRelation().Update(u.Id, params)
 	}
 
-	func (r *{{.modelName}}Relation) Update(id int, params {{.modelName}}Params) error {
+	func (r *{{.ModelName}}Relation) Update(id int, params {{.ModelName}}Params) error {
 		fieldMap := make(map[string]interface{})
 		for _, c := range r.Relation.GetColumns() {
 			switch c {
-				{{ range $column := .columns -}}
+				{{ range $column := .Columns -}}
 				{{ if eq $column "Id" -}}
 				{{ continue }}
 				{{ end -}}
@@ -51,7 +51,7 @@ var CrudTextBody = `
 				{{ if eq $column "UpdatedAt" -}}
 				{{ continue }}
 				{{ end -}}
-				case "{{ toSnakeCase  $column}}", "{{$.snakeCaseModelName}}.{{toSnakeCase $column}}":
+				case "{{ toSnakeCase  $column}}", "{{$.SnakeCaseModelName}}.{{toSnakeCase $column}}":
 					fieldMap["{{toSnakeCase $column}}"] = r.model.{{$column}}
 				{{ end -}}
 			}
@@ -59,7 +59,7 @@ var CrudTextBody = `
 		return r.Relation.Update(id, fieldMap)
 	}
 
-	func (m *{{.modelName}}) Save() error {
+	func (m *{{.ModelName}}) Save() error {
 		lastId, err := m.newRelation().Save()
 		if m.Id == 0 {
 			m.Id = lastId
@@ -67,11 +67,11 @@ var CrudTextBody = `
 		return err
 	}
 
-	func (r *{{.modelName}}Relation) Save() (int, error) {
+	func (r *{{.ModelName}}Relation) Save() (int, error) {
 		fieldMap := make(map[string]interface{})
 		for _, c := range r.Relation.GetColumns() {
 			switch c {
-				{{ range $column := .columns -}}
+				{{ range $column := .Columns -}}
 				{{ if eq $column "Id" -}}
 				{{ continue }}
 				{{ end -}}
@@ -81,7 +81,7 @@ var CrudTextBody = `
 				{{ if eq $column "UpdatedAt" -}}
 				{{ continue }}
 				{{ end -}}
-				case "{{ toSnakeCase  $column}}", "{{$.snakeCaseModelName}}.{{toSnakeCase $column}}":
+				case "{{ toSnakeCase  $column}}", "{{$.SnakeCaseModelName}}.{{toSnakeCase $column}}":
 					fieldMap["{{toSnakeCase $column}}"] = r.model.{{$column}}
 				{{ end -}}
 			}
@@ -90,7 +90,7 @@ var CrudTextBody = `
 		return r.Relation.Save(fieldMap)
 	}
 
-	func (m *{{.modelName}}) Delete() error {
+	func (m *{{.ModelName}}) Delete() error {
 		return m.newRelation().Delete(m.Id)
 	}
 	{{end}}

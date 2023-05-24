@@ -10,19 +10,12 @@ import (
 	"github.com/okazaki-kk/ayaorm/template/templates"
 )
 
-func Generate(packageName, modelName string, field []string) error {
+func Generate(fileInspect FileInspect) error {
 	funcMap := template.FuncMap{
 		"toSnakeCase": toSnakeCase,
 	}
 
-	var columns []string
-	var columnNames []string
-	for _, f := range field {
-		columns = append(columns, f)
-		columnNames = append(columnNames, toSnakeCase(f))
-	}
-
-	t, _ := template.New("Base").Funcs(funcMap).Parse(textBody)
+	t, _ := template.New("Base").Funcs(funcMap).Parse(TextBody)
 	t.New("Package").Parse(templates.PackageTextBody)
 	t.New("Import").Parse(templates.ImportTextBody)
 	t.New("Relation").Parse(templates.RelationTextBody)
@@ -31,20 +24,13 @@ func Generate(packageName, modelName string, field []string) error {
 	t.New("Search").Parse(templates.SearchTextBody)
 	t.New("Query").Parse(templates.QueryTextBody)
 
-	params := make(map[string]interface{})
-	params["modelName"] = modelName
-	params["snakeCaseModelName"] = toSnakeCase(modelName) + "s"
-	params["columns"] = columns
-	params["columnNames"] = columnNames
-	params["packageName"] = packageName
-
-	filePath := strings.ToLower(modelName) + "_gen.go"
+	filePath := strings.ToLower(fileInspect.StructInspect[0].ModelName) + "_gen.go"
 	file, err := os.Create(filePath)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
-	err = t.Execute(file, params)
+	err = t.Execute(file, fileInspect)
 	if err != nil {
 		return err
 	}
