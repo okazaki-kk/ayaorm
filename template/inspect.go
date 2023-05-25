@@ -7,6 +7,7 @@ import (
 	"go/parser"
 	"go/token"
 	"log"
+	"strings"
 )
 
 type FileInspect struct {
@@ -40,6 +41,15 @@ type FuncInspect struct {
 	FuncName string
 	Recv     string
 	Args     []string
+}
+
+func (f FuncInspect) IsHasManyFunc() bool {
+	return strings.HasPrefix(f.FuncName, "hasmany")
+}
+
+func (f FuncInspect) HasManyModel() string {
+	hasManyModels := strings.TrimPrefix(f.FuncName, "hasMany")
+	return hasManyModels[:len(hasManyModels)-1]
 }
 
 // scan file and return package name and file info

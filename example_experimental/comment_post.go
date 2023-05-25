@@ -1,4 +1,4 @@
 package main
 
-func (m Post) hasManyPosts() {
+func (m Comment) hasManyPosts() {
 }
