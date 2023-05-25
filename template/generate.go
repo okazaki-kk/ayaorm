@@ -10,8 +10,8 @@ import (
 	"github.com/okazaki-kk/ayaorm/template/templates"
 )
 
-func Generate(fileInspect FileInspect) error {
-	filePath := strings.ToLower(fileInspect.StructInspect[0].ModelName) + "_gen.go"
+func Generate(from string, fileInspect FileInspect) error {
+	filePath := strings.Split(from, ".go")[0] + "_gen.go"
 	file, err := os.Create(filePath)
 	if err != nil {
 		return err

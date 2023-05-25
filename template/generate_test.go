@@ -26,7 +26,7 @@ func TestGenerate(t *testing.T) {
 		},
 	}
 
-	err := Generate(fileInspect)
+	err := Generate("user.go", fileInspect)
 	assert.NoError(t, err)
 
 	filePath := strings.ToLower("User") + "_gen.go"
@@ -314,19 +314,19 @@ func (m *User) columnNames() []string {
 	}
 }
 
-func (m Comment) Posts() ([]*Post, error) {
-	c, err := Post{}.Where("post_id", m.Id).Query()
+func (m Post) Comments() ([]*Comment, error) {
+	c, err := Comment{}.Where("post_id", m.Id).Query()
 	if err != nil {
 		return nil, err
 	}
 	return c, nil
 }
 
-func (u Comment) JoinPosts() *CommentRelation {
-	return u.newRelation().JoinPosts()
+func (u Post) JoinComments() *PostRelation {
+	return u.newRelation().JoinComments()
 }
 
-func (u *CommentRelation) JoinPosts() *CommentRelation {
+func (u *PostRelation) JoinComments() *PostRelation {
 	u.Relation.InnerJoin("posts", "comments")
 	return u
 }

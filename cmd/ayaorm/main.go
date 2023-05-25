@@ -14,7 +14,7 @@ func main() {
 	from := os.Args[1]
 
 	fileInspect := template.Inspect(from)
-	err := template.Generate(fileInspect)
+	err := template.Generate(from, fileInspect)
 	if err != nil {
 		log.Fatal(err)
 	}
