@@ -18,6 +18,12 @@ func TestGenerate(t *testing.T) {
 				FieldValues: []string{"int", "string", "int", "time.Time", "time.Time"},
 			},
 		},
+		FuncInspect: []FuncInspect{
+			{
+				FuncName: "hasManyPosts",
+				Recv:     "Comment",
+			},
+		},
 	}
 
 	err := Generate(fileInspect)
@@ -306,6 +312,23 @@ func (m *User) columnNames() []string {
 		"created_at",
 		"updated_at",
 	}
+}
+
+func (m Comment) Posts() ([]*Post, error) {
+	c, err := Post{}.Where("post_id", m.Id).Query()
+	if err != nil {
+		return nil, err
+	}
+	return c, nil
+}
+
+func (u Comment) JoinPosts() *CommentRelation {
+	return u.newRelation().JoinPosts()
+}
+
+func (u *CommentRelation) JoinPosts() *CommentRelation {
+	u.Relation.InnerJoin("posts", "comments")
+	return u
 }
 `
 

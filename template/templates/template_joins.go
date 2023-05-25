@@ -1,18 +1,18 @@
 package templates
 
-var JoinsTextBody = `func (m {{.Recv}}) Comments() ([]*Comment, error) {
-	comments, err := Comment{}.Where("post_id", m.Id).Query()
+var JoinsTextBody = `func (m {{.Recv}}) {{.HasManyModel}}s() ([]*{{.HasManyModel}}, error) {
+	c, err := {{.HasManyModel}}{}.Where("{{toSnakeCase .HasManyModel}}_id", m.Id).Query()
 	if err != nil {
 		return nil, err
 	}
-	return comments, nil
+	return c, nil
 }
 
-func (u {{.Recv}}) JoinComments() *{{.Recv}}Relation {
-	return u.newRelation().JoinComments()
+func (u {{.Recv}}) Join{{.HasManyModel}}s() *{{.Recv}}Relation {
+	return u.newRelation().Join{{.HasManyModel}}s()
 }
 
-func (u *{{.Recv}}Relation) JoinComments() *{{.Recv}}Relation {
+func (u *{{.Recv}}Relation) Join{{.HasManyModel}}s() *{{.Recv}}Relation {
 	u.Relation.InnerJoin("posts", "comments")
 	return u
 }
