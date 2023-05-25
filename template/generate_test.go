@@ -21,7 +21,7 @@ func TestGenerate(t *testing.T) {
 		FuncInspect: []FuncInspect{
 			{
 				FuncName: "hasManyPosts",
-				Recv:     "Post",
+				Recv:     "Comment",
 			},
 		},
 	}
@@ -314,7 +314,7 @@ func (m *User) columnNames() []string {
 	}
 }
 
-func (m Post) Posts() ([]*Post, error) {
+func (m Comment) Posts() ([]*Post, error) {
 	c, err := Post{}.Where("post_id", m.Id).Query()
 	if err != nil {
 		return nil, err
@@ -322,11 +322,11 @@ func (m Post) Posts() ([]*Post, error) {
 	return c, nil
 }
 
-func (u Post) JoinPosts() *PostRelation {
+func (u Comment) JoinPosts() *CommentRelation {
 	return u.newRelation().JoinPosts()
 }
 
-func (u *PostRelation) JoinPosts() *PostRelation {
+func (u *CommentRelation) JoinPosts() *CommentRelation {
 	u.Relation.InnerJoin("posts", "comments")
 	return u
 }
