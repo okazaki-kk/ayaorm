@@ -41,6 +41,13 @@ func Generate(fileInspect FileInspect) error {
 		}
 	}
 
+	for _, f := range fileInspect.FuncInspect {
+		err := generateFunc(file, f)
+		if err != nil {
+			return err
+		}
+	}
+
 	err = exec.Command("go", "fmt", filePath).Run()
 	if err != nil {
 		return err
@@ -77,6 +84,25 @@ func generateStruct(file *os.File, structInspect StructInspect) error {
 	}
 
 	err = t.Execute(file, structInspect)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func generateFunc(file *os.File, funcInspect FuncInspect) error {
+	funcMap := template.FuncMap{
+		"toSnakeCase": toSnakeCase,
+	}
+
+	t, _ := template.New("Base").Funcs(funcMap).Parse(FuncBody)
+
+	_, err := t.New("Joins").Parse(templates.JoinsTextBody)
+	if err != nil {
+		return err
+	}
+
+	err = t.Execute(file, funcInspect)
 	if err != nil {
 		return err
 	}
