@@ -17,8 +17,9 @@ type Query struct {
 	insert    struct{ params map[string]interface{} }
 	update    struct{ params map[string]interface{} }
 	innerJoin struct {
-		left  string
-		right string
+		left    string
+		right   string
+		hasMany bool
 	}
 }
 
@@ -28,9 +29,10 @@ func (q *Query) Where(column string, value interface{}) *Query {
 	return q
 }
 
-func (q *Query) InnerJoin(left, right string) *Query {
+func (q *Query) InnerJoin(left, right string, hasMany bool) *Query {
 	q.innerJoin.left = left
 	q.innerJoin.right = right
+	q.innerJoin.hasMany = hasMany
 	return q
 }
 
@@ -50,8 +52,14 @@ func (q *Query) BuildQuery(columns []string, tableName string) string {
 		query = fmt.Sprintf("%s LIMIT %d", query, q.limit)
 	}
 	if q.innerJoin.left != "" {
-		text := q.innerJoin.left[:len(q.innerJoin.left)-1]
-		query = fmt.Sprintf("%s INNER JOIN %s on %s.id = %s.%s_id", query, q.innerJoin.right, q.innerJoin.left, q.innerJoin.right, text)
+		textLeft := q.innerJoin.left[:len(q.innerJoin.left)-1]
+		textRight := q.innerJoin.right[:len(q.innerJoin.right)-1]
+
+		if q.innerJoin.hasMany {
+			query = fmt.Sprintf("%s INNER JOIN %s on %s.id = %s.%s_id", query, q.innerJoin.right, q.innerJoin.left, q.innerJoin.right, textLeft)
+		} else {
+			query = fmt.Sprintf("%s INNER JOIN %s on %s.%s_id = %s.id", query, q.innerJoin.right, q.innerJoin.left, textRight, q.innerJoin.right)
+		}
 	}
 	return query + ";"
 }

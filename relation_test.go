@@ -198,7 +198,7 @@ func TestInnerJoin(t *testing.T) {
 	table := Table{tableName: "users"}
 	relation := Relation{Table: table, db: db}
 
-	rows, err := relation.SetColumns("users.id, users.name, users.age, users.created_at, users.updated_at").InnerJoin("users", "comments").Query()
+	rows, err := relation.SetColumns("users.id, users.name, users.age, users.created_at, users.updated_at").InnerJoin("users", "comments", true).Query()
 	assert.NoError(t, err)
 
 	for rows.Next() {

@@ -541,7 +541,7 @@ func (u Post) JoinComments() *PostRelation {
 }
 
 func (u *PostRelation) JoinComments() *PostRelation {
-	u.Relation.InnerJoin("posts", "comments")
+	u.Relation.InnerJoin("posts", "comments", true)
 	return u
 }
 
@@ -550,6 +550,6 @@ func (u Comment) JoinPost() *CommentRelation {
 }
 
 func (u *CommentRelation) JoinPost() *CommentRelation {
-	u.Relation.InnerJoin("comments", "posts")
+	u.Relation.InnerJoin("comments", "posts", false)
 	return u
 }
