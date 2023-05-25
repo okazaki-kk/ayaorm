@@ -47,8 +47,6 @@ func generateStruct(file *os.File, structInspect StructInspect) error {
 	}
 
 	t, _ := template.New("Base").Funcs(funcMap).Parse(TextBody)
-	t.New("Package").Parse(templates.PackageTextBody)
-	t.New("Import").Parse(templates.ImportTextBody)
 	t.New("Relation").Parse(templates.RelationTextBody)
 	t.New("Columns").Parse(templates.ColumnsTextBody)
 	t.New("CRUD").Parse(templates.CrudTextBody)
