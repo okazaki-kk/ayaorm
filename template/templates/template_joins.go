@@ -16,4 +16,13 @@ func (u *{{.HasManyModel}}Relation) Join{{.Recv}}s() *{{.HasManyModel}}Relation 
 	u.Relation.InnerJoin("{{toSnakeCase .HasManyModel}}s", "{{toSnakeCase .Recv}}s")
 	return u
 }
+
+func (u {{.Recv}}) Join{{.HasManyModel}}() *{{.Recv}}Relation {
+	return u.newRelation().Join{{.HasManyModel}}()
+}
+
+func (u *{{.Recv}}Relation) Join{{.HasManyModel}}() *{{.Recv}}Relation {
+	u.Relation.InnerJoin("{{toSnakeCase .Recv}}s", "{{toSnakeCase .HasManyModel}}s")
+	return u
+}
 `

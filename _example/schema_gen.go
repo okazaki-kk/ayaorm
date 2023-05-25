@@ -544,3 +544,12 @@ func (u *PostRelation) JoinComments() *PostRelation {
 	u.Relation.InnerJoin("posts", "comments")
 	return u
 }
+
+func (u Comment) JoinPost() *CommentRelation {
+	return u.newRelation().JoinPost()
+}
+
+func (u *CommentRelation) JoinPost() *CommentRelation {
+	u.Relation.InnerJoin("comments", "posts")
+	return u
+}
