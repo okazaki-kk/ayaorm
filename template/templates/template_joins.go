@@ -13,7 +13,7 @@ func (u {{.HasManyModel}}) Join{{.Recv}}s() *{{.HasManyModel}}Relation {
 }
 
 func (u *{{.HasManyModel}}Relation) Join{{.Recv}}s() *{{.HasManyModel}}Relation {
-	u.Relation.InnerJoin("posts", "comments")
+	u.Relation.InnerJoin("{{toSnakeCase .HasManyModel}}s", "{{toSnakeCase .Recv}}s")
 	return u
 }
 `
