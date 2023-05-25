@@ -54,6 +54,14 @@ func main() {
 	for _, post := range posts {
 		fmt.Println(post, "post")
 	}
+
+	comments, err = Comment{}.JoinPost().Query()
+	if err != nil {
+		log.Fatal("joinPost.Error", err)
+	}
+	for _, comment := range comments {
+		fmt.Println(comment, "comment")
+	}
 }
 
 func (c Comment) String() string {

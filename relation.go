@@ -128,8 +128,8 @@ func (r *Relation) FindBy(column string, value interface{}) *Relation {
 	return r
 }
 
-func (r *Relation) InnerJoin(left, right string) *Relation {
-	r.Table.query.InnerJoin(left, right)
+func (r *Relation) InnerJoin(left, right string, hasMany bool) *Relation {
+	r.Table.query.InnerJoin(left, right, hasMany)
 	return r
 }
 
