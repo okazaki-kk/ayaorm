@@ -2,10 +2,6 @@ package template
 
 var TextBody = `
 		{{define "Base"}}
-		{{ template "Package" . }}
-
-		{{ template "Import" . }}
-
 		{{ template "Relation" . }}
 
 		{{ template "CRUD" . }}
