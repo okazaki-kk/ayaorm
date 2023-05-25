@@ -8,3 +8,12 @@ type Comment struct {
 	Author  string
 	PostId  int
 }
+
+type Post struct {
+	ayaorm.Schema
+	Content string
+	Author  string
+}
+
+func (m Comment) hasManyPosts() {
+}
