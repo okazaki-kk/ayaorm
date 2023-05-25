@@ -23,6 +23,7 @@ func Generate(fileInspect FileInspect) error {
 	file.WriteString("\n")
 	file.WriteString("import (\n")
 	file.WriteString("\t\"fmt\"\n")
+	file.WriteString("\n")
 	file.WriteString("\t\"github.com/okazaki-kk/ayaorm\"\n")
 	file.WriteString(")\n")
 

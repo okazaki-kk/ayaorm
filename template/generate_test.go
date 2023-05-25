@@ -2,14 +2,25 @@ package template
 
 import (
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-/*func TestGenerate(t *testing.T) {
-	field := []string{"Id", "Name", "Age", "CreatedAt", "UpdatedAt"}
-	err := Generate("main", "User", field)
+func TestGenerate(t *testing.T) {
+	var fileInspect = FileInspect{
+		PackageName: "main",
+		StructInspect: []StructInspect{
+			{
+				ModelName:   "User",
+				FieldKeys:   []string{"Id", "Name", "Age", "CreatedAt", "UpdatedAt"},
+				FieldValues: []string{"int", "string", "int", "time.Time", "time.Time"},
+			},
+		},
+	}
+
+	err := Generate(fileInspect)
 	assert.NoError(t, err)
 
 	filePath := strings.ToLower("User") + "_gen.go"
@@ -19,7 +30,7 @@ import (
 	data, err := os.ReadFile(filePath)
 	assert.NoError(t, err)
 	assert.Equal(t, expectedTextBody, string(data))
-}*/
+}
 
 func TestGenerateDB(t *testing.T) {
 	err := GenerateDB()
