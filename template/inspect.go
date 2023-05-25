@@ -19,22 +19,21 @@ func (f FileInspect) ModelName() string {
 	return f.StructInspect[0].ModelName
 }
 
-func (f FileInspect) SnakeCaseModelName() string {
-	return toSnakeCase(f.StructInspect[0].ModelName) + "s"
-}
-
-func (f FileInspect) Columns() []string {
-	var columns []string
-	for _, s := range f.StructInspect {
-		columns = append(columns, s.FieldKeys...)
-	}
-	return columns
-}
-
 type StructInspect struct {
+	PackageName string
 	ModelName   string
 	FieldKeys   []string
 	FieldValues []string
+}
+
+func (s StructInspect) Columns() []string {
+	var columns []string
+	columns = append(columns, s.FieldKeys...)
+	return columns
+}
+
+func (s StructInspect) SnakeCaseModelName() string {
+	return toSnakeCase(s.ModelName) + "s"
 }
 
 type FuncInspect struct {
