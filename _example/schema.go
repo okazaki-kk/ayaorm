@@ -15,5 +15,8 @@ type Post struct {
 	Author  string
 }
 
-func (m Comment) hasManyPosts() {
+func (m Post) hasManyComments() {
+}
+
+func (m Comment) belongsToPost() {
 }

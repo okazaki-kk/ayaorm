@@ -545,6 +545,10 @@ func (u *PostRelation) JoinComments() *PostRelation {
 	return u
 }
 
+func (u Comment) Post() (*Post, error) {
+	return Post{}.Find(u.PostId)
+}
+
 func (u Comment) JoinPost() *CommentRelation {
 	return u.newRelation().JoinPost()
 }

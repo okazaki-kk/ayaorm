@@ -41,15 +41,17 @@ type FuncInspect struct {
 	FuncName string
 	Recv     string
 	Args     []string
-}
-
-func (f FuncInspect) IsHasManyFunc() bool {
-	return strings.HasPrefix(f.FuncName, "hasmany")
+	HasMany  bool
+	BelongTo bool
 }
 
 func (f FuncInspect) HasManyModel() string {
 	hasManyModels := strings.TrimPrefix(f.FuncName, "hasMany")
 	return hasManyModels[:len(hasManyModels)-1]
+}
+
+func (f FuncInspect) BelongsToModel() string {
+	return strings.TrimPrefix(f.FuncName, "belongsTo")
 }
 
 // scan file and return package name and file info
@@ -118,7 +120,9 @@ func Inspect(path string) FileInspect {
 		case *ast.FuncDecl:
 			funcName := n.(*ast.FuncDecl).Name.Name
 			recv := n.(*ast.FuncDecl).Recv.List[0].Type.(*ast.Ident).Name
-			funcInspect = append(funcInspect, FuncInspect{FuncName: funcName, Recv: recv})
+			hasMany := strings.HasPrefix(funcName, "hasMany")
+			belongsTo := strings.HasPrefix(funcName, "belongsTo")
+			funcInspect = append(funcInspect, FuncInspect{FuncName: funcName, Recv: recv, HasMany: hasMany, BelongTo: belongsTo})
 		}
 		return true
 	})
