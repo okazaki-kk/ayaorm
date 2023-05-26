@@ -40,11 +40,6 @@ func (q *Query) BuildQuery(columns []string, tableName string) (string, []interf
 	var args []interface{}
 
 	if q.where.key != "" {
-		/*if reflect.TypeOf(q.where.value).Kind() == reflect.String {
-			query = fmt.Sprintf("%s WHERE %s = '%s'", query, q.where.key, q.where.value)
-		} else {
-			query = fmt.Sprintf("%s WHERE %s = %d", query, q.where.key, q.where.value)
-		}*/
 		switch len(q.where.conditions) {
 		case 1:
 			query = fmt.Sprintf("%s WHERE %s = ?", query, q.where.key)
