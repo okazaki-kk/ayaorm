@@ -124,6 +124,21 @@ func TestWhere(t *testing.T) {
 	}
 }
 
+func TestWhere1(t *testing.T) {
+	table := Table{tableName: "users"}
+	relation := Relation{Table: table, db: db}
+
+	Hanako, err := relation.SetColumns("*").Where("age", ">", 24).Query()
+	assert.NoError(t, err)
+	for Hanako.Next() {
+		var user TestUser
+		err := Hanako.Scan(&user.Id, &user.Name, &user.Age, &user.CreatedAt, &user.UpdatedAt)
+		assert.NoError(t, err)
+		assert.Equal(t, "DigDag", user.Name)
+		assert.Equal(t, 25, user.Age)
+	}
+}
+
 func TestFirst(t *testing.T) {
 	table := Table{tableName: "users"}
 	relation := Relation{Table: table, db: db}
