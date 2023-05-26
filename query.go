@@ -2,7 +2,6 @@ package ayaorm
 
 import (
 	"fmt"
-	"reflect"
 	"strings"
 )
 
@@ -11,8 +10,8 @@ type Query struct {
 	order    string
 	orderKey string
 	where    struct {
-		key   string
-		value interface{}
+		key        string
+		conditions []interface{}
 	}
 	insert    struct{ params map[string]interface{} }
 	update    struct{ params map[string]interface{} }
@@ -23,9 +22,9 @@ type Query struct {
 	}
 }
 
-func (q *Query) Where(column string, value interface{}) *Query {
+func (q *Query) Where(column string, conditions ...interface{}) *Query {
 	q.where.key = column
-	q.where.value = value
+	q.where.conditions = conditions
 	return q
 }
 
@@ -36,21 +35,38 @@ func (q *Query) InnerJoin(left, right string, hasMany bool) *Query {
 	return q
 }
 
-func (q *Query) BuildQuery(columns []string, tableName string) string {
+func (q *Query) BuildQuery(columns []string, tableName string) (string, []interface{}) {
 	query := fmt.Sprintf("SELECT % s FROM %s", strings.Join(columns, ", "), tableName)
+	var args []interface{}
+
 	if q.where.key != "" {
-		if reflect.TypeOf(q.where.value).Kind() == reflect.String {
+		/*if reflect.TypeOf(q.where.value).Kind() == reflect.String {
 			query = fmt.Sprintf("%s WHERE %s = '%s'", query, q.where.key, q.where.value)
 		} else {
 			query = fmt.Sprintf("%s WHERE %s = %d", query, q.where.key, q.where.value)
+		}*/
+		switch len(q.where.conditions) {
+		case 1:
+			query = fmt.Sprintf("%s WHERE %s = ?", query, q.where.key)
+			args = append(args, q.where.conditions[0])
+		case 2:
+			query = fmt.Sprintf("%s WHERE %s %s ?", query, q.where.key, q.where.conditions[0])
+			args = append(args, q.where.conditions[1])
+		case 3:
+			query = fmt.Sprintf("%s WHERE %s %s ?", query, q.where.key, q.where.conditions[0])
+		default:
+			query = ""
 		}
 	}
+
 	if q.order != "" {
 		query = fmt.Sprintf("%s ORDER BY %s %s", query, q.orderKey, q.order)
 	}
+
 	if q.limit > 0 {
 		query = fmt.Sprintf("%s LIMIT %d", query, q.limit)
 	}
+
 	if q.innerJoin.left != "" {
 		textLeft := q.innerJoin.left[:len(q.innerJoin.left)-1]
 		textRight := q.innerJoin.right[:len(q.innerJoin.right)-1]
@@ -61,7 +77,8 @@ func (q *Query) BuildQuery(columns []string, tableName string) string {
 			query = fmt.Sprintf("%s INNER JOIN %s on %s.%s_id = %s.id", query, q.innerJoin.right, q.innerJoin.left, textRight, q.innerJoin.right)
 		}
 	}
-	return query + ";"
+
+	return query + ";", args
 }
 
 func (q *Query) BuildInsert(tableName string) (string, []interface{}) {

@@ -64,8 +64,8 @@ func (r *Relation) Order(key, order string) *Relation {
 	return r
 }
 
-func (r *Relation) Where(column string, value interface{}) *Relation {
-	r.Table.query.Where(column, value)
+func (r *Relation) Where(column string, conditions ...interface{}) *Relation {
+	r.Table.query.Where(column, conditions...)
 	return r
 }
 
@@ -134,14 +134,14 @@ func (r *Relation) InnerJoin(left, right string, hasMany bool) *Relation {
 }
 
 func (r *Relation) QueryRow(dest ...interface{}) error {
-	query := r.Table.query.BuildQuery(r.Table.columns, r.tableName)
+	query, args := r.Table.query.BuildQuery(r.Table.columns, r.tableName)
 	log.Print("excute query: ", query)
-	return r.db.QueryRow(query).Scan(dest...)
+	return r.db.QueryRow(query, args...).Scan(dest...)
 }
 
 func (r *Relation) Query() (*sql.Rows, error) {
-	query := r.Table.query.BuildQuery(r.Table.columns, r.tableName)
+	query, args := r.Table.query.BuildQuery(r.Table.columns, r.tableName)
 	log.Print("excute query: ", query)
-	rows, err := r.db.Query(query)
+	rows, err := r.db.Query(query, args...)
 	return rows, err
 }

@@ -143,12 +143,12 @@ func (r *CommentRelation) Order(key, order string) *CommentRelation {
 	return r
 }
 
-func (m Comment) Where(column string, value interface{}) *CommentRelation {
-	return m.newRelation().Where(column, value)
+func (m Comment) Where(column string, conditions ...interface{}) *CommentRelation {
+	return m.newRelation().Where(column, conditions...)
 }
 
-func (r *CommentRelation) Where(column string, value interface{}) *CommentRelation {
-	r.Relation.Where(column, value)
+func (r *CommentRelation) Where(column string, conditions ...interface{}) *CommentRelation {
+	r.Relation.Where(column, conditions...)
 	return r
 }
 
@@ -402,12 +402,12 @@ func (r *PostRelation) Order(key, order string) *PostRelation {
 	return r
 }
 
-func (m Post) Where(column string, value interface{}) *PostRelation {
-	return m.newRelation().Where(column, value)
+func (m Post) Where(column string, conditions ...interface{}) *PostRelation {
+	return m.newRelation().Where(column, conditions...)
 }
 
-func (r *PostRelation) Where(column string, value interface{}) *PostRelation {
-	r.Relation.Where(column, value)
+func (r *PostRelation) Where(column string, conditions ...interface{}) *PostRelation {
+	r.Relation.Where(column, conditions...)
 	return r
 }
 
