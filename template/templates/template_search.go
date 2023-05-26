@@ -28,12 +28,12 @@ var SearchTextBody = `
 		return r
 	}
 
-	func (m {{.ModelName}}) Where(column string, value interface{}) *{{.ModelName}}Relation {
-		return m.newRelation().Where(column, value)
+	func (m {{.ModelName}}) Where(column string, conditions ...interface{}) *{{.ModelName}}Relation {
+		return m.newRelation().Where(column, conditions...)
 	}
 
-	func (r *{{.ModelName}}Relation) Where(column string, value interface{}) *{{.ModelName}}Relation {
-		r.Relation.Where(column, value)
+	func (r *{{.ModelName}}Relation) Where(column string, conditions ...interface{}) *{{.ModelName}}Relation {
+		r.Relation.Where(column, conditions...)
 		return r
 	}
 

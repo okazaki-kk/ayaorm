@@ -188,12 +188,12 @@ func (r *UserRelation) Order(key, order string) *UserRelation {
 	return r
 }
 
-func (m User) Where(column string, value interface{}) *UserRelation {
-	return m.newRelation().Where(column, value)
+func (m User) Where(column string, conditions ...interface{}) *UserRelation {
+	return m.newRelation().Where(column, conditions...)
 }
 
-func (r *UserRelation) Where(column string, value interface{}) *UserRelation {
-	r.Relation.Where(column, value)
+func (r *UserRelation) Where(column string, conditions ...interface{}) *UserRelation {
+	r.Relation.Where(column, conditions...)
 	return r
 }
 
@@ -327,7 +327,7 @@ func (u Post) JoinComments() *PostRelation {
 }
 
 func (u *PostRelation) JoinComments() *PostRelation {
-	u.Relation.InnerJoin("posts", "comments")
+	u.Relation.InnerJoin("posts", "comments", true)
 	return u
 }
 
@@ -336,7 +336,7 @@ func (u Comment) JoinPost() *CommentRelation {
 }
 
 func (u *CommentRelation) JoinPost() *CommentRelation {
-	u.Relation.InnerJoin("comments", "posts")
+	u.Relation.InnerJoin("comments", "posts", false)
 	return u
 }
 `
