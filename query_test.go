@@ -28,6 +28,28 @@ func TestBuildQuery(t *testing.T) {
 		s.query = Query{}
 	})
 
+	t.Run("where num", func(t *testing.T) {
+		s.query.Where("age", 20)
+
+		query, args := s.query.BuildQuery(s.columns, s.tableName)
+		assert.Equal(t, "SELECT id, name, email FROM users WHERE age = ?;", query)
+		assert.Equal(t, []interface{}{20}, args)
+
+		// refresh query
+		s.query = Query{}
+	})
+
+	t.Run("where >", func(t *testing.T) {
+		s.query.Where("age", ">", 20)
+
+		query, args := s.query.BuildQuery(s.columns, s.tableName)
+		assert.Equal(t, "SELECT id, name, email FROM users WHERE age > ?;", query)
+		assert.Equal(t, []interface{}{20}, args)
+
+		// refresh query
+		s.query = Query{}
+	})
+
 	t.Run("order", func(t *testing.T) {
 		s.query.order = "DESC"
 		s.query.orderKey = "email"
