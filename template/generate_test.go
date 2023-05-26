@@ -20,8 +20,14 @@ func TestGenerate(t *testing.T) {
 		},
 		FuncInspect: []FuncInspect{
 			{
-				FuncName: "hasManyPosts",
+				FuncName: "hasManyComments",
+				Recv:     "Post",
+				HasMany: true,
+			},
+			{
+				FuncName: "belongsToPost",
 				Recv:     "Comment",
+				BelongTo: true,
 			},
 		},
 	}
@@ -329,6 +335,10 @@ func (u Post) JoinComments() *PostRelation {
 func (u *PostRelation) JoinComments() *PostRelation {
 	u.Relation.InnerJoin("posts", "comments", true)
 	return u
+}
+
+func (u Comment) Post() (*Post, error) {
+	return Post{}.Find(u.PostId)
 }
 
 func (u Comment) JoinPost() *CommentRelation {

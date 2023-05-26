@@ -42,7 +42,12 @@ func Generate(from string, fileInspect FileInspect) error {
 	}
 
 	for _, f := range fileInspect.FuncInspect {
-		err := generateFunc(file, f)
+		var err error
+		if f.BelongTo {
+			err = generateBelongsToFunc(file, f)
+		} else if f.HasMany {
+			err = generateHasManyFunc(file, f)
+		}
 		if err != nil {
 			return err
 		}
@@ -90,14 +95,33 @@ func generateStruct(file *os.File, structInspect StructInspect) error {
 	return nil
 }
 
-func generateFunc(file *os.File, funcInspect FuncInspect) error {
+func generateHasManyFunc(file *os.File, funcInspect FuncInspect) error {
 	funcMap := template.FuncMap{
 		"toSnakeCase": toSnakeCase,
 	}
 
 	t, _ := template.New("Base").Funcs(funcMap).Parse(FuncBody)
 
-	_, err := t.New("Joins").Parse(templates.JoinsTextBody)
+	_, err := t.New("Joins").Parse(templates.HasManyTextBody)
+	if err != nil {
+		return err
+	}
+
+	err = t.Execute(file, funcInspect)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func generateBelongsToFunc(file *os.File, funcInspect FuncInspect) error {
+	funcMap := template.FuncMap{
+		"toSnakeCase": toSnakeCase,
+	}
+
+	t, _ := template.New("Base").Funcs(funcMap).Parse(FuncBody)
+
+	_, err := t.New("Joins").Parse(templates.BelongsTextBody)
 	if err != nil {
 		return err
 	}
