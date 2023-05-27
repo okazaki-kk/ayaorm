@@ -33,19 +33,18 @@ var CrudTextBody = `
 		return {{toSnakeCase .ModelName}}, nil
 	}
 
-	func (u *Comment) Update(params CommentParams) error {
-		if !ayaorm.IsZero(params.Id) {
-			u.Id = params.Id
+	func (u *{{.ModelName}}) Update(params {{.ModelName}}Params) error {
+		{{ range $column := .Columns -}}
+		{{ if eq $column "CreatedAt" -}}
+		{{ continue }}
+		{{ end -}}
+		{{ if eq $column "UpdatedAt" -}}
+		{{ continue }}
+		{{ end -}}
+		if !ayaorm.IsZero(params.{{ $column }}) {
+			u.{{ $column }} = params.{{ $column }}
 		}
-		if !ayaorm.IsZero(params.Content) {
-			u.Content = params.Content
-		}
-		if !ayaorm.IsZero(params.Author) {
-			u.Author = params.Author
-		}
-		if !ayaorm.IsZero(params.PostId) {
-			u.PostId = params.PostId
-		}
+		{{ end -}}
 		return u.Save()
 	}
 
