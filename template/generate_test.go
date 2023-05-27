@@ -13,9 +13,9 @@ func TestGenerate(t *testing.T) {
 		PackageName: "testss",
 		StructInspect: []StructInspect{
 			{
-				ModelName:   "User",
-				FieldKeys:   []string{"Id", "Name", "Age", "CreatedAt", "UpdatedAt"},
-				FieldValues: []string{"int", "string", "int", "time.Time", "time.Time"},
+				ModelName:   "Comment",
+				FieldKeys:   []string{"Id", "Content", "Author", "PostId", "CreatedAt", "UpdatedAt"},
+				FieldValues: []string{"int", "string", "string", "int", "time.Time", "time.Time"},
 			},
 		},
 		FuncInspect: []FuncInspect{
@@ -32,10 +32,10 @@ func TestGenerate(t *testing.T) {
 		},
 	}
 
-	err := Generate("user.go", fileInspect)
+	err := Generate("schema.go", fileInspect)
 	assert.NoError(t, err)
 
-	filePath := strings.ToLower("User") + "_gen.go"
+	filePath := strings.ToLower("Schema") + "_gen.go"
 	defer os.Remove(filePath)
 	defer os.Remove("db_gen.go")
 
@@ -64,20 +64,21 @@ import (
 	"github.com/okazaki-kk/ayaorm"
 )
 
-type UserRelation struct {
-	model *User
+type CommentRelation struct {
+	model *Comment
 	*ayaorm.Relation
 }
 
-func (m *User) newRelation() *UserRelation {
-	r := &UserRelation{
+func (m *Comment) newRelation() *CommentRelation {
+	r := &CommentRelation{
 		m,
-		ayaorm.NewRelation(db).SetTable("users"),
+		ayaorm.NewRelation(db).SetTable("comments"),
 	}
 	r.Select(
 		"id",
-		"name",
-		"age",
+		"content",
+		"author",
+		"post_id",
 		"created_at",
 		"updated_at",
 	)
@@ -85,15 +86,15 @@ func (m *User) newRelation() *UserRelation {
 	return r
 }
 
-func (m User) Select(columns ...string) *UserRelation {
+func (m Comment) Select(columns ...string) *CommentRelation {
 	return m.newRelation().Select(columns...)
 }
 
-func (r *UserRelation) Select(columns ...string) *UserRelation {
+func (r *CommentRelation) Select(columns ...string) *CommentRelation {
 	cs := []string{}
 	for _, c := range columns {
 		if r.model.isColumnName(c) {
-			cs = append(cs, fmt.Sprintf("users.%s", c))
+			cs = append(cs, fmt.Sprintf("comments.%s", c))
 		} else {
 			cs = append(cs, c)
 		}
@@ -102,47 +103,47 @@ func (r *UserRelation) Select(columns ...string) *UserRelation {
 	return r
 }
 
-type UserParams User
+type CommentParams Comment
 
-func (m User) Build(p UserParams) *User {
-	return &User{
-		Schema: ayaorm.Schema{Id: p.Id},
-		Name:   p.Name,
-		Age:    p.Age,
+func (m Comment) Build(p CommentParams) *Comment {
+	return &Comment{
+		Schema:  ayaorm.Schema{Id: p.Id},
+		Content: p.Content,
+		Author:  p.Author,
+		PostId:  p.PostId,
 	}
 }
 
-func (u User) Create(params UserParams) (*User, error) {
-	user := u.Build(params)
-	return u.newRelation().Create(user)
+func (u Comment) Create(params CommentParams) (*Comment, error) {
+	comment := u.Build(params)
+	return u.newRelation().Create(comment)
 }
 
-func (r *UserRelation) Create(user *User) (*User, error) {
-	err := user.Save()
+func (r *CommentRelation) Create(comment *Comment) (*Comment, error) {
+	err := comment.Save()
 	if err != nil {
 		return nil, err
 	}
-	return user, nil
+	return comment, nil
 }
 
-func (u *User) Update(params UserParams) error {
-	return u.newRelation().Update(u.Id, params)
-}
-
-func (r *UserRelation) Update(id int, params UserParams) error {
-	fieldMap := make(map[string]interface{})
-	for _, c := range r.Relation.GetColumns() {
-		switch c {
-		case "name", "users.name":
-			fieldMap["name"] = params.Name
-		case "age", "users.age":
-			fieldMap["age"] = params.Age
-		}
+func (u *Comment) Update(params CommentParams) error {
+	if !ayaorm.IsZero(params.Id) {
+		u.Id = params.Id
 	}
-	return r.Relation.Update(id, fieldMap)
+	if !ayaorm.IsZero(params.Content) {
+		u.Content = params.Content
+	}
+	if !ayaorm.IsZero(params.Author) {
+		u.Author = params.Author
+	}
+	if !ayaorm.IsZero(params.PostId) {
+		u.PostId = params.PostId
+	}
+	return u.Save()
 }
 
-func (m *User) Save() error {
+func (m *Comment) Save() error {
 	lastId, err := m.newRelation().Save()
 	if m.Id == 0 {
 		m.Id = lastId
@@ -150,113 +151,115 @@ func (m *User) Save() error {
 	return err
 }
 
-func (r *UserRelation) Save() (int, error) {
+func (r *CommentRelation) Save() (int, error) {
 	fieldMap := make(map[string]interface{})
 	for _, c := range r.Relation.GetColumns() {
 		switch c {
-		case "name", "users.name":
-			fieldMap["name"] = r.model.Name
-		case "age", "users.age":
-			fieldMap["age"] = r.model.Age
+		case "content", "comments.content":
+			fieldMap["content"] = r.model.Content
+		case "author", "comments.author":
+			fieldMap["author"] = r.model.Author
+		case "post_id", "comments.post_id":
+			fieldMap["post_id"] = r.model.PostId
 		}
 	}
 
-	return r.Relation.Save(fieldMap)
+	return r.Relation.Save(r.model.Id, fieldMap)
 }
 
-func (m *User) Delete() error {
+func (m *Comment) Delete() error {
 	return m.newRelation().Delete(m.Id)
 }
 
-func (m User) Count(column ...string) int {
+func (m Comment) Count(column ...string) int {
 	return m.newRelation().Count(column...)
 }
 
-func (m User) All() *UserRelation {
+func (m Comment) All() *CommentRelation {
 	return m.newRelation()
 }
 
-func (m User) Limit(limit int) *UserRelation {
+func (m Comment) Limit(limit int) *CommentRelation {
 	return m.newRelation().Limit(limit)
 }
 
-func (r *UserRelation) Limit(limit int) *UserRelation {
+func (r *CommentRelation) Limit(limit int) *CommentRelation {
 	r.Relation.Limit(limit)
 	return r
 }
 
-func (m User) Order(key, order string) *UserRelation {
+func (m Comment) Order(key, order string) *CommentRelation {
 	return m.newRelation().Order(key, order)
 }
 
-func (r *UserRelation) Order(key, order string) *UserRelation {
+func (r *CommentRelation) Order(key, order string) *CommentRelation {
 	r.Relation.Order(key, order)
 	return r
 }
 
-func (m User) Where(column string, conditions ...interface{}) *UserRelation {
+func (m Comment) Where(column string, conditions ...interface{}) *CommentRelation {
 	return m.newRelation().Where(column, conditions...)
 }
 
-func (r *UserRelation) Where(column string, conditions ...interface{}) *UserRelation {
+func (r *CommentRelation) Where(column string, conditions ...interface{}) *CommentRelation {
 	r.Relation.Where(column, conditions...)
 	return r
 }
 
-func (m User) First() (*User, error) {
+func (m Comment) First() (*Comment, error) {
 	return m.newRelation().First()
 }
 
-func (r *UserRelation) First() (*User, error) {
+func (r *CommentRelation) First() (*Comment, error) {
 	r.Relation.First()
 	return r.QueryRow()
 }
 
-func (m User) Last() (*User, error) {
+func (m Comment) Last() (*Comment, error) {
 	return m.newRelation().Last()
 }
 
-func (r *UserRelation) Last() (*User, error) {
+func (r *CommentRelation) Last() (*Comment, error) {
 	r.Relation.Last()
 	return r.QueryRow()
 }
 
-func (m User) Find(id int) (*User, error) {
+func (m Comment) Find(id int) (*Comment, error) {
 	return m.newRelation().Find(id)
 }
 
-func (r *UserRelation) Find(id int) (*User, error) {
+func (r *CommentRelation) Find(id int) (*Comment, error) {
 	r.Relation.Find(id)
 	return r.QueryRow()
 }
 
-func (m User) FindBy(column string, value interface{}) (*User, error) {
+func (m Comment) FindBy(column string, value interface{}) (*Comment, error) {
 	return m.newRelation().FindBy(column, value)
 }
 
-func (r *UserRelation) FindBy(column string, value interface{}) (*User, error) {
+func (r *CommentRelation) FindBy(column string, value interface{}) (*Comment, error) {
 	r.Relation.FindBy(column, value)
 	return r.QueryRow()
 }
 
-func (m User) Pluck(column string) ([]interface{}, error) {
+func (m Comment) Pluck(column string) ([]interface{}, error) {
 	return m.newRelation().Pluck(column)
 }
 
-func (r *UserRelation) Pluck(column string) ([]interface{}, error) {
+func (r *CommentRelation) Pluck(column string) ([]interface{}, error) {
 	return r.Relation.Pluck(column)
 }
 
-func (r *UserRelation) Query() ([]*User, error) {
+func (r *CommentRelation) Query() ([]*Comment, error) {
 	rows, err := r.Relation.Query()
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	results := []*User{}
+	results := []*Comment{}
 	for rows.Next() {
-		row := &User{}
+		row := &Comment{}
 		err := rows.Scan(row.fieldPtrsByName(r.Relation.GetColumns())...)
 		if err != nil {
 			return nil, err
@@ -266,8 +269,8 @@ func (r *UserRelation) Query() ([]*User, error) {
 	return results, nil
 }
 
-func (r *UserRelation) QueryRow() (*User, error) {
-	row := &User{}
+func (r *CommentRelation) QueryRow() (*Comment, error) {
+	row := &Comment{}
 	err := r.Relation.QueryRow(row.fieldPtrsByName(r.Relation.GetColumns())...)
 	if err != nil {
 		return nil, err
@@ -275,24 +278,26 @@ func (r *UserRelation) QueryRow() (*User, error) {
 	return row, nil
 }
 
-func (m *User) fieldPtrByName(name string) interface{} {
+func (m *Comment) fieldPtrByName(name string) interface{} {
 	switch name {
-	case "id", "users.id":
+	case "id", "comments.id":
 		return &m.Id
-	case "name", "users.name":
-		return &m.Name
-	case "age", "users.age":
-		return &m.Age
-	case "created_at", "users.created_at":
+	case "content", "comments.content":
+		return &m.Content
+	case "author", "comments.author":
+		return &m.Author
+	case "post_id", "comments.post_id":
+		return &m.PostId
+	case "created_at", "comments.created_at":
 		return &m.CreatedAt
-	case "updated_at", "users.updated_at":
+	case "updated_at", "comments.updated_at":
 		return &m.UpdatedAt
 	default:
 		return nil
 	}
 }
 
-func (m *User) fieldPtrsByName(names []string) []interface{} {
+func (m *Comment) fieldPtrsByName(names []string) []interface{} {
 	fields := []interface{}{}
 	for _, n := range names {
 		f := m.fieldPtrByName(n)
@@ -301,7 +306,7 @@ func (m *User) fieldPtrsByName(names []string) []interface{} {
 	return fields
 }
 
-func (m *User) isColumnName(name string) bool {
+func (m *Comment) isColumnName(name string) bool {
 	for _, c := range m.columnNames() {
 		if c == name {
 			return true
@@ -310,11 +315,12 @@ func (m *User) isColumnName(name string) bool {
 	return false
 }
 
-func (m *User) columnNames() []string {
+func (m *Comment) columnNames() []string {
 	return []string{
 		"id",
-		"name",
-		"age",
+		"content",
+		"author",
+		"post_id",
 		"created_at",
 		"updated_at",
 	}
