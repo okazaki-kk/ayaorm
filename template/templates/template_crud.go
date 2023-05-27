@@ -52,7 +52,7 @@ var CrudTextBody = `
 				{{ continue }}
 				{{ end -}}
 				case "{{ toSnakeCase  $column}}", "{{$.SnakeCaseModelName}}.{{toSnakeCase $column}}":
-					fieldMap["{{toSnakeCase $column}}"] = r.model.{{$column}}
+					fieldMap["{{toSnakeCase $column}}"] = params.{{$column}}
 				{{ end -}}
 			}
 		}
