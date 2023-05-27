@@ -2,6 +2,7 @@ package ayaorm
 
 import (
 	"fmt"
+	"reflect"
 )
 
 type Rule interface {
@@ -13,7 +14,8 @@ func MakeRule() *Validation {
 }
 
 type Validation struct {
-	presence *presence
+	presence  *presence
+	maxLength *maxLength
 }
 
 func (v *Validation) Rule() *Validation {
@@ -39,8 +41,31 @@ func newPresence(v *Validation) *presence {
 	}
 }
 
+func (v *Validation) MaxLength(max int) *maxLength {
+	if v.maxLength == nil {
+		v.maxLength = newMaxLength(v, max)
+	}
+	return v.maxLength
+}
+
+type maxLength struct {
+	*Validation
+	maxLength int
+}
+
+func newMaxLength(v *Validation, max int) *maxLength {
+	return &maxLength{
+		Validation: v,
+		maxLength:  max,
+	}
+}
+
 func (p *presence) Rule() *Validation {
 	return p.Validation
+}
+
+func (l *maxLength) Rule() *Validation {
+	return l.Validation
 }
 
 type Validator struct {
@@ -59,12 +84,25 @@ func (v Validator) IsValid(name string, value interface{}) (bool, []error) {
 	result := true
 	errors := []error{}
 
-	if v.rule.presence.presence {
+	if v.rule.presence != nil && v.rule.presence.presence {
 		if ok, err := v.isPresent(name, value); !ok {
 			result = false
 			errors = append(errors, err)
 		}
 	}
+
+	if v.rule.maxLength != nil {
+		if reflect.TypeOf(value).Kind() != reflect.String {
+			result = false
+			errors = append(errors, fmt.Errorf("%s must be string", name))
+		} else {
+			if len(value.(string)) > v.rule.maxLength.maxLength {
+				result = false
+				errors = append(errors, fmt.Errorf("%s is too long (maximum is %d characters)", name, v.rule.maxLength.maxLength))
+			}
+		}
+	}
+
 	return result, errors
 }
 
