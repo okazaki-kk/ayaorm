@@ -3,6 +3,7 @@ package tests
 import (
 	"database/sql"
 	"log"
+	"os"
 	"testing"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -30,6 +31,11 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		log.Fatal("db create error", err)
 	}
+
+	code := m.Run()
+	defer db.Close()
+	defer os.Remove("./ayaorm.db")
+	os.Exit(code)
 }
 
 func TestCreate(t *testing.T) {
