@@ -2,7 +2,6 @@ package ayaorm
 
 import (
 	"fmt"
-	"reflect"
 )
 
 type Rule interface {
@@ -16,7 +15,9 @@ func MakeRule() *Validation {
 type Validation struct {
 	presence     *presence
 	maxLength    *maxLength
+	minLength    *minLength
 	numericality *numericality
+	onlyInterger *onlyInterger
 }
 
 func (v *Validation) Rule() *Validation {
@@ -69,6 +70,29 @@ func (l *maxLength) Rule() *Validation {
 	return l.Validation
 }
 
+func (v *Validation) MinLength(min int) *minLength {
+	if v.minLength == nil {
+		v.minLength = newMinLength(v, min)
+	}
+	return v.minLength
+}
+
+type minLength struct {
+	*Validation
+	minLength int
+}
+
+func newMinLength(v *Validation, min int) *minLength {
+	return &minLength{
+		Validation: v,
+		minLength:  min,
+	}
+}
+
+func (l *minLength) Rule() *Validation {
+	return l.Validation
+}
+
 func (v *Validation) Numericality() *numericality {
 	if v.numericality == nil {
 		v.numericality = newNumericality(v)
@@ -89,6 +113,29 @@ func newNumericality(v *Validation) *numericality {
 }
 
 func (n *numericality) Rule() *Validation {
+	return n.Validation
+}
+
+func (v *Validation) OnlyInteger() *onlyInterger {
+	if v.onlyInterger == nil {
+		v.onlyInterger = newOnlyInteger(v)
+	}
+	return v.onlyInterger
+}
+
+type onlyInterger struct {
+	*Validation
+	onlyInterger bool
+}
+
+func newOnlyInteger(v *Validation) *onlyInterger {
+	return &onlyInterger{
+		Validation:   v,
+		onlyInterger: true,
+	}
+}
+
+func (n *onlyInterger) Rule() *Validation {
 	return n.Validation
 }
 
@@ -115,29 +162,38 @@ func (v Validator) IsValid(name string, value interface{}) (bool, []error) {
 		}
 	}
 
-	if v.rule.maxLength != nil {
-		if reflect.TypeOf(value).Kind() != reflect.String {
-			result = false
-			errors = append(errors, fmt.Errorf("%s must be string", name))
-		} else {
-			if len(value.(string)) > v.rule.maxLength.maxLength {
-				result = false
-				errors = append(errors, fmt.Errorf("%s is too long (maximum is %d characters)", name, v.rule.maxLength.maxLength))
-			}
-		}
+	if v.rule.maxLength != nil && len(value.(string)) > v.rule.maxLength.maxLength {
+		result = false
+		errors = append(errors, fmt.Errorf("%s is too long (maximum is %d characters)", name, v.rule.maxLength.maxLength))
+	}
+	if v.rule.minLength != nil && len(value.(string)) < v.rule.minLength.minLength {
+		result = false
+		errors = append(errors, fmt.Errorf("%s is too short (minimum is %d characters)", name, v.rule.minLength.minLength))
 	}
 
 	if v.rule.numericality != nil && v.rule.numericality.numericality {
-		switch value.(type) {
-		case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
-			return true, nil
-		case float32, float64:
-			return true, nil
+		if ok, err := v.isNumericality(name, value); !ok {
+			result = false
+			errors = append(errors, err)
 		}
-		return false, []error{fmt.Errorf("%s must be number", name)}
 	}
 
 	return result, errors
+}
+
+func (v Validator) isNumericality(name string, value interface{}) (bool, error) {
+	numericality := v.rule.numericality
+	switch value.(type) {
+	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
+		return true, nil
+	case float32, float64:
+		if numericality.numericality {
+			return false, fmt.Errorf("%s must be integer", name)
+		} else {
+			return true, nil
+		}
+	}
+	return false, fmt.Errorf("%s must be number", name)
 }
 
 func (v Validator) isPresent(name string, value interface{}) (bool, error) {
