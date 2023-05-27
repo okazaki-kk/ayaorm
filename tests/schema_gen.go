@@ -342,9 +342,9 @@ func (r *PostRelation) Update(id int, params PostParams) error {
 	for _, c := range r.Relation.GetColumns() {
 		switch c {
 		case "content", "posts.content":
-			fieldMap["content"] = r.model.Content
+			fieldMap["content"] = params.Content
 		case "author", "posts.author":
-			fieldMap["author"] = r.model.Author
+			fieldMap["author"] = params.Author
 		}
 	}
 	return r.Relation.Update(id, fieldMap)
