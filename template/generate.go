@@ -3,10 +3,10 @@ package template
 import (
 	"os"
 	"os/exec"
-	"regexp"
 	"strings"
 	"text/template"
 
+	"github.com/okazaki-kk/ayaorm"
 	"github.com/okazaki-kk/ayaorm/template/templates"
 )
 
@@ -62,7 +62,7 @@ func Generate(from string, fileInspect FileInspect) error {
 
 func generateStruct(file *os.File, structInspect StructInspect) error {
 	funcMap := template.FuncMap{
-		"toSnakeCase": toSnakeCase,
+		"toSnakeCase": ayaorm.ToSnakeCase,
 	}
 
 	t, _ := template.New("Base").Funcs(funcMap).Parse(TextBody)
@@ -97,7 +97,7 @@ func generateStruct(file *os.File, structInspect StructInspect) error {
 
 func generateHasManyFunc(file *os.File, funcInspect FuncInspect) error {
 	funcMap := template.FuncMap{
-		"toSnakeCase": toSnakeCase,
+		"toSnakeCase": ayaorm.ToSnakeCase,
 	}
 
 	t, _ := template.New("Base").Funcs(funcMap).Parse(FuncBody)
@@ -116,7 +116,7 @@ func generateHasManyFunc(file *os.File, funcInspect FuncInspect) error {
 
 func generateBelongsToFunc(file *os.File, funcInspect FuncInspect) error {
 	funcMap := template.FuncMap{
-		"toSnakeCase": toSnakeCase,
+		"toSnakeCase": ayaorm.ToSnakeCase,
 	}
 
 	t, _ := template.New("Base").Funcs(funcMap).Parse(FuncBody)
@@ -148,11 +148,4 @@ func GenerateDB() error {
 		return err
 	}
 	return nil
-}
-
-func toSnakeCase(s string) string {
-	const snake = "${1}_${2}"
-	reg1 := regexp.MustCompile("([A-Z]+)([A-Z][a-z])")
-	reg2 := regexp.MustCompile("([a-z])([A-Z])")
-	return strings.ToLower(reg2.ReplaceAllString(reg1.ReplaceAllString(s, snake), snake))
 }

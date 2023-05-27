@@ -8,6 +8,8 @@ import (
 	"go/token"
 	"log"
 	"strings"
+
+	"github.com/okazaki-kk/ayaorm"
 )
 
 type FileInspect struct {
@@ -34,7 +36,7 @@ func (s StructInspect) Columns() []string {
 }
 
 func (s StructInspect) SnakeCaseModelName() string {
-	return toSnakeCase(s.ModelName) + "s"
+	return ayaorm.ToSnakeCase(s.ModelName) + "s"
 }
 
 type FuncInspect struct {
