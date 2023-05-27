@@ -38,6 +38,10 @@ func TestImport(t *testing.T) {
 
 	func (m Comment) belongsToPost() {
 	}
+
+	func (m Post) validatesPresenceOfAuthor() ayaorm.Rule {
+		return ayaorm.MakeRule().Presence()
+	}
 	`
 
 	_, err = file.Write([]byte(userStruct))
@@ -47,7 +51,7 @@ func TestImport(t *testing.T) {
 
 	assert.Equal(t, "testss", fileInspect.PackageName)
 	assert.Equal(t, 2, len(fileInspect.StructInspect))
-	assert.Equal(t, 2, len(fileInspect.FuncInspect))
+	assert.Equal(t, 3, len(fileInspect.FuncInspect))
 
 	assert.Equal(t, "Post", fileInspect.StructInspect[0].ModelName)
 	assert.Equal(t, []string{"Id", "Content", "Author", "CreatedAt", "UpdatedAt"}, fileInspect.StructInspect[0].FieldKeys)
@@ -66,4 +70,9 @@ func TestImport(t *testing.T) {
 	assert.Equal(t, "Comment", fileInspect.FuncInspect[1].Recv)
 	assert.Equal(t, true, fileInspect.FuncInspect[1].BelongTo)
 	assert.Equal(t, "Post", fileInspect.FuncInspect[1].BelongsToModel())
+
+	assert.Equal(t, "validatesPresenceOfAuthor", fileInspect.FuncInspect[2].FuncName)
+	assert.Equal(t, "Post", fileInspect.FuncInspect[2].Recv)
+	assert.Equal(t, true, fileInspect.FuncInspect[2].ValidatePresence)
+	assert.Equal(t, "Author", fileInspect.FuncInspect[2].ValidatePresenceField())
 }

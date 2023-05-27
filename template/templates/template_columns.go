@@ -13,6 +13,17 @@ var ColumnsTextBody = `
 			}
 		}
 
+		func (m *{{.ModelName}}) fieldValuesByName(name string) interface{} {
+			switch name {
+				{{ range $column := .Columns -}}
+				case "{{ toSnakeCase  $column}}", "{{$.SnakeCaseModelName}}.{{toSnakeCase $column}}":
+					return m.{{$column}}
+				{{ end -}}
+			default:
+				return nil
+			}
+		}
+
 		func (m *{{.ModelName}}) fieldPtrsByName(names []string) []interface{} {
 			fields := []interface{}{}
 			for _, n := range names {

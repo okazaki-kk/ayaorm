@@ -49,6 +49,8 @@ func Generate(from string, fileInspect FileInspect) error {
 			err = generateBelongsToFunc(file, f)
 		} else if f.HasMany {
 			err = generateHasManyFunc(file, f)
+		} else if f.ValidatePresence {
+			err = generateValidatePresenceFunc(file, f)
 		}
 		if err != nil {
 			return err
@@ -130,6 +132,25 @@ func generateBelongsToFunc(file *os.File, funcInspect FuncInspect) error {
 	t, _ := template.New("Base").Funcs(funcMap).Parse(FuncBody)
 
 	_, err := t.New("Joins").Parse(templates.BelongsTextBody)
+	if err != nil {
+		return err
+	}
+
+	err = t.Execute(file, funcInspect)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func generateValidatePresenceFunc(file *os.File, funcInspect FuncInspect) error {
+	funcMap := template.FuncMap{
+		"toSnakeCase": ayaorm.ToSnakeCase,
+	}
+
+	t, _ := template.New("Base").Funcs(funcMap).Parse(FuncBody)
+
+	_, err := t.New("Joins").Parse(templates.ValidatePresenceTextBody)
 	if err != nil {
 		return err
 	}
