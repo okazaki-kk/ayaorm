@@ -40,11 +40,12 @@ func (s StructInspect) SnakeCaseModelName() string {
 }
 
 type FuncInspect struct {
-	FuncName string
-	Recv     string
-	Args     []string
-	HasMany  bool
-	BelongTo bool
+	FuncName         string
+	Recv             string
+	Args             []string
+	HasMany          bool
+	BelongTo         bool
+	ValidatePresence bool
 }
 
 func (f FuncInspect) HasManyModel() string {
@@ -54,6 +55,10 @@ func (f FuncInspect) HasManyModel() string {
 
 func (f FuncInspect) BelongsToModel() string {
 	return strings.TrimPrefix(f.FuncName, "belongsTo")
+}
+
+func (f FuncInspect) ValidatePresenceField() string {
+	return strings.TrimPrefix(f.FuncName, "validatesPresenceOf")
 }
 
 // scan file and return package name and file info
@@ -124,7 +129,8 @@ func Inspect(path string) FileInspect {
 			recv := n.(*ast.FuncDecl).Recv.List[0].Type.(*ast.Ident).Name
 			hasMany := strings.HasPrefix(funcName, "hasMany")
 			belongsTo := strings.HasPrefix(funcName, "belongsTo")
-			funcInspect = append(funcInspect, FuncInspect{FuncName: funcName, Recv: recv, HasMany: hasMany, BelongTo: belongsTo})
+			validatePresence := strings.HasPrefix(funcName, "validatesPresenceOf")
+			funcInspect = append(funcInspect, FuncInspect{FuncName: funcName, Recv: recv, HasMany: hasMany, BelongTo: belongsTo, ValidatePresence: validatePresence})
 		}
 		return true
 	})

@@ -26,3 +26,7 @@ func (m Post) hasManyComments() {
 
 func (m Comment) belongsToPost() {
 }
+
+func (m Post) validatesPresenceOfAuthor() ayaorm.Rule {
+	return ayaorm.MakeRule().Presence()
+}
