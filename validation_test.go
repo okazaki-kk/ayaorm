@@ -10,6 +10,7 @@ type TestPost struct {
 	Schema
 	Author  string
 	Content string
+	Age     int
 }
 
 func (m TestPost) validatesPresenceOfAuthor() Rule {
@@ -18,6 +19,10 @@ func (m TestPost) validatesPresenceOfAuthor() Rule {
 
 func (m TestPost) validateMaxLengthOfContent() Rule {
 	return MakeRule().MaxLength(10)
+}
+
+func (m TestPost) validateNumericalityOfAge() Rule {
+	return MakeRule().Numericality()
 }
 
 func TestIsValid(t *testing.T) {
@@ -51,4 +56,21 @@ func TestIsValid(t *testing.T) {
 		assert.Equal(t, true, result)
 		assert.Equal(t, 0, len(errors))
 	})
+
+	validator = NewValidator(TestPost{}.validateNumericalityOfAge().Rule())
+	t.Run("when age is not numerical", func(t *testing.T) {
+		result, errors := validator.IsValid("Age", "20.0")
+
+		assert.Equal(t, false, result)
+		assert.Equal(t, 1, len(errors))
+		assert.Equal(t, "Age must be number", errors[0].Error())
+	})
+
+	t.Run("when age is numerical", func(t *testing.T) {
+		result, errors := validator.IsValid("Age", 20)
+
+		assert.Equal(t, true, result)
+		assert.Equal(t, 0, len(errors))
+	})
+
 }

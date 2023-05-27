@@ -14,8 +14,9 @@ func MakeRule() *Validation {
 }
 
 type Validation struct {
-	presence  *presence
-	maxLength *maxLength
+	presence     *presence
+	maxLength    *maxLength
+	numericality *numericality
 }
 
 func (v *Validation) Rule() *Validation {
@@ -41,6 +42,10 @@ func newPresence(v *Validation) *presence {
 	}
 }
 
+func (p *presence) Rule() *Validation {
+	return p.Validation
+}
+
 func (v *Validation) MaxLength(max int) *maxLength {
 	if v.maxLength == nil {
 		v.maxLength = newMaxLength(v, max)
@@ -60,12 +65,31 @@ func newMaxLength(v *Validation, max int) *maxLength {
 	}
 }
 
-func (p *presence) Rule() *Validation {
-	return p.Validation
-}
-
 func (l *maxLength) Rule() *Validation {
 	return l.Validation
+}
+
+func (v *Validation) Numericality() *numericality {
+	if v.numericality == nil {
+		v.numericality = newNumericality(v)
+	}
+	return v.numericality
+}
+
+type numericality struct {
+	*Validation
+	numericality bool
+}
+
+func newNumericality(v *Validation) *numericality {
+	return &numericality{
+		Validation:   v,
+		numericality: true,
+	}
+}
+
+func (n *numericality) Rule() *Validation {
+	return n.Validation
 }
 
 type Validator struct {
@@ -101,6 +125,16 @@ func (v Validator) IsValid(name string, value interface{}) (bool, []error) {
 				errors = append(errors, fmt.Errorf("%s is too long (maximum is %d characters)", name, v.rule.maxLength.maxLength))
 			}
 		}
+	}
+
+	if v.rule.numericality != nil && v.rule.numericality.numericality {
+		switch value.(type) {
+		case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
+			return true, nil
+		case float32, float64:
+			return true, nil
+		}
+		return false, []error{fmt.Errorf("%s must be number", name)}
 	}
 
 	return result, errors
