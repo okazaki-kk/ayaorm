@@ -88,5 +88,4 @@ func TestIsValid(t *testing.T) {
 		assert.Equal(t, true, result)
 		assert.Equal(t, 0, len(errors))
 	})
-
 }
