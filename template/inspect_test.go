@@ -33,7 +33,10 @@ func TestImport(t *testing.T) {
 		PostId  int
 	}
 
-	func (m Post) hasManyPosts() {
+	func (m Post) hasManyComments() {
+	}
+
+	func (m Comment) belongsToPost() {
 	}
 	`
 
@@ -44,7 +47,7 @@ func TestImport(t *testing.T) {
 
 	assert.Equal(t, "main", fileInspect.PackageName)
 	assert.Equal(t, 2, len(fileInspect.StructInspect))
-	assert.Equal(t, 1, len(fileInspect.FuncInspect))
+	assert.Equal(t, 2, len(fileInspect.FuncInspect))
 
 	assert.Equal(t, "Post", fileInspect.StructInspect[0].ModelName)
 	assert.Equal(t, []string{"Id", "Content", "Author", "CreatedAt", "UpdatedAt"}, fileInspect.StructInspect[0].FieldKeys)
@@ -54,6 +57,13 @@ func TestImport(t *testing.T) {
 	assert.Equal(t, []string{"Id", "Content", "Author", "PostId", "CreatedAt", "UpdatedAt"}, fileInspect.StructInspect[1].FieldKeys)
 	assert.Equal(t, []string{"int", "string", "string", "int", "time.Time", "time.Time"}, fileInspect.StructInspect[1].FieldValues)
 
-	assert.Equal(t, "hasManyPosts", fileInspect.FuncInspect[0].FuncName)
+	assert.Equal(t, "hasManyComments", fileInspect.FuncInspect[0].FuncName)
 	assert.Equal(t, "Post", fileInspect.FuncInspect[0].Recv)
+	assert.Equal(t, true, fileInspect.FuncInspect[0].HasMany)
+	assert.Equal(t, "Comment", fileInspect.FuncInspect[0].HasManyModel())
+
+	assert.Equal(t, "belongsToPost", fileInspect.FuncInspect[1].FuncName)
+	assert.Equal(t, "Comment", fileInspect.FuncInspect[1].Recv)
+	assert.Equal(t, true, fileInspect.FuncInspect[1].BelongTo)
+	assert.Equal(t, "Post", fileInspect.FuncInspect[1].BelongsToModel())
 }
