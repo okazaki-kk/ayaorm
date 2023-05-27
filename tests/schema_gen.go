@@ -772,3 +772,35 @@ func (m *User) columnNames() []string {
 		"updated_at",
 	}
 }
+
+func (m Post) Comments() ([]*Comment, error) {
+	m.hasManyComments()
+	c, err := Comment{}.Where("post_id", m.Id).Query()
+	if err != nil {
+		return nil, err
+	}
+	return c, nil
+}
+
+func (u Post) JoinComments() *PostRelation {
+	return u.newRelation().JoinComments()
+}
+
+func (u *PostRelation) JoinComments() *PostRelation {
+	u.Relation.InnerJoin("posts", "comments", true)
+	return u
+}
+
+func (u Comment) Post() (*Post, error) {
+	u.belongsToPost()
+	return Post{}.Find(u.PostId)
+}
+
+func (u Comment) JoinPost() *CommentRelation {
+	return u.newRelation().JoinPost()
+}
+
+func (u *CommentRelation) JoinPost() *CommentRelation {
+	u.Relation.InnerJoin("comments", "posts", false)
+	return u
+}

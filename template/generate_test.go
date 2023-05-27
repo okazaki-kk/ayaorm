@@ -327,6 +327,7 @@ func (m *Comment) columnNames() []string {
 }
 
 func (m Post) Comments() ([]*Comment, error) {
+	m.hasManyComments()
 	c, err := Comment{}.Where("post_id", m.Id).Query()
 	if err != nil {
 		return nil, err
@@ -344,6 +345,7 @@ func (u *PostRelation) JoinComments() *PostRelation {
 }
 
 func (u Comment) Post() (*Post, error) {
+	u.belongsToPost()
 	return Post{}.Find(u.PostId)
 }
 

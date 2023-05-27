@@ -20,3 +20,9 @@ type User struct {
 	Name string
 	Age  int
 }
+
+func (m Post) hasManyComments() {
+}
+
+func (m Comment) belongsToPost() {
+}
