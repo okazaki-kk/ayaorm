@@ -191,3 +191,23 @@ func TestWhere2(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, 0, len(users))
 }
+
+func TestHasMany(t *testing.T) {
+	post, err := Post{}.First()
+	assert.NoError(t, err)
+	comments, err := post.Comments()
+	assert.NoError(t, err)
+	assert.Equal(t, 2, len(comments))
+	assert.Equal(t, "Fantastic", comments[0].Content)
+	assert.Equal(t, "Bad", comments[1].Content)
+}
+
+func TestBelongsTo(t *testing.T) {
+	comment, err := Comment{}.First()
+	assert.NoError(t, err)
+	post, err := comment.Post()
+	assert.NoError(t, err)
+	assert.Equal(t, "Golang Post Updated", post.Content)
+	assert.Equal(t, "Me Updated", post.Author)
+	assert.Equal(t, 1, post.Id)
+}

@@ -1,6 +1,7 @@
 package templates
 
 var BelongsTextBody = `func (u {{.Recv}}) {{.BelongsToModel}}() (*{{.BelongsToModel}}, error) {
+	u.belongsTo{{.BelongsToModel}}()
 	return {{.BelongsToModel}}{}.Find(u.{{.BelongsToModel}}Id)
 }
 
