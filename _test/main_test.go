@@ -1,7 +1,8 @@
 package test
 
-import ("github.com/stretchr/testify/assert"
-"testing"
+import (
+	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestTest(t *testing.T) {
