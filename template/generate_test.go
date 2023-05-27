@@ -29,6 +29,11 @@ func TestGenerate(t *testing.T) {
 				Recv:     "Comment",
 				BelongTo: true,
 			},
+			{
+				FuncName:         "validatesPresenceOfAuthor",
+				Recv:             "Post",
+				ValidatePresence: true,
+			},
 		},
 	}
 
