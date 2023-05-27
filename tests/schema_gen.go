@@ -240,6 +240,25 @@ func (m *Comment) fieldPtrByName(name string) interface{} {
 	}
 }
 
+func (m *Comment) fieldValuesByName(name string) interface{} {
+	switch name {
+	case "id", "comments.id":
+		return m.Id
+	case "content", "comments.content":
+		return m.Content
+	case "author", "comments.author":
+		return m.Author
+	case "post_id", "comments.post_id":
+		return m.PostId
+	case "created_at", "comments.created_at":
+		return m.CreatedAt
+	case "updated_at", "comments.updated_at":
+		return m.UpdatedAt
+	default:
+		return nil
+	}
+}
+
 func (m *Comment) fieldPtrsByName(names []string) []interface{} {
 	fields := []interface{}{}
 	for _, n := range names {
@@ -488,6 +507,23 @@ func (m *Post) fieldPtrByName(name string) interface{} {
 		return &m.CreatedAt
 	case "updated_at", "posts.updated_at":
 		return &m.UpdatedAt
+	default:
+		return nil
+	}
+}
+
+func (m *Post) fieldValuesByName(name string) interface{} {
+	switch name {
+	case "id", "posts.id":
+		return m.Id
+	case "content", "posts.content":
+		return m.Content
+	case "author", "posts.author":
+		return m.Author
+	case "created_at", "posts.created_at":
+		return m.CreatedAt
+	case "updated_at", "posts.updated_at":
+		return m.UpdatedAt
 	default:
 		return nil
 	}
@@ -745,17 +781,17 @@ func (m *User) fieldPtrByName(name string) interface{} {
 	}
 }
 
-func (m *Post) fieldValueByName(name string) interface{} {
+func (m *User) fieldValuesByName(name string) interface{} {
 	switch name {
-	case "id", "posts.id":
+	case "id", "users.id":
 		return m.Id
-	case "content", "posts.content":
-		return m.Content
-	case "author", "posts.author":
-		return m.Author
-	case "created_at", "posts.created_at":
+	case "name", "users.name":
+		return m.Name
+	case "age", "users.age":
+		return m.Age
+	case "created_at", "users.created_at":
 		return m.CreatedAt
-	case "updated_at", "posts.updated_at":
+	case "updated_at", "users.updated_at":
 		return m.UpdatedAt
 	default:
 		return nil
@@ -831,7 +867,7 @@ func (m Post) IsValid() (bool, []error) {
 	}
 
 	for name, rule := range rules {
-		if ok, errs := ayaorm.NewValidator(rule).IsValid(name, m.fieldValueByName(name)); !ok {
+		if ok, errs := ayaorm.NewValidator(rule).IsValid(name, m.fieldValuesByName(name)); !ok {
 			result = false
 			errors = append(errors, errs...)
 		}

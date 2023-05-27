@@ -302,6 +302,25 @@ func (m *Comment) fieldPtrByName(name string) interface{} {
 	}
 }
 
+func (m *Comment) fieldValuesByName(name string) interface{} {
+	switch name {
+	case "id", "comments.id":
+		return m.Id
+	case "content", "comments.content":
+		return m.Content
+	case "author", "comments.author":
+		return m.Author
+	case "post_id", "comments.post_id":
+		return m.PostId
+	case "created_at", "comments.created_at":
+		return m.CreatedAt
+	case "updated_at", "comments.updated_at":
+		return m.UpdatedAt
+	default:
+		return nil
+	}
+}
+
 func (m *Comment) fieldPtrsByName(names []string) []interface{} {
 	fields := []interface{}{}
 	for _, n := range names {
@@ -372,7 +391,7 @@ func (m Post) IsValid() (bool, []error) {
 	}
 
 	for name, rule := range rules {
-		if ok, errs := ayaorm.NewValidator(rule).IsValid(name, m.fieldValueByName(name)); !ok {
+		if ok, errs := ayaorm.NewValidator(rule).IsValid(name, m.fieldValuesByName(name)); !ok {
 			result = false
 			errors = append(errors, errs...)
 		}
