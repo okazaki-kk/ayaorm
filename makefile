@@ -1,10 +1,12 @@
 fmt:
-	go fmt ./... ./_test
+	go fmt ./...
+
+.PHONY: test
 test:
-	go test -v ./... ./_test
+	go test -v ./...
 
 lint:
-	golangci-lint run ./... ./_test
+	golangci-lint run ./...
 
 build:
 	go build -o ayaorm ./cmd/ayaorm/

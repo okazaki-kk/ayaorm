@@ -134,9 +134,9 @@ func (r *UserRelation) Update(id int, params UserParams) error {
 	for _, c := range r.Relation.GetColumns() {
 		switch c {
 		case "name", "users.name":
-			fieldMap["name"] = r.model.Name
+			fieldMap["name"] = params.Name
 		case "age", "users.age":
-			fieldMap["age"] = r.model.Age
+			fieldMap["age"] = params.Age
 		}
 	}
 	return r.Relation.Update(id, fieldMap)
