@@ -69,9 +69,18 @@ func (r *Relation) Where(column string, conditions ...interface{}) *Relation {
 	return r
 }
 
-func (r *Relation) Save(fieldMap map[string]interface{}) (int, error) {
+func (r *Relation) Save(id int, fieldMap map[string]interface{}) (int, error) {
 	r.Table.query.insert.params = fieldMap
-	query, args := r.Table.query.BuildInsert(r.Table.tableName)
+	var query string
+	var args []interface{}
+
+	if IsZero(id) {
+		query, args = r.Table.query.BuildInsert(r.Table.tableName)
+	} else {
+		r.Table.query.update.params = fieldMap
+		query, args = r.Table.query.BuildUpdate(r.Table.tableName, id)
+	}
+
 	log.Print("excute query: ", query, args)
 
 	res, err := r.db.Exec(query, args...)
@@ -84,19 +93,6 @@ func (r *Relation) Save(fieldMap map[string]interface{}) (int, error) {
 		return 0, err
 	}
 	return int(lastId), err
-}
-
-func (r *Relation) Update(id int, fieldMap map[string]interface{}) error {
-	r.Table.query.update.params = fieldMap
-	query, args := r.Table.query.BuildUpdate(r.Table.tableName, id)
-	log.Print("excute query: ", query, args)
-
-	_, err := r.db.Exec(query, args...)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func (r *Relation) Delete(id int) error {

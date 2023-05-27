@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"os"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 
@@ -59,7 +58,7 @@ func TestSave(t *testing.T) {
 
 	countBefore := relation.Count()
 
-	id, err := relation.Save(map[string]interface{}{"name": "Jiro", "age": 25})
+	id, err := relation.Save(0, map[string]interface{}{"name": "Jiro", "age": 25})
 	assert.NoError(t, err)
 	assert.NotZero(t, id)
 
@@ -71,32 +70,19 @@ func TestSave(t *testing.T) {
 	assert.Equal(t, 25, lastUser.Age)
 	assert.Equal(t, "Jiro", lastUser.Name)
 	assert.Equal(t, countBefore+1, countAfter)
-}
 
-func TestUpdate(t *testing.T) {
-	table := Table{tableName: "users"}
-	relation := Relation{Table: table, db: db}
-
-	var user TestUser
-	err := relation.SetColumns("*").Last().QueryRow(&user.Id, &user.Name, &user.Age, &user.CreatedAt, &user.UpdatedAt)
+	countBefore = relation.Count()
+	id, err = relation.Save(lastUser.Id, map[string]interface{}{"name": "Saburo"})
 	assert.NoError(t, err)
+	assert.NotZero(t, id)
 
-	id := user.Id
-	age := user.Age
-	updated_at := user.UpdatedAt
+	countAfter = relation.Count()
+	err = relation.SetColumns("*").Last().QueryRow(&lastUser.Id, &lastUser.Name, &lastUser.Age, &lastUser.CreatedAt, &lastUser.UpdatedAt)
 
-	fieldMap := make(map[string]interface{})
-	fieldMap["Name"] = "DigDag"
-
-	time.Sleep(1 * time.Second)
-	err = relation.Update(id, fieldMap)
 	assert.NoError(t, err)
-
-	err = relation.SetColumns("*").Last().QueryRow(&user.Id, &user.Name, &user.Age, &user.CreatedAt, &user.UpdatedAt)
-	assert.NoError(t, err)
-	assert.Equal(t, age, user.Age)
-	assert.Equal(t, "DigDag", user.Name)
-	assert.True(t, user.UpdatedAt.After(updated_at))
+	assert.Equal(t, 25, lastUser.Age)
+	assert.Equal(t, "Saburo", lastUser.Name)
+	assert.Equal(t, countBefore, countAfter)
 }
 
 func TestPluck(t *testing.T) {
@@ -134,7 +120,7 @@ func TestWhere1(t *testing.T) {
 		var user TestUser
 		err := Hanako.Scan(&user.Id, &user.Name, &user.Age, &user.CreatedAt, &user.UpdatedAt)
 		assert.NoError(t, err)
-		assert.Equal(t, "DigDag", user.Name)
+		assert.Equal(t, "Saburo", user.Name)
 		assert.Equal(t, 25, user.Age)
 	}
 }

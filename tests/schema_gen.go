@@ -71,22 +71,19 @@ func (r *CommentRelation) Create(comment *Comment) (*Comment, error) {
 }
 
 func (u *Comment) Update(params CommentParams) error {
-	return u.newRelation().Update(u.Id, params)
-}
-
-func (r *CommentRelation) Update(id int, params CommentParams) error {
-	fieldMap := make(map[string]interface{})
-	for _, c := range r.Relation.GetColumns() {
-		switch c {
-		case "content", "comments.content":
-			fieldMap["content"] = params.Content
-		case "author", "comments.author":
-			fieldMap["author"] = params.Author
-		case "post_id", "comments.post_id":
-			fieldMap["post_id"] = params.PostId
-		}
+	if !ayaorm.IsZero(params.Id) {
+		u.Id = params.Id
 	}
-	return r.Relation.Update(id, fieldMap)
+	if !ayaorm.IsZero(params.Content) {
+		u.Content = params.Content
+	}
+	if !ayaorm.IsZero(params.Author) {
+		u.Author = params.Author
+	}
+	if !ayaorm.IsZero(params.PostId) {
+		u.PostId = params.PostId
+	}
+	return u.Save()
 }
 
 func (m *Comment) Save() error {
@@ -110,7 +107,7 @@ func (r *CommentRelation) Save() (int, error) {
 		}
 	}
 
-	return r.Relation.Save(fieldMap)
+	return r.Relation.Save(r.model.Id, fieldMap)
 }
 
 func (m *Comment) Delete() error {
@@ -334,20 +331,16 @@ func (r *PostRelation) Create(post *Post) (*Post, error) {
 }
 
 func (u *Post) Update(params PostParams) error {
-	return u.newRelation().Update(u.Id, params)
-}
-
-func (r *PostRelation) Update(id int, params PostParams) error {
-	fieldMap := make(map[string]interface{})
-	for _, c := range r.Relation.GetColumns() {
-		switch c {
-		case "content", "posts.content":
-			fieldMap["content"] = params.Content
-		case "author", "posts.author":
-			fieldMap["author"] = params.Author
-		}
+	if !ayaorm.IsZero(params.Id) {
+		u.Id = params.Id
 	}
-	return r.Relation.Update(id, fieldMap)
+	if !ayaorm.IsZero(params.Content) {
+		u.Content = params.Content
+	}
+	if !ayaorm.IsZero(params.Author) {
+		u.Author = params.Author
+	}
+	return u.Save()
 }
 
 func (m *Post) Save() error {
@@ -369,7 +362,7 @@ func (r *PostRelation) Save() (int, error) {
 		}
 	}
 
-	return r.Relation.Save(fieldMap)
+	return r.Relation.Save(r.model.Id, fieldMap)
 }
 
 func (m *Post) Delete() error {

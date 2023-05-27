@@ -69,16 +69,12 @@ func TestCreate(t *testing.T) {
 func TestUpdate(t *testing.T) {
 	post, err := Post{}.First()
 	assert.NoError(t, err)
-	//createdAt := post.CreatedAt
-	//updatedAt := post.UpdatedAt
 
 	err = post.Update(PostParams{Content: "Golang Post Updated", Author: "Me Updated"})
 	assert.NoError(t, err)
-	//assert.Equal(t, "Golang Post Updated", post.Content)
-	//assert.Equal(t, "Me Updated", post.Author)
+	assert.Equal(t, "Golang Post Updated", post.Content)
+	assert.Equal(t, "Me Updated", post.Author)
 	assert.Equal(t, 1, post.Id)
-	//assert.Equal(t, createdAt, post.UpdatedAt)
-	//assert.True(t, post.UpdatedAt.After(updatedAt))
 }
 
 func TestSave(t *testing.T) {
