@@ -500,6 +500,23 @@ func (m *Post) fieldPtrByName(name string) interface{} {
 	}
 }
 
+func (m *Post) fieldValueByName(name string) interface{} {
+	switch name {
+	case "id", "posts.id":
+		return m.Id
+	case "content", "posts.content":
+		return m.Content
+	case "author", "posts.author":
+		return m.Author
+	case "created_at", "posts.created_at":
+		return m.CreatedAt
+	case "updated_at", "posts.updated_at":
+		return m.UpdatedAt
+	default:
+		return nil
+	}
+}
+
 func (m *Post) fieldPtrsByName(names []string) []interface{} {
 	fields := []interface{}{}
 	for _, n := range names {
@@ -556,4 +573,25 @@ func (u Comment) JoinPost() *CommentRelation {
 func (u *CommentRelation) JoinPost() *CommentRelation {
 	u.Relation.InnerJoin("comments", "posts", false)
 	return u
+}
+
+func (m Post) IsValid() (bool, []error) {
+	result := true
+	var errors []error
+
+	rules := map[string]*ayaorm.Validation{
+		"author": m.validatesPresenceOfAuthor().Rule(),
+	}
+
+	for name, rule := range rules {
+		if ok, errs := ayaorm.NewValidator(rule).IsValid(name, m.fieldValueByName(name)); !ok {
+			result = false
+			errors = append(errors, errs...)
+		}
+	}
+
+	if len(errors) > 0 {
+		result = false
+	}
+	return result, errors
 }
