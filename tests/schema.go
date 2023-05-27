@@ -14,3 +14,9 @@ type Post struct {
 	Content string
 	Author  string
 }
+
+type User struct {
+	ayaorm.Schema
+	Name string
+	Age  int
+}
