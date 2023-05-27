@@ -17,7 +17,7 @@ func TestImport(t *testing.T) {
 	}
 	defer file.Close()
 
-	var userStruct = `package main
+	var userStruct = `package testss
 
 	// +AYAORM
 	type Post struct {
@@ -45,7 +45,7 @@ func TestImport(t *testing.T) {
 
 	fileInspect := Inspect(filePath)
 
-	assert.Equal(t, "main", fileInspect.PackageName)
+	assert.Equal(t, "testss", fileInspect.PackageName)
 	assert.Equal(t, 2, len(fileInspect.StructInspect))
 	assert.Equal(t, 2, len(fileInspect.FuncInspect))
 
