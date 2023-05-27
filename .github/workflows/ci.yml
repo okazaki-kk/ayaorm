@@ -32,4 +32,4 @@ jobs:
         level: info
 
     - name: Test
-      run: go test -v ./... -count=10
+      run: make test
