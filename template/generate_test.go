@@ -22,7 +22,7 @@ func TestGenerate(t *testing.T) {
 			{
 				FuncName: "hasManyComments",
 				Recv:     "Post",
-				HasMany: true,
+				HasMany:  true,
 			},
 			{
 				FuncName: "belongsToPost",
