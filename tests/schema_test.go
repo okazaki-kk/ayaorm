@@ -14,10 +14,16 @@ func TestMain(m *testing.M) {
 	db, _ = sql.Open("sqlite3", "./ayaorm.db")
 
 	sqlStmt := `
+		drop table if exists users;
 		drop table if exists posts;
 		drop table if exists comments;
+		create table users (id integer primary key autoincrement, name text, age int, created_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now', 'localtime')), updated_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now','localtime')) );
 		create table posts (id integer primary key autoincrement, content text, author text, created_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now', 'localtime')), updated_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now','localtime')) );
 		create table comments (id integer primary key autoincrement, content text, author text, post_id integer, created_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now', 'localtime')), updated_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now','localtime')), foreign key (post_id) references posts(id) );
+		CREATE TRIGGER trigger_test_updated_at_users AFTER UPDATE ON posts
+		BEGIN
+			UPDATE posts SET updated_at = DATETIME('now', 'localtime') WHERE rowid == NEW.rowid;
+		END;
 		CREATE TRIGGER trigger_test_updated_at_posts AFTER UPDATE ON posts
 		BEGIN
 			UPDATE posts SET updated_at = DATETIME('now', 'localtime') WHERE rowid == NEW.rowid;
@@ -109,6 +115,12 @@ func TestWhere(t *testing.T) {
 	assert.Equal(t, 1, len(posts))
 }
 
+func TestWhere1(t *testing.T) {
+	posts, err := Post{}.Where("content", "Golang Post Updated").Where("author", "Me Updated").Query()
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(posts))
+}
+
 func TestFind(t *testing.T) {
 	post, err := Post{}.Find(1)
 	assert.NoError(t, err)
@@ -130,4 +142,52 @@ func TestPluck(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, 2, len(contents))
 	assert.Equal(t, "Fantastic", contents[0])
+	assert.Equal(t, "Bad", contents[1])
+}
+
+func TestOrder(t *testing.T) {
+	_, err := User{}.Create(UserParams{Name: "Aya", Age: 20})
+	assert.NoError(t, err)
+	_, err = User{}.Create(UserParams{Name: "Yui", Age: 18})
+	assert.NoError(t, err)
+
+	users, err := User{}.Order("age", "desc").Query()
+	assert.NoError(t, err)
+	assert.Equal(t, 2, len(users))
+	assert.Equal(t, "Aya", users[0].Name)
+	assert.Equal(t, 20, users[0].Age)
+	assert.Equal(t, "Yui", users[1].Name)
+	assert.Equal(t, 18, users[1].Age)
+}
+
+func TestWhere2(t *testing.T) {
+	users, err := User{}.Where("age", 20).Query()
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(users))
+	assert.Equal(t, "Aya", users[0].Name)
+	assert.Equal(t, 20, users[0].Age)
+
+	users, err = User{}.Where("age", ">", 18).Query()
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(users))
+	assert.Equal(t, "Aya", users[0].Name)
+	assert.Equal(t, 20, users[0].Age)
+
+	users, err = User{}.Where("age", "<", 19).Query()
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(users))
+	assert.Equal(t, "Yui", users[0].Name)
+	assert.Equal(t, 18, users[0].Age)
+
+	users, err = User{}.Where("age", ">=", 18).Query()
+	assert.NoError(t, err)
+	assert.Equal(t, 2, len(users))
+
+	users, err = User{}.Where("age", ">=", 18).Limit(1).Query()
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(users))
+
+	users, err = User{}.Where("age", ">=", 180).Query()
+	assert.NoError(t, err)
+	assert.Equal(t, 0, len(users))
 }

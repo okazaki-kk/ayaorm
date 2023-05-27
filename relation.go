@@ -81,7 +81,7 @@ func (r *Relation) Save(id int, fieldMap map[string]interface{}) (int, error) {
 		query, args = r.Table.query.BuildUpdate(r.Table.tableName, id)
 	}
 
-	log.Print("excute query: ", query, args)
+	log.Print("execute query: ", query, " ", args)
 
 	res, err := r.db.Exec(query, args...)
 	if err != nil {
@@ -97,7 +97,7 @@ func (r *Relation) Save(id int, fieldMap map[string]interface{}) (int, error) {
 
 func (r *Relation) Delete(id int) error {
 	query := r.Table.query.BuildDelete(r.Table.tableName, id)
-	log.Print("excute query: ", query)
+	log.Print("execute query: ", query)
 	_, err := r.db.Exec(query)
 	return err
 }
@@ -131,13 +131,13 @@ func (r *Relation) InnerJoin(left, right string, hasMany bool) *Relation {
 
 func (r *Relation) QueryRow(dest ...interface{}) error {
 	query, args := r.Table.query.BuildQuery(r.Table.columns, r.tableName)
-	log.Print("excute query: ", query)
+	log.Print("execute query: ", query, " ", args)
 	return r.db.QueryRow(query, args...).Scan(dest...)
 }
 
 func (r *Relation) Query() (*sql.Rows, error) {
 	query, args := r.Table.query.BuildQuery(r.Table.columns, r.tableName)
-	log.Print("excute query: ", query)
+	log.Print("execute query: ", query, " ", args)
 	rows, err := r.db.Query(query, args...)
 	return rows, err
 }
