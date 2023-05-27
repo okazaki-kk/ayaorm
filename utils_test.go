@@ -48,25 +48,41 @@ func TestToCamelCase(t *testing.T) {
 	}
 }
 
-func TestIsZero(t *testing.T) {
-	cases := []struct {
-		input interface{}
-		want  bool
-	}{
-		{0, true},
-		{1, false},
-		{0.0, true},
-		{0.1, false},
-		{false, true},
-		{true, false},
-		{"", true},
-		{"a", false},
-		{struct{}{}, true},
-		{struct{ A int }{A: 1}, false},
-	}
+type TestIsZeroStruct struct {
+	A int
+	B string
+	C float64
+	D bool
+	E int64
+}
 
-	for _, tt := range cases {
-		got := IsZero(tt.input)
-		assert.Equal(t, tt.want, got)
-	}
+func TestIsZero(t *testing.T) {
+	ti := TestIsZeroStruct{}
+	assert.True(t, IsZero(ti.A))
+	assert.True(t, IsZero(ti.B))
+	assert.True(t, IsZero(ti.C))
+	assert.True(t, IsZero(ti.D))
+	assert.True(t, IsZero(ti.E))
+
+	ti.A = 1
+	ti.B = "a"
+	ti.C = 1.0
+	ti.D = true
+	ti.E = 1
+	assert.False(t, IsZero(ti.A))
+	assert.False(t, IsZero(ti.B))
+	assert.False(t, IsZero(ti.C))
+	assert.False(t, IsZero(ti.D))
+	assert.False(t, IsZero(ti.E))
+
+	ti.A = 0
+	ti.B = ""
+	ti.C = 0.0
+	ti.D = false
+	ti.E = 0
+	assert.True(t, IsZero(ti.A))
+	assert.True(t, IsZero(ti.B))
+	assert.True(t, IsZero(ti.C))
+	assert.True(t, IsZero(ti.D))
+	assert.True(t, IsZero(ti.E))
 }
