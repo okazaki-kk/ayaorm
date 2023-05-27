@@ -34,29 +34,18 @@ var CrudTextBody = `
 	}
 
 	func (u *{{.ModelName}}) Update(params {{.ModelName}}Params) error {
-		return u.newRelation().Update(u.Id, params)
-	}
-
-	func (r *{{.ModelName}}Relation) Update(id int, params {{.ModelName}}Params) error {
-		fieldMap := make(map[string]interface{})
-		for _, c := range r.Relation.GetColumns() {
-			switch c {
-				{{ range $column := .Columns -}}
-				{{ if eq $column "Id" -}}
-				{{ continue }}
-				{{ end -}}
-				{{ if eq $column "CreatedAt" -}}
-				{{ continue }}
-				{{ end -}}
-				{{ if eq $column "UpdatedAt" -}}
-				{{ continue }}
-				{{ end -}}
-				case "{{ toSnakeCase  $column}}", "{{$.SnakeCaseModelName}}.{{toSnakeCase $column}}":
-					fieldMap["{{toSnakeCase $column}}"] = params.{{$column}}
-				{{ end -}}
-			}
+		{{ range $column := .Columns -}}
+		{{ if eq $column "CreatedAt" -}}
+		{{ continue }}
+		{{ end -}}
+		{{ if eq $column "UpdatedAt" -}}
+		{{ continue }}
+		{{ end -}}
+		if !ayaorm.IsZero(params.{{ $column }}) {
+			u.{{ $column }} = params.{{ $column }}
 		}
-		return r.Relation.Update(id, fieldMap)
+		{{ end -}}
+		return u.Save()
 	}
 
 	func (m *{{.ModelName}}) Save() error {
@@ -87,7 +76,7 @@ var CrudTextBody = `
 			}
 		}
 
-		return r.Relation.Save(fieldMap)
+		return r.Relation.Save(r.model.Id, fieldMap)
 	}
 
 	func (m *{{.ModelName}}) Delete() error {
