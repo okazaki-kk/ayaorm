@@ -79,11 +79,11 @@ func (r *CommentRelation) Update(id int, params CommentParams) error {
 	for _, c := range r.Relation.GetColumns() {
 		switch c {
 		case "content", "comments.content":
-			fieldMap["content"] = r.model.Content
+			fieldMap["content"] = params.Content
 		case "author", "comments.author":
-			fieldMap["author"] = r.model.Author
+			fieldMap["author"] = params.Author
 		case "post_id", "comments.post_id":
-			fieldMap["post_id"] = r.model.PostId
+			fieldMap["post_id"] = params.PostId
 		}
 	}
 	return r.Relation.Update(id, fieldMap)

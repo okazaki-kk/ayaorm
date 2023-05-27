@@ -18,9 +18,4 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	err = template.GenerateDB()
-	if err != nil {
-		log.Fatal(err)
-	}
 }
