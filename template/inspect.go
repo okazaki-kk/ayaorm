@@ -46,6 +46,7 @@ type FuncInspect struct {
 	HasMany          bool
 	BelongTo         bool
 	ValidatePresence bool
+	ValidateLength   bool
 }
 
 func (f FuncInspect) HasManyModel() string {
@@ -59,6 +60,10 @@ func (f FuncInspect) BelongsToModel() string {
 
 func (f FuncInspect) ValidatePresenceField() string {
 	return strings.TrimPrefix(f.FuncName, "validatesPresenceOf")
+}
+
+func (f FuncInspect) ValidateLengthField() string {
+	return strings.TrimPrefix(f.FuncName, "validateLengthOf")
 }
 
 // scan file and return package name and file info
@@ -130,7 +135,9 @@ func Inspect(path string) FileInspect {
 			hasMany := strings.HasPrefix(funcName, "hasMany")
 			belongsTo := strings.HasPrefix(funcName, "belongsTo")
 			validatePresence := strings.HasPrefix(funcName, "validatesPresenceOf")
-			funcInspect = append(funcInspect, FuncInspect{FuncName: funcName, Recv: recv, HasMany: hasMany, BelongTo: belongsTo, ValidatePresence: validatePresence})
+			validateLength := strings.HasPrefix(funcName, "validateLengthOf")
+
+			funcInspect = append(funcInspect, FuncInspect{FuncName: funcName, Recv: recv, HasMany: hasMany, BelongTo: belongsTo, ValidatePresence: validatePresence, ValidateLength: validateLength})
 		}
 		return true
 	})

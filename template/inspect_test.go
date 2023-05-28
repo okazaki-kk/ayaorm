@@ -42,6 +42,10 @@ func TestImport(t *testing.T) {
 	func (m Post) validatesPresenceOfAuthor() ayaorm.Rule {
 		return ayaorm.MakeRule().Presence()
 	}
+
+	func (m Post) validateLengthOfContent() ayaorm.Rule {
+		return ayaorm.MakeRule().MaxLength(10).MinLength(3)
+	}
 	`
 
 	_, err = file.Write([]byte(userStruct))
@@ -51,7 +55,7 @@ func TestImport(t *testing.T) {
 
 	assert.Equal(t, "testss", fileInspect.PackageName)
 	assert.Equal(t, 2, len(fileInspect.StructInspect))
-	assert.Equal(t, 3, len(fileInspect.FuncInspect))
+	assert.Equal(t, 4, len(fileInspect.FuncInspect))
 
 	assert.Equal(t, "Post", fileInspect.StructInspect[0].ModelName)
 	assert.Equal(t, []string{"Id", "Content", "Author", "CreatedAt", "UpdatedAt"}, fileInspect.StructInspect[0].FieldKeys)
@@ -75,4 +79,9 @@ func TestImport(t *testing.T) {
 	assert.Equal(t, "Post", fileInspect.FuncInspect[2].Recv)
 	assert.Equal(t, true, fileInspect.FuncInspect[2].ValidatePresence)
 	assert.Equal(t, "Author", fileInspect.FuncInspect[2].ValidatePresenceField())
+
+	assert.Equal(t, "validateLengthOfContent", fileInspect.FuncInspect[3].FuncName)
+	assert.Equal(t, "Post", fileInspect.FuncInspect[3].Recv)
+	assert.Equal(t, true, fileInspect.FuncInspect[3].ValidateLength)
+	assert.Equal(t, "Content", fileInspect.FuncInspect[3].ValidateLengthField())
 }
