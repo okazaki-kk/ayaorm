@@ -211,3 +211,23 @@ func TestBelongsTo(t *testing.T) {
 	assert.Equal(t, "Me Updated", post.Author)
 	assert.Equal(t, 1, post.Id)
 }
+
+func TestIsValid(t *testing.T) {
+	t.Run("valid", func(t *testing.T) {
+		post := Post{}
+		post.Content = "Ruby Post"
+		post.Author = "Matz"
+		valid, err := post.IsValid()
+		assert.Equal(t, 0, len(err))
+		assert.True(t, valid)
+	})
+
+	t.Run("invalid", func(t *testing.T) {
+		post := Post{}
+		post.Content = "Ruby Post"
+		valid, err := post.IsValid()
+		assert.Equal(t, 1, len(err))
+		assert.Equal(t, "author can't be blank", err[0].Error())
+		assert.False(t, valid)
+	})
+}
