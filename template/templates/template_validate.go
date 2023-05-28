@@ -1,12 +1,12 @@
 package templates
 
 var ValidatePresenceTextBody = `
-	func (m Post) IsValid() (bool, []error) {
+	func (m {{.Recv}}) IsValid() (bool, []error) {
 		result := true
 		var errors []error
 
 		rules := map[string]*ayaorm.Validation{
-			"author": m.validatesPresenceOfAuthor().Rule(),
+			"{{toSnakeCase .ValidatePresenceField}}": m.{{.FuncName}}().Rule(),
 		}
 
 		for name, rule := range rules {
