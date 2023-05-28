@@ -34,6 +34,11 @@ func TestGenerate(t *testing.T) {
 				Recv:             "Post",
 				ValidatePresence: true,
 			},
+			{
+				FuncName:       "validateLengthOfContent",
+				Recv:           "Post",
+				ValidateLength: true,
+			},
 		},
 	}
 
@@ -387,7 +392,8 @@ func (m Post) IsValid() (bool, []error) {
 	var errors []error
 
 	rules := map[string]*ayaorm.Validation{
-		"author": m.validatesPresenceOfAuthor().Rule(),
+		"author":  m.validatesPresenceOfAuthor().Rule(),
+		"content": m.validateLengthOfContent().Rule(),
 	}
 
 	for name, rule := range rules {

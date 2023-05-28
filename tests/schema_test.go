@@ -213,7 +213,7 @@ func TestBelongsTo(t *testing.T) {
 }
 
 func TestIsValid(t *testing.T) {
-	t.Run("valid", func(t *testing.T) {
+	t.Run("presence valid", func(t *testing.T) {
 		post := Post{}
 		post.Content = "Ruby Post"
 		post.Author = "Matz"
@@ -222,12 +222,38 @@ func TestIsValid(t *testing.T) {
 		assert.True(t, valid)
 	})
 
-	t.Run("invalid", func(t *testing.T) {
+	t.Run("presence invalid", func(t *testing.T) {
 		post := Post{}
 		post.Content = "Ruby Post"
 		valid, err := post.IsValid()
 		assert.Equal(t, 1, len(err))
 		assert.Equal(t, "author can't be blank", err[0].Error())
+		assert.False(t, valid)
+	})
+
+	t.Run("length valid", func(t *testing.T) {
+		post := Post{}
+		post.Content = "Ruby Post"
+		post.Author = "Matz"
+		valid, err := post.IsValid()
+		assert.Equal(t, 0, len(err))
+		assert.True(t, valid)
+	})
+
+	t.Run("length invalid", func(t *testing.T) {
+		post := Post{}
+		post.Content = "Ruby Post Post"
+		post.Author = "Matz"
+
+		valid, err := post.IsValid()
+		assert.Equal(t, 1, len(err))
+		assert.Equal(t, "content is too long (maximum is 10 characters)", err[0].Error())
+		assert.False(t, valid)
+
+		post.Content = "Ru"
+		valid, err = post.IsValid()
+		assert.Equal(t, 1, len(err))
+		assert.Equal(t, "content is too short (minimum is 3 characters)", err[0].Error())
 		assert.False(t, valid)
 	})
 }

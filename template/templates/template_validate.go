@@ -7,6 +7,7 @@ var ValidatePresenceTextBody = `
 
 		rules := map[string]*ayaorm.Validation{
 			"{{toSnakeCase .ValidatePresenceField}}": m.{{.FuncName}}().Rule(),
+			"content": m.validateLengthOfContent().Rule(),
 		}
 
 		for name, rule := range rules {

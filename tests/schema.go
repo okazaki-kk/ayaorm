@@ -30,3 +30,7 @@ func (m Comment) belongsToPost() {
 func (m Post) validatesPresenceOfAuthor() ayaorm.Rule {
 	return ayaorm.MakeRule().Presence()
 }
+
+func (m Post) validateLengthOfContent() ayaorm.Rule {
+	return ayaorm.MakeRule().MaxLength(10).MinLength(3)
+}
