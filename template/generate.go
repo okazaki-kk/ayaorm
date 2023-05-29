@@ -55,9 +55,16 @@ func Generate(from string, fileInspect FileInspect) error {
 			err = generateBelongsToFunc(file, f)
 		} else if f.HasMany {
 			err = generateHasManyFunc(file, f)
-		} else if f.ValidatePresence {
-			err = generateValidatePresenceFunc(file, f)
 		}
+		if err != nil {
+			return err
+		}
+	}
+
+	params := generateValidateParams(fileInspect)
+
+	for _, validate := range params {
+		err := generateValidateFunc(file, validate)
 		if err != nil {
 			return err
 		}
@@ -149,7 +156,35 @@ func generateBelongsToFunc(file *os.File, funcInspect FuncInspect) error {
 	return nil
 }
 
-func generateValidatePresenceFunc(file *os.File, funcInspect FuncInspect) error {
+type validate struct {
+	Recv     string
+	Name     string
+	FuncName string
+}
+
+func generateValidateParams(fileInspect FileInspect) map[string][]validate {
+	params := map[string][]validate{}
+
+	for _, f := range fileInspect.FuncInspect {
+		if f.ValidateLength {
+			params[f.Recv] = append(params[f.Recv], validate{
+				Recv:     f.Recv,
+				Name:     f.ValidateLengthField(),
+				FuncName: f.FuncName,
+			})
+		}
+		if f.ValidatePresence {
+			params[f.Recv] = append(params[f.Recv], validate{
+				Recv:     f.Recv,
+				Name:     f.ValidatePresenceField(),
+				FuncName: f.FuncName,
+			})
+		}
+	}
+	return params
+}
+
+func generateValidateFunc(file *os.File, validate []validate) error {
 	funcMap := template.FuncMap{
 		"toSnakeCase": ayaorm.ToSnakeCase,
 	}
@@ -161,7 +196,7 @@ func generateValidatePresenceFunc(file *os.File, funcInspect FuncInspect) error 
 		return err
 	}
 
-	err = t.Execute(file, funcInspect)
+	err = t.Execute(file, validate)
 	if err != nil {
 		return err
 	}
