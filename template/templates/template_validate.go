@@ -1,7 +1,8 @@
 package templates
 
 var ValidatePresenceTextBody = `
-	func (m Post) IsValid() (bool, []error) {
+	{{ $struct := index . 0 }}
+	func (m {{$struct.Recv}}) IsValid() (bool, []error) {
 		result := true
 		var errors []error
 
