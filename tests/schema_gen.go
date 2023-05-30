@@ -863,7 +863,8 @@ func (m User) IsValid() (bool, []error) {
 	var errors []error
 
 	rules := map[string]*ayaorm.Validation{
-		"age": m.validateNumericalityOfAge().Rule(),
+		"age":  m.validateNumericalityOfAge().Rule(),
+		"name": m.validateUniquenessOfName().Rule(),
 	}
 
 	for name, rule := range rules {
