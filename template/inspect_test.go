@@ -50,6 +50,10 @@ func TestImport(t *testing.T) {
 	func (m User) validateNumericalityOfAge() ayaorm.Rule {
 		return ayaorm.MakeRule().Numericality().OnlyInteger()
 	}
+
+	func (m User) validateUniquenessOfName() ayaorm.Rule {
+		return ayaorm.MakeRule().Unique()
+	}
 	`
 
 	_, err = file.Write([]byte(userStruct))
@@ -59,7 +63,7 @@ func TestImport(t *testing.T) {
 
 	assert.Equal(t, "testss", fileInspect.PackageName)
 	assert.Equal(t, 2, len(fileInspect.StructInspect))
-	assert.Equal(t, 5, len(fileInspect.FuncInspect))
+	assert.Equal(t, 6, len(fileInspect.FuncInspect))
 
 	assert.Equal(t, "Post", fileInspect.StructInspect[0].ModelName)
 	assert.Equal(t, []string{"Id", "Content", "Author", "CreatedAt", "UpdatedAt"}, fileInspect.StructInspect[0].FieldKeys)
@@ -93,4 +97,9 @@ func TestImport(t *testing.T) {
 	assert.Equal(t, "User", fileInspect.FuncInspect[4].Recv)
 	assert.Equal(t, true, fileInspect.FuncInspect[4].ValidateNumericality)
 	assert.Equal(t, "Age", fileInspect.FuncInspect[4].ValidateNumericalityField())
+
+	assert.Equal(t, "validateUniquenessOfName", fileInspect.FuncInspect[5].FuncName)
+	assert.Equal(t, "User", fileInspect.FuncInspect[5].Recv)
+	assert.Equal(t, true, fileInspect.FuncInspect[5].ValidateUniqueness)
+	assert.Equal(t, "Name", fileInspect.FuncInspect[5].ValidateUniquenessField())
 }

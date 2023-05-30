@@ -196,6 +196,13 @@ func generateValidateParams(fileInspect FileInspect) map[string][]validate {
 				FuncName: f.FuncName,
 			})
 		}
+		if f.ValidateUniqueness {
+			params[f.Recv] = append(params[f.Recv], validate{
+				Recv:     f.Recv,
+				Name:     f.ValidateUniquenessField(),
+				FuncName: f.FuncName,
+			})
+		}
 	}
 	return params
 }

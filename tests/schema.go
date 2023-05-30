@@ -38,3 +38,7 @@ func (m Post) validateLengthOfContent() ayaorm.Rule {
 func (m User) validateNumericalityOfAge() ayaorm.Rule {
 	return ayaorm.MakeRule().Numericality().OnlyInteger()
 }
+
+func (m User) validateUniquenessOfName() ayaorm.Rule {
+	return ayaorm.MakeRule().Unique()
+}

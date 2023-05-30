@@ -48,6 +48,7 @@ type FuncInspect struct {
 	ValidatePresence     bool
 	ValidateLength       bool
 	ValidateNumericality bool
+	ValidateUniqueness bool
 }
 
 func (f FuncInspect) HasManyModel() string {
@@ -69,6 +70,10 @@ func (f FuncInspect) ValidateLengthField() string {
 
 func (f FuncInspect) ValidateNumericalityField() string {
 	return strings.TrimPrefix(f.FuncName, "validateNumericalityOf")
+}
+
+func (f FuncInspect) ValidateUniquenessField() string {
+	return strings.TrimPrefix(f.FuncName, "validateUniquenessOf")
 }
 
 // scan file and return package name and file info
@@ -142,8 +147,9 @@ func Inspect(path string) FileInspect {
 			validatePresence := strings.HasPrefix(funcName, "validatesPresenceOf")
 			validateLength := strings.HasPrefix(funcName, "validateLengthOf")
 			validateNumericality := strings.HasPrefix(funcName, "validateNumericalityOf")
+			validateUniqueness := strings.HasPrefix(funcName, "validateUniquenessOf")
 
-			funcInspect = append(funcInspect, FuncInspect{FuncName: funcName, Recv: recv, HasMany: hasMany, BelongTo: belongsTo, ValidatePresence: validatePresence, ValidateLength: validateLength, ValidateNumericality: validateNumericality})
+			funcInspect = append(funcInspect, FuncInspect{FuncName: funcName, Recv: recv, HasMany: hasMany, BelongTo: belongsTo, ValidatePresence: validatePresence, ValidateLength: validateLength, ValidateNumericality: validateNumericality, ValidateUniqueness: validateUniqueness})
 		}
 		return true
 	})
