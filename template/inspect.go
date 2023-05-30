@@ -40,13 +40,14 @@ func (s StructInspect) SnakeCaseModelName() string {
 }
 
 type FuncInspect struct {
-	FuncName         string
-	Recv             string
-	Args             []string
-	HasMany          bool
-	BelongTo         bool
-	ValidatePresence bool
-	ValidateLength   bool
+	FuncName             string
+	Recv                 string
+	Args                 []string
+	HasMany              bool
+	BelongTo             bool
+	ValidatePresence     bool
+	ValidateLength       bool
+	ValidateNumericality bool
 }
 
 func (f FuncInspect) HasManyModel() string {
@@ -64,6 +65,10 @@ func (f FuncInspect) ValidatePresenceField() string {
 
 func (f FuncInspect) ValidateLengthField() string {
 	return strings.TrimPrefix(f.FuncName, "validateLengthOf")
+}
+
+func (f FuncInspect) ValidateNumericalityField() string {
+	return strings.TrimPrefix(f.FuncName, "validateNumericalityOf")
 }
 
 // scan file and return package name and file info
@@ -136,8 +141,9 @@ func Inspect(path string) FileInspect {
 			belongsTo := strings.HasPrefix(funcName, "belongsTo")
 			validatePresence := strings.HasPrefix(funcName, "validatesPresenceOf")
 			validateLength := strings.HasPrefix(funcName, "validateLengthOf")
+			validateNumericality := strings.HasPrefix(funcName, "validateNumericalityOf")
 
-			funcInspect = append(funcInspect, FuncInspect{FuncName: funcName, Recv: recv, HasMany: hasMany, BelongTo: belongsTo, ValidatePresence: validatePresence, ValidateLength: validateLength})
+			funcInspect = append(funcInspect, FuncInspect{FuncName: funcName, Recv: recv, HasMany: hasMany, BelongTo: belongsTo, ValidatePresence: validatePresence, ValidateLength: validateLength, ValidateNumericality: validateNumericality})
 		}
 		return true
 	})

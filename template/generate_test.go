@@ -39,6 +39,11 @@ func TestGenerate(t *testing.T) {
 				Recv:           "Post",
 				ValidateLength: true,
 			},
+			{
+				FuncName:             "validateNumericalityOfAge",
+				Recv:                 "User",
+				ValidateNumericality: true,
+			},
 		},
 	}
 
@@ -394,6 +399,27 @@ func (m Post) IsValid() (bool, []error) {
 	rules := map[string]*ayaorm.Validation{
 		"author":  m.validatesPresenceOfAuthor().Rule(),
 		"content": m.validateLengthOfContent().Rule(),
+	}
+
+	for name, rule := range rules {
+		if ok, errs := ayaorm.NewValidator(rule).IsValid(name, m.fieldValuesByName(name)); !ok {
+			result = false
+			errors = append(errors, errs...)
+		}
+	}
+
+	if len(errors) > 0 {
+		result = false
+	}
+	return result, errors
+}
+
+func (m User) IsValid() (bool, []error) {
+	result := true
+	var errors []error
+
+	rules := map[string]*ayaorm.Validation{
+		"age": m.validateNumericalityOfAge().Rule(),
 	}
 
 	for name, rule := range rules {

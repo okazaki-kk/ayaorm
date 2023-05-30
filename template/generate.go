@@ -189,6 +189,13 @@ func generateValidateParams(fileInspect FileInspect) map[string][]validate {
 				FuncName: f.FuncName,
 			})
 		}
+		if f.ValidateNumericality {
+			params[f.Recv] = append(params[f.Recv], validate{
+				Recv:     f.Recv,
+				Name:     f.ValidateNumericalityField(),
+				FuncName: f.FuncName,
+			})
+		}
 	}
 	return params
 }
