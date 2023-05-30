@@ -34,3 +34,7 @@ func (m Post) validatesPresenceOfAuthor() ayaorm.Rule {
 func (m Post) validateLengthOfContent() ayaorm.Rule {
 	return ayaorm.MakeRule().MaxLength(10).MinLength(3)
 }
+
+func (m User) validateNumericalityOfAge() ayaorm.Rule {
+	return ayaorm.MakeRule().Numericality().OnlyInteger()
+}

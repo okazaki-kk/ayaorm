@@ -214,12 +214,11 @@ func (v Validator) IsValid(name string, value interface{}) (bool, []error) {
 }
 
 func (v Validator) isNumericality(name string, value interface{}) (bool, error) {
-	numericality := v.rule.numericality
 	switch value.(type) {
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
 		return true, nil
 	case float32, float64:
-		if numericality.numericality {
+		if v.rule.onlyInterger != nil && v.rule.onlyInterger.onlyInterger {
 			return false, fmt.Errorf("%s must be integer", name)
 		} else {
 			return true, nil

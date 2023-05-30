@@ -256,4 +256,13 @@ func TestIsValid(t *testing.T) {
 		assert.Equal(t, "content is too short (minimum is 3 characters)", err[0].Error())
 		assert.False(t, valid)
 	})
+
+	t.Run("numericality valid", func(t *testing.T) {
+		user := User{}
+		user.Name = "Aya"
+		user.Age = 20
+		valid, err := user.IsValid()
+		assert.Equal(t, 0, len(err))
+		assert.True(t, valid)
+	})
 }
