@@ -13,6 +13,10 @@ type Query struct {
 		key        string
 		conditions []interface{}
 	}
+	or struct {
+		key        string
+		conditions []interface{}
+	}
 	insert    struct{ params map[string]interface{} }
 	update    struct{ params map[string]interface{} }
 	innerJoin struct {
@@ -25,6 +29,12 @@ type Query struct {
 func (q *Query) Where(column string, conditions ...interface{}) *Query {
 	q.where.key = column
 	q.where.conditions = conditions
+	return q
+}
+
+func (q *Query) Or(column string, conditions ...interface{}) *Query {
+	q.or.key = column
+	q.or.conditions = conditions
 	return q
 }
 
@@ -49,6 +59,21 @@ func (q *Query) BuildQuery(columns []string, tableName string) (string, []interf
 			args = append(args, q.where.conditions[1])
 		case 3:
 			query = fmt.Sprintf("%s WHERE %s %s ?", query, q.where.key, q.where.conditions[0])
+		default:
+			query = ""
+		}
+	}
+
+	if q.or.key != "" {
+		switch len(q.or.conditions) {
+		case 1:
+			query = fmt.Sprintf("%s OR %s = ?", query, q.or.key)
+			args = append(args, q.or.conditions[0])
+		case 2:
+			query = fmt.Sprintf("%s OR %s %s ?", query, q.or.key, q.or.conditions[0])
+			args = append(args, q.or.conditions[1])
+		case 3:
+			query = fmt.Sprintf("%s OR %s %s ?", query, q.or.key, q.or.conditions[0])
 		default:
 			query = ""
 		}

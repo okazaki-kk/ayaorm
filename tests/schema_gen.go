@@ -149,6 +149,15 @@ func (r *CommentRelation) Where(column string, conditions ...interface{}) *Comme
 	return r
 }
 
+func (m Comment) Or(column string, conditions ...interface{}) *CommentRelation {
+	return m.newRelation().Or(column, conditions...)
+}
+
+func (r *CommentRelation) Or(column string, conditions ...interface{}) *CommentRelation {
+	r.Relation.Or(column, conditions...)
+	return r
+}
+
 func (m Comment) First() (*Comment, error) {
 	return m.newRelation().First()
 }
@@ -423,6 +432,15 @@ func (r *PostRelation) Where(column string, conditions ...interface{}) *PostRela
 	return r
 }
 
+func (m Post) Or(column string, conditions ...interface{}) *PostRelation {
+	return m.newRelation().Or(column, conditions...)
+}
+
+func (r *PostRelation) Or(column string, conditions ...interface{}) *PostRelation {
+	r.Relation.Or(column, conditions...)
+	return r
+}
+
 func (m Post) First() (*Post, error) {
 	return m.newRelation().First()
 }
@@ -689,6 +707,15 @@ func (m User) Where(column string, conditions ...interface{}) *UserRelation {
 
 func (r *UserRelation) Where(column string, conditions ...interface{}) *UserRelation {
 	r.Relation.Where(column, conditions...)
+	return r
+}
+
+func (m User) Or(column string, conditions ...interface{}) *UserRelation {
+	return m.newRelation().Or(column, conditions...)
+}
+
+func (r *UserRelation) Or(column string, conditions ...interface{}) *UserRelation {
+	r.Relation.Or(column, conditions...)
 	return r
 }
 

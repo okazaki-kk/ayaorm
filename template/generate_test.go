@@ -221,6 +221,15 @@ func (r *CommentRelation) Where(column string, conditions ...interface{}) *Comme
 	return r
 }
 
+func (m Comment) Or(column string, conditions ...interface{}) *CommentRelation {
+	return m.newRelation().Or(column, conditions...)
+}
+
+func (r *CommentRelation) Or(column string, conditions ...interface{}) *CommentRelation {
+	r.Relation.Or(column, conditions...)
+	return r
+}
+
 func (m Comment) First() (*Comment, error) {
 	return m.newRelation().First()
 }

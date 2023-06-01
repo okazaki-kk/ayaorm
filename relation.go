@@ -69,6 +69,11 @@ func (r *Relation) Where(column string, conditions ...interface{}) *Relation {
 	return r
 }
 
+func (r *Relation) Or(column string, conditions ...interface{}) *Relation {
+	r.Table.query.Or(column, conditions...)
+	return r
+}
+
 func (r *Relation) Save(id int, fieldMap map[string]interface{}) (int, error) {
 	r.Table.query.insert.params = fieldMap
 	var query string
