@@ -37,6 +37,15 @@ var SearchTextBody = `
 		return r
 	}
 
+	func (m {{.ModelName}}) Or(column string, conditions ...interface{}) *{{.ModelName}}Relation {
+		return m.newRelation().Or(column, conditions...)
+	}
+
+	func (r *{{.ModelName}}Relation) Or(column string, conditions ...interface{}) *{{.ModelName}}Relation {
+		r.Relation.Or(column, conditions...)
+		return r
+	}
+
 	func (m {{.ModelName}}) First() (*{{.ModelName}}, error) {
 		return m.newRelation().First()
 	}

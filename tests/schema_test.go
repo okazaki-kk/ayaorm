@@ -192,6 +192,16 @@ func TestWhere2(t *testing.T) {
 	assert.Equal(t, 0, len(users))
 }
 
+func TestOr(t *testing.T) {
+	users, err := User{}.Where("age", 20).Or("name", "Yui").Query()
+	assert.NoError(t, err)
+	assert.Equal(t, 2, len(users))
+	assert.Equal(t, "Aya", users[0].Name)
+	assert.Equal(t, 20, users[0].Age)
+	assert.Equal(t, "Yui", users[1].Name)
+	assert.Equal(t, 18, users[1].Age)
+}
+
 func TestHasMany(t *testing.T) {
 	post, err := Post{}.First()
 	assert.NoError(t, err)
