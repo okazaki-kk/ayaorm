@@ -928,6 +928,24 @@ func (m Post) Comments() ([]*Comment, error) {
 	return c, nil
 }
 
+func (m *Post) DeleteDependent() error {
+	comments, err := m.Comments()
+	if err != nil {
+		return err
+	}
+	for _, comment := range comments {
+		err := comment.Delete()
+		if err != nil {
+			return err
+		}
+	}
+	err = m.Delete()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (u Post) JoinComments() *PostRelation {
 	return u.newRelation().JoinComments()
 }
@@ -951,12 +969,13 @@ func (u *CommentRelation) JoinPost() *CommentRelation {
 	return u
 }
 
-func (m User) IsValid() (bool, []error) {
+func (m Post) IsValid() (bool, []error) {
 	result := true
 	var errors []error
 
 	rules := map[string]*ayaorm.Validation{
-		"age": m.validateNumericalityOfAge().Rule(),
+		"author":  m.validatesPresenceOfAuthor().Rule(),
+		"content": m.validateLengthOfContent().Rule(),
 	}
 
 	for name, rule := range rules {
@@ -972,13 +991,12 @@ func (m User) IsValid() (bool, []error) {
 	return result, errors
 }
 
-func (m Post) IsValid() (bool, []error) {
+func (m User) IsValid() (bool, []error) {
 	result := true
 	var errors []error
 
 	rules := map[string]*ayaorm.Validation{
-		"author":  m.validatesPresenceOfAuthor().Rule(),
-		"content": m.validateLengthOfContent().Rule(),
+		"age": m.validateNumericalityOfAge().Rule(),
 	}
 
 	for name, rule := range rules {
