@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"sort"
 	"strings"
 	"text/template"
 
@@ -58,8 +59,16 @@ func Generate(from string, fileInspect FileInspect) error {
 	}
 
 	params := generateValidateParams(fileInspect)
-	for _, validate := range params {
-		err := generateValidateFunc(file, validate)
+
+	// sort by key and fix generate func order
+	keys := make([]string, 0, len(params))
+	for k := range params {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	for _, k := range keys {
+		err := generateValidateFunc(file, params[k])
 		if err != nil {
 			return err
 		}
