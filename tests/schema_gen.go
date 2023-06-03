@@ -441,6 +441,15 @@ func (r *PostRelation) Or(column string, conditions ...interface{}) *PostRelatio
 	return r
 }
 
+func (m Post) GroupBy(columns ...string) *PostRelation {
+	return m.newRelation().GroupBy(columns...)
+}
+
+func (r *PostRelation) GroupBy(columns ...string) *PostRelation {
+	r.Relation.GroupBy(columns...)
+	return r
+}
+
 func (m Post) First() (*Post, error) {
 	return m.newRelation().First()
 }

@@ -202,6 +202,13 @@ func TestOr(t *testing.T) {
 	assert.Equal(t, 18, users[1].Age)
 }
 
+func testGroupBy(t *testing.T) {
+	posts, err := Post{}.GroupBy("author").Query()
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(posts))
+	assert.Equal(t, "Me Updated", posts[0].Author)
+}
+
 func TestHasMany(t *testing.T) {
 	post, err := Post{}.First()
 	assert.NoError(t, err)

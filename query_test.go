@@ -50,6 +50,29 @@ func TestBuildQuery(t *testing.T) {
 		s.query = Query{}
 	})
 
+	t.Run("group by", func(t *testing.T) {
+		s.query.groupBy = []string{"name", "email"}
+
+		query, args := s.query.BuildQuery(s.columns, s.tableName)
+		assert.Equal(t, "SELECT id, name, email FROM users GROUP BY name, email;", query)
+		assert.Empty(t, args)
+
+		// refresh query
+		s.query = Query{}
+	})
+
+	t.Run("group by and where", func(t *testing.T) {
+		s.query.groupBy = []string{"name", "email"}
+		s.query.Where("age", ">", 20)
+
+		query, args := s.query.BuildQuery(s.columns, s.tableName)
+		assert.Equal(t, "SELECT id, name, email FROM users WHERE age > ? GROUP BY name, email;", query)
+		assert.Equal(t, []interface{}{20}, args)
+
+		// refresh query
+		s.query = Query{}
+	})
+
 	t.Run("order", func(t *testing.T) {
 		s.query.order = "DESC"
 		s.query.orderKey = "email"
