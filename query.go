@@ -17,7 +17,11 @@ type Query struct {
 		key        string
 		conditions []interface{}
 	}
-	groupBy   []string
+	groupBy []string
+	having  struct {
+		key        string
+		conditions []interface{}
+	}
 	insert    struct{ params map[string]interface{} }
 	update    struct{ params map[string]interface{} }
 	innerJoin struct {
@@ -36,6 +40,12 @@ func (q *Query) Where(column string, conditions ...interface{}) *Query {
 func (q *Query) Or(column string, conditions ...interface{}) *Query {
 	q.or.key = column
 	q.or.conditions = conditions
+	return q
+}
+
+func (q *Query) Having(column string, conditions ...interface{}) *Query {
+	q.having.key = column
+	q.having.conditions = conditions
 	return q
 }
 
@@ -65,10 +75,6 @@ func (q *Query) BuildQuery(columns []string, tableName string) (string, []interf
 		}
 	}
 
-	if q.groupBy != nil {
-		query = fmt.Sprintf("%s GROUP BY %s", query, strings.Join(q.groupBy, ", "))
-	}
-
 	if q.or.key != "" {
 		switch len(q.or.conditions) {
 		case 1:
@@ -79,6 +85,25 @@ func (q *Query) BuildQuery(columns []string, tableName string) (string, []interf
 			args = append(args, q.or.conditions[1])
 		case 3:
 			query = fmt.Sprintf("%s OR %s %s ?", query, q.or.key, q.or.conditions[0])
+		default:
+			query = ""
+		}
+	}
+
+	if q.groupBy != nil {
+		query = fmt.Sprintf("%s GROUP BY %s", query, strings.Join(q.groupBy, ", "))
+	}
+
+	if q.having.key != "" {
+		switch len(q.having.conditions) {
+		case 1:
+			query = fmt.Sprintf("%s HAVING %s = ?", query, q.having.key)
+			args = append(args, q.having.conditions[0])
+		case 2:
+			query = fmt.Sprintf("%s HAVING %s %s ?", query, q.having.key, q.having.conditions[0])
+			args = append(args, q.having.conditions[1])
+		case 3:
+			query = fmt.Sprintf("%s HAVING %s %s ?", query, q.having.key, q.having.conditions[0])
 		default:
 			query = ""
 		}
