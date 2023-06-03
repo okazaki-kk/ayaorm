@@ -13,13 +13,11 @@ func MakeRule() *Validation {
 }
 
 type Validation struct {
-	relation     *Relation
 	presence     *presence
 	maxLength    *maxLength
 	minLength    *minLength
 	numericality *numericality
 	positive     *positive
-	unique       *unique
 }
 
 func (v *Validation) Rule() *Validation {
@@ -141,29 +139,6 @@ func (n *positive) Rule() *Validation {
 	return n.Validation
 }
 
-func (v *Validation) Unique() *unique {
-	if v.unique == nil {
-		v.unique = newUnique(v)
-	}
-	return v.unique
-}
-
-type unique struct {
-	*Validation
-	unique bool
-}
-
-func newUnique(v *Validation) *unique {
-	return &unique{
-		Validation: v,
-		unique:     true,
-	}
-}
-
-func (n *unique) Rule() *Validation {
-	return n.Validation
-}
-
 type Validator struct {
 	rule *Validation
 }
@@ -203,13 +178,6 @@ func (v Validator) IsValid(name string, value interface{}) (bool, []error) {
 		}
 	}
 
-	if v.rule.unique != nil && v.rule.unique.unique {
-		if ok, err := v.isUnique(name, value); !ok {
-			result = false
-			errors = append(errors, err)
-		}
-	}
-
 	return result, errors
 }
 
@@ -226,14 +194,6 @@ func (v Validator) isNumericality(name string, value interface{}) (bool, error) 
 	default:
 		return false, fmt.Errorf("%s must be number", name)
 	}
-}
-
-func (v Validator) isUnique(name string, value interface{}) (bool, error) {
-	count := v.rule.relation.Count(name)
-	if count > 0 {
-		return false, fmt.Errorf("%s has already been taken", name)
-	}
-	return true, nil
 }
 
 func (v Validator) isPresent(name string, value interface{}) (bool, error) {
