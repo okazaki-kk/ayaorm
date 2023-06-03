@@ -17,9 +17,9 @@ func TestMain(m *testing.M) {
 		drop table if exists users;
 		drop table if exists posts;
 		drop table if exists comments;
-		create table users (id integer primary key autoincrement, name text, age int, created_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now', 'localtime')), updated_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now','localtime')) );
-		create table posts (id integer primary key autoincrement, content text, author text, created_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now', 'localtime')), updated_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now','localtime')) );
-		create table comments (id integer primary key autoincrement, content text, author text, post_id integer, created_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now', 'localtime')), updated_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now','localtime')), foreign key (post_id) references posts(id) );
+		create table users (id integer primary key autoincrement, name text not null, age int not null, address text, created_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now', 'localtime')), updated_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now','localtime')) );
+		create table posts (id integer primary key autoincrement, content text not null, author text not null, created_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now', 'localtime')), updated_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now','localtime')) );
+		create table comments (id integer primary key autoincrement, content text not null, author text not null, post_id integer not null, created_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now', 'localtime')), updated_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now','localtime')), foreign key (post_id) references posts(id) );
 		CREATE TRIGGER trigger_test_updated_at_users AFTER UPDATE ON posts
 		BEGIN
 			UPDATE posts SET updated_at = DATETIME('now', 'localtime') WHERE rowid == NEW.rowid;
@@ -239,6 +239,14 @@ func TestHaving(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, 1, len(posts))
 	assert.Equal(t, "He", posts[0].Author)
+}
+
+func TestNull(t *testing.T) {
+	user, err := User{}.Create(UserParams{Name: "Null Name", Age: 50})
+	assert.NoError(t, err)
+	assert.Equal(t, "Null Name", user.Name)
+	assert.Equal(t, 50, user.Age)
+	assert.False(t, user.Address.Valid())
 }
 
 func TestHasMany(t *testing.T) {
