@@ -202,7 +202,7 @@ func TestOr(t *testing.T) {
 	assert.Equal(t, 18, users[1].Age)
 }
 
-func testGroupBy(t *testing.T) {
+func TestGroupBy(t *testing.T) {
 	posts, err := Post{}.GroupBy("author").Query()
 	assert.NoError(t, err)
 	assert.Equal(t, 1, len(posts))
