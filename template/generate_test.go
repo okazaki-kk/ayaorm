@@ -396,6 +396,24 @@ func (m Post) Comments() ([]*Comment, error) {
 	return c, nil
 }
 
+func (m *Post) DeleteDependent() error {
+	comments, err := m.Comments()
+	if err != nil {
+		return err
+	}
+	for _, comment := range comments {
+		err := comment.Delete()
+		if err != nil {
+			return err
+		}
+	}
+	err = m.Delete()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (u Post) JoinComments() *PostRelation {
 	return u.newRelation().JoinComments()
 }

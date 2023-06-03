@@ -9,6 +9,24 @@ var HasManyTextBody = `func (m {{.Recv}}) {{.HasManyModel}}s() ([]*{{.HasManyMod
 	return c, nil
 }
 
+func (m *{{.Recv}}) DeleteDependent() error {
+	{{toSnakeCase .HasManyModel}}s, err := m.{{.HasManyModel}}s()
+	if err != nil {
+		return err
+	}
+	for _, {{toSnakeCase .HasManyModel}} := range {{toSnakeCase .HasManyModel}}s {
+		err := {{toSnakeCase .HasManyModel}}.Delete()
+		if err != nil {
+			return err
+		}
+	}
+	err = m.Delete()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (u {{.Recv}}) Join{{.HasManyModel}}s() *{{.Recv}}Relation {
 	return u.newRelation().Join{{.HasManyModel}}s()
 }
