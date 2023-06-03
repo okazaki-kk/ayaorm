@@ -74,6 +74,11 @@ func (r *Relation) Or(column string, conditions ...interface{}) *Relation {
 	return r
 }
 
+func (r *Relation) GroupBy(column ...string) *Relation {
+	r.Table.query.groupBy = column
+	return r
+}
+
 func (r *Relation) Save(id int, fieldMap map[string]interface{}) (int, error) {
 	r.Table.query.insert.params = fieldMap
 	var query string

@@ -230,6 +230,15 @@ func (r *CommentRelation) Or(column string, conditions ...interface{}) *CommentR
 	return r
 }
 
+func (m Comment) GroupBy(columns ...string) *CommentRelation {
+	return m.newRelation().GroupBy(columns...)
+}
+
+func (r *CommentRelation) GroupBy(columns ...string) *CommentRelation {
+	r.Relation.GroupBy(columns...)
+	return r
+}
+
 func (m Comment) First() (*Comment, error) {
 	return m.newRelation().First()
 }

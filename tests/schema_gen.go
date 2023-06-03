@@ -158,6 +158,15 @@ func (r *CommentRelation) Or(column string, conditions ...interface{}) *CommentR
 	return r
 }
 
+func (m Comment) GroupBy(columns ...string) *CommentRelation {
+	return m.newRelation().GroupBy(columns...)
+}
+
+func (r *CommentRelation) GroupBy(columns ...string) *CommentRelation {
+	r.Relation.GroupBy(columns...)
+	return r
+}
+
 func (m Comment) First() (*Comment, error) {
 	return m.newRelation().First()
 }
@@ -441,6 +450,15 @@ func (r *PostRelation) Or(column string, conditions ...interface{}) *PostRelatio
 	return r
 }
 
+func (m Post) GroupBy(columns ...string) *PostRelation {
+	return m.newRelation().GroupBy(columns...)
+}
+
+func (r *PostRelation) GroupBy(columns ...string) *PostRelation {
+	r.Relation.GroupBy(columns...)
+	return r
+}
+
 func (m Post) First() (*Post, error) {
 	return m.newRelation().First()
 }
@@ -716,6 +734,15 @@ func (m User) Or(column string, conditions ...interface{}) *UserRelation {
 
 func (r *UserRelation) Or(column string, conditions ...interface{}) *UserRelation {
 	r.Relation.Or(column, conditions...)
+	return r
+}
+
+func (m User) GroupBy(columns ...string) *UserRelation {
+	return m.newRelation().GroupBy(columns...)
+}
+
+func (r *UserRelation) GroupBy(columns ...string) *UserRelation {
+	r.Relation.GroupBy(columns...)
 	return r
 }
 

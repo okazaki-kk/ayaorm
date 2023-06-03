@@ -46,6 +46,15 @@ var SearchTextBody = `
 		return r
 	}
 
+	func (m {{.ModelName}}) GroupBy(columns ...string) *{{.ModelName}}Relation {
+		return m.newRelation().GroupBy(columns...)
+	}
+
+	func (r *{{.ModelName}}Relation) GroupBy(columns ...string) *{{.ModelName}}Relation {
+		r.Relation.GroupBy(columns...)
+		return r
+	}
+
 	func (m {{.ModelName}}) First() (*{{.ModelName}}, error) {
 		return m.newRelation().First()
 	}

@@ -17,6 +17,7 @@ type Query struct {
 		key        string
 		conditions []interface{}
 	}
+	groupBy   []string
 	insert    struct{ params map[string]interface{} }
 	update    struct{ params map[string]interface{} }
 	innerJoin struct {
@@ -62,6 +63,10 @@ func (q *Query) BuildQuery(columns []string, tableName string) (string, []interf
 		default:
 			query = ""
 		}
+	}
+
+	if q.groupBy != nil {
+		query = fmt.Sprintf("%s GROUP BY %s", query, strings.Join(q.groupBy, ", "))
 	}
 
 	if q.or.key != "" {
