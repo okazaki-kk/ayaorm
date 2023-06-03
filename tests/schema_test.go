@@ -234,6 +234,13 @@ func TestGroupBy(t *testing.T) {
 	assert.Equal(t, 8, len(posts))
 }
 
+func TestHaving(t *testing.T) {
+	posts, err := Post{}.GroupBy("author").Having("count(*)", 2).Query()
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(posts))
+	assert.Equal(t, "He", posts[0].Author)
+}
+
 func TestHasMany(t *testing.T) {
 	post, err := Post{}.First()
 	assert.NoError(t, err)

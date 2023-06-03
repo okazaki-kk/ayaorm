@@ -55,6 +55,15 @@ var SearchTextBody = `
 		return r
 	}
 
+	func (m {{.ModelName}}) Having(column string, conditions ...interface{}) *{{.ModelName}}Relation {
+		return m.newRelation().Having(column, conditions...)
+	}
+
+	func (r *{{.ModelName}}Relation) Having(column string, conditions ...interface{}) *{{.ModelName}}Relation {
+		r.Relation.Having(column, conditions...)
+		return r
+	}
+
 	func (m {{.ModelName}}) First() (*{{.ModelName}}, error) {
 		return m.newRelation().First()
 	}

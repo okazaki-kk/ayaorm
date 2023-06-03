@@ -239,6 +239,15 @@ func (r *CommentRelation) GroupBy(columns ...string) *CommentRelation {
 	return r
 }
 
+func (m Comment) Having(column string, conditions ...interface{}) *CommentRelation {
+	return m.newRelation().Having(column, conditions...)
+}
+
+func (r *CommentRelation) Having(column string, conditions ...interface{}) *CommentRelation {
+	r.Relation.Having(column, conditions...)
+	return r
+}
+
 func (m Comment) First() (*Comment, error) {
 	return m.newRelation().First()
 }

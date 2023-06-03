@@ -79,6 +79,11 @@ func (r *Relation) GroupBy(column ...string) *Relation {
 	return r
 }
 
+func (r *Relation) Having(column string, conditions ...interface{}) *Relation {
+	r.Table.query.Having(column, conditions...)
+	return r
+}
+
 func (r *Relation) Save(id int, fieldMap map[string]interface{}) (int, error) {
 	r.Table.query.insert.params = fieldMap
 	var query string
