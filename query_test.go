@@ -50,6 +50,17 @@ func TestBuildQuery(t *testing.T) {
 		s.query = Query{}
 	})
 
+	t.Run("where null", func(t *testing.T) {
+		s.query.Where("age", nil)
+
+		query, args := s.query.BuildQuery(s.columns, s.tableName)
+		assert.Equal(t, "SELECT id, name, email FROM users WHERE age IS NULL;", query)
+		assert.Empty(t, args)
+
+		// refresh query
+		s.query = Query{}
+	})
+
 	t.Run("group by", func(t *testing.T) {
 		s.query.groupBy = []string{"name", "email"}
 
@@ -93,6 +104,30 @@ func TestBuildQuery(t *testing.T) {
 		query, args := s.query.BuildQuery(s.columns, s.tableName)
 		assert.Equal(t, "SELECT id, name, email FROM users WHERE age > ? GROUP BY name, email HAVING COUNT(*) > ?;", query)
 		assert.Equal(t, []interface{}{20, 1}, args)
+
+		// refresh query
+		s.query = Query{}
+	})
+
+	t.Run("or", func(t *testing.T) {
+		s.query.Where("age", ">", 20)
+		s.query.Or("name", "Taro")
+
+		query, args := s.query.BuildQuery(s.columns, s.tableName)
+		assert.Equal(t, "SELECT id, name, email FROM users WHERE age > ? OR name = ?;", query)
+		assert.Equal(t, []interface{}{20, "Taro"}, args)
+
+		// refresh query
+		s.query = Query{}
+	})
+
+	t.Run("or and null", func(t *testing.T) {
+		s.query.Where("age", ">", 20)
+		s.query.Or("name", nil)
+
+		query, args := s.query.BuildQuery(s.columns, s.tableName)
+		assert.Equal(t, "SELECT id, name, email FROM users WHERE age > ? OR name IS NULL;", query)
+		assert.Equal(t, []interface{}{20}, args)
 
 		// refresh query
 		s.query = Query{}
