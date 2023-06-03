@@ -22,7 +22,7 @@ func (m TestPost) validateLengthOfContent() Rule {
 }
 
 func (m TestPost) validateNumericalityOfAge() Rule {
-	return MakeRule().Numericality().OnlyInteger()
+	return MakeRule().Numericality().Positive()
 }
 
 func TestIsValid(t *testing.T) {
@@ -74,18 +74,18 @@ func TestIsValid(t *testing.T) {
 		assert.Equal(t, "Age must be number", errors[0].Error())
 	})
 
-	t.Run("when age is not integer", func(t *testing.T) {
-		result, errors := validator.IsValid("Age", 20.0)
-
-		assert.Equal(t, false, result)
-		assert.Equal(t, 1, len(errors))
-		assert.Equal(t, "Age must be integer", errors[0].Error())
-	})
-
-	t.Run("when age is numerical", func(t *testing.T) {
+	t.Run("when age is positive", func(t *testing.T) {
 		result, errors := validator.IsValid("Age", 20)
 
 		assert.Equal(t, true, result)
 		assert.Equal(t, 0, len(errors))
+	})
+
+	t.Run("when age is negative", func(t *testing.T) {
+		result, errors := validator.IsValid("Age", -20)
+
+		assert.Equal(t, false, result)
+		assert.Equal(t, 1, len(errors))
+		assert.Equal(t, "Age must be positive", errors[0].Error())
 	})
 }

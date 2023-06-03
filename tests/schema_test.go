@@ -327,9 +327,20 @@ func TestIsValid(t *testing.T) {
 		user := User{}
 		user.Name = "Aya"
 		user.Age = 20
-		user.Address.Set("Chiba")
+
 		valid, err := user.IsValid()
 		assert.Equal(t, 0, len(err))
 		assert.True(t, valid)
+	})
+
+	t.Run("numericality invalid", func(t *testing.T) {
+		user := User{}
+		user.Name = "Aya"
+		user.Age = -1
+
+		valid, err := user.IsValid()
+		assert.Equal(t, 1, len(err))
+		assert.Equal(t, "age must be positive", err[0].Error())
+		assert.False(t, valid)
 	})
 }

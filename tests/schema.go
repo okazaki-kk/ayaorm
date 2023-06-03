@@ -40,5 +40,5 @@ func (m Post) validateLengthOfContent() ayaorm.Rule {
 }
 
 func (m User) validateNumericalityOfAge() ayaorm.Rule {
-	return ayaorm.MakeRule().Numericality().OnlyInteger()
+	return ayaorm.MakeRule().Numericality().Positive()
 }

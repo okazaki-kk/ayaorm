@@ -18,7 +18,7 @@ type Validation struct {
 	maxLength    *maxLength
 	minLength    *minLength
 	numericality *numericality
-	onlyInterger *onlyInterger
+	positive     *positive
 	unique       *unique
 }
 
@@ -118,26 +118,26 @@ func (n *numericality) Rule() *Validation {
 	return n.Validation
 }
 
-func (v *Validation) OnlyInteger() *onlyInterger {
-	if v.onlyInterger == nil {
-		v.onlyInterger = newOnlyInteger(v)
+func (v *Validation) Positive() *positive {
+	if v.positive == nil {
+		v.positive = newPositive(v)
 	}
-	return v.onlyInterger
+	return v.positive
 }
 
-type onlyInterger struct {
+type positive struct {
 	*Validation
-	onlyInterger bool
+	positive bool
 }
 
-func newOnlyInteger(v *Validation) *onlyInterger {
-	return &onlyInterger{
-		Validation:   v,
-		onlyInterger: true,
+func newPositive(v *Validation) *positive {
+	return &positive{
+		Validation: v,
+		positive:   true,
 	}
 }
 
-func (n *onlyInterger) Rule() *Validation {
+func (n *positive) Rule() *Validation {
 	return n.Validation
 }
 
@@ -215,16 +215,17 @@ func (v Validator) IsValid(name string, value interface{}) (bool, []error) {
 
 func (v Validator) isNumericality(name string, value interface{}) (bool, error) {
 	switch value.(type) {
-	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
-		return true, nil
-	case float32, float64:
-		if v.rule.onlyInterger != nil && v.rule.onlyInterger.onlyInterger {
-			return false, fmt.Errorf("%s must be integer", name)
-		} else {
-			return true, nil
+	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64, float32, float64:
+		if v.rule.positive != nil && v.rule.positive.positive {
+			// TODO: type assertion for various types
+			if value.(int) < 0 {
+				return false, fmt.Errorf("%s must be positive", name)
+			}
 		}
+		return true, nil
+	default:
+		return false, fmt.Errorf("%s must be number", name)
 	}
-	return false, fmt.Errorf("%s must be number", name)
 }
 
 func (v Validator) isUnique(name string, value interface{}) (bool, error) {
