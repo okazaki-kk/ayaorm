@@ -63,8 +63,12 @@ func (q *Query) BuildQuery(columns []string, tableName string) (string, []interf
 	if q.where.key != "" {
 		switch len(q.where.conditions) {
 		case 1:
-			query = fmt.Sprintf("%s WHERE %s = ?", query, q.where.key)
-			args = append(args, q.where.conditions[0])
+			if q.where.conditions[0] == nil {
+				query = fmt.Sprintf("%s WHERE %s IS NULL", query, q.where.key)
+			} else {
+				query = fmt.Sprintf("%s WHERE %s = ?", query, q.where.key)
+				args = append(args, q.where.conditions[0])
+			}
 		case 2:
 			query = fmt.Sprintf("%s WHERE %s %s ?", query, q.where.key, q.where.conditions[0])
 			args = append(args, q.where.conditions[1])
@@ -78,8 +82,12 @@ func (q *Query) BuildQuery(columns []string, tableName string) (string, []interf
 	if q.or.key != "" {
 		switch len(q.or.conditions) {
 		case 1:
-			query = fmt.Sprintf("%s OR %s = ?", query, q.or.key)
-			args = append(args, q.or.conditions[0])
+			if q.or.conditions[0] == nil {
+				query = fmt.Sprintf("%s OR %s IS NULL", query, q.or.key)
+			} else {
+				query = fmt.Sprintf("%s OR %s = ?", query, q.or.key)
+				args = append(args, q.or.conditions[0])
+			}
 		case 2:
 			query = fmt.Sprintf("%s OR %s %s ?", query, q.or.key, q.or.conditions[0])
 			args = append(args, q.or.conditions[1])

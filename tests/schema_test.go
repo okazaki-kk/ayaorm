@@ -33,12 +33,12 @@ func TestMain(m *testing.M) {
 			UPDATE comments SET updated_at = DATETIME('now', 'localtime') WHERE rowid == NEW.rowid;
 		END;
 
-		insert into users (name, age) values ('Alice', 18);
-		insert into users (name, age) values ('Bob', 20);
-		insert into users (name, age) values ('Carol', 22);
-		insert into users (name, age) values ('Dave', 24);
-		insert into users (name, age) values ('Eve', 26);
-		insert into users (name, age) values ('Frank', 28);
+		insert into users (name, age, address) values ('Alice', 18, 'Tokyo');
+		insert into users (name, age, address) values ('Bob', 20, 'Osaka');
+		insert into users (name, age, address) values ('Carol', 22, 'Nagoya');
+		insert into users (name, age, address) values ('Dave', 24, 'Fukuoka');
+		insert into users (name, age, address) values ('Eve', 26, 'Sapporo');
+		insert into users (name, age, address) values ('Frank', 28, 'Okinawa');
 
 		insert into posts (content, author) values ('Golang Post', 'Me');
 		insert into posts (content, author) values ('Ruby Post', 'You');
@@ -247,6 +247,17 @@ func TestNull(t *testing.T) {
 	assert.Equal(t, "Null Name", user.Name)
 	assert.Equal(t, 50, user.Age)
 	assert.False(t, user.Address.Valid())
+
+	users, err := User{}.Where("address", nil).Query()
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(users))
+	assert.Equal(t, "Null Name", users[0].Name)
+	assert.Equal(t, 50, users[0].Age)
+	assert.False(t, users[0].Address.Valid())
+
+	users, err = User{}.Where("name", "Eve").Or("address", nil).Query()
+	assert.NoError(t, err)
+	assert.Equal(t, 2, len(users))
 }
 
 func TestHasMany(t *testing.T) {
@@ -316,6 +327,7 @@ func TestIsValid(t *testing.T) {
 		user := User{}
 		user.Name = "Aya"
 		user.Age = 20
+		user.Address.Set("Chiba")
 		valid, err := user.IsValid()
 		assert.Equal(t, 0, len(err))
 		assert.True(t, valid)
