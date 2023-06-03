@@ -1,6 +1,9 @@
 package tests
 
-import "github.com/okazaki-kk/ayaorm"
+import (
+	"github.com/okazaki-kk/ayaorm"
+	"github.com/okazaki-kk/ayaorm/null"
+)
 
 type Comment struct {
 	ayaorm.Schema
@@ -17,8 +20,9 @@ type Post struct {
 
 type User struct {
 	ayaorm.Schema
-	Name string
-	Age  int
+	Name    string
+	Age     int
+	Address null.NullString
 }
 
 func (m Post) hasManyComments() {

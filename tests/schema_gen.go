@@ -625,6 +625,7 @@ func (m *User) newRelation() *UserRelation {
 		"id",
 		"name",
 		"age",
+		"address",
 		"created_at",
 		"updated_at",
 	)
@@ -653,9 +654,10 @@ type UserParams User
 
 func (m User) Build(p UserParams) *User {
 	return &User{
-		Schema: ayaorm.Schema{Id: p.Id},
-		Name:   p.Name,
-		Age:    p.Age,
+		Schema:  ayaorm.Schema{Id: p.Id},
+		Name:    p.Name,
+		Age:     p.Age,
+		Address: p.Address,
 	}
 }
 
@@ -682,6 +684,9 @@ func (u *User) Update(params UserParams) error {
 	if !ayaorm.IsZero(params.Age) {
 		u.Age = params.Age
 	}
+	if !ayaorm.IsZero(params.Address) {
+		u.Address = params.Address
+	}
 	return u.Save()
 }
 
@@ -701,6 +706,8 @@ func (r *UserRelation) Save() (int, error) {
 			fieldMap["name"] = r.model.Name
 		case "age", "users.age":
 			fieldMap["age"] = r.model.Age
+		case "address", "users.address":
+			fieldMap["address"] = r.model.Address
 		}
 	}
 
@@ -853,6 +860,8 @@ func (m *User) fieldPtrByName(name string) interface{} {
 		return &m.Name
 	case "age", "users.age":
 		return &m.Age
+	case "address", "users.address":
+		return &m.Address
 	case "created_at", "users.created_at":
 		return &m.CreatedAt
 	case "updated_at", "users.updated_at":
@@ -870,6 +879,8 @@ func (m *User) fieldValuesByName(name string) interface{} {
 		return m.Name
 	case "age", "users.age":
 		return m.Age
+	case "address", "users.address":
+		return m.Address
 	case "created_at", "users.created_at":
 		return m.CreatedAt
 	case "updated_at", "users.updated_at":
@@ -902,6 +913,7 @@ func (m *User) columnNames() []string {
 		"id",
 		"name",
 		"age",
+		"address",
 		"created_at",
 		"updated_at",
 	}
