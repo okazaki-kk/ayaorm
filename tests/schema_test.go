@@ -343,6 +343,17 @@ func TestIsValid(t *testing.T) {
 		assert.Equal(t, "age must be positive", err[0].Error())
 		assert.False(t, valid)
 	})
+
+	t.Run("custom invalid", func(t *testing.T) {
+		user := User{}
+		user.Name = "custom-example"
+		user.Age = 20
+
+		valid, err := user.IsValid()
+		assert.Equal(t, 1, len(err))
+		assert.Equal(t, "name must not be custom-example", err[0].Error())
+		assert.False(t, valid)
+	})
 }
 
 func TestDeleteDependent(t *testing.T) {
