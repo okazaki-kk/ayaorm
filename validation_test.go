@@ -11,6 +11,7 @@ type TestPost struct {
 	Author  string
 	Content string
 	Age     int
+	Age1    int
 }
 
 func (m TestPost) validatesPresenceOfAuthor() Rule {
@@ -23,6 +24,10 @@ func (m TestPost) validateLengthOfContent() Rule {
 
 func (m TestPost) validateNumericalityOfAge() Rule {
 	return MakeRule().Numericality().Positive()
+}
+
+func (m TestPost) validateNumericalityOfAge1() Rule {
+	return MakeRule().Numericality().Negative()
 }
 
 func TestIsValid(t *testing.T) {
@@ -87,5 +92,22 @@ func TestIsValid(t *testing.T) {
 		assert.Equal(t, false, result)
 		assert.Equal(t, 1, len(errors))
 		assert.Equal(t, "Age must be positive", errors[0].Error())
+	})
+
+	validator = NewValidator(TestPost{}.validateNumericalityOfAge1().Rule())
+
+	t.Run("when age1 is negative", func(t *testing.T) {
+		result, errors := validator.IsValid("Age1", -20)
+
+		assert.Equal(t, true, result)
+		assert.Equal(t, 0, len(errors))
+	})
+
+	t.Run("when age1 is positive", func(t *testing.T) {
+		result, errors := validator.IsValid("Age1", 20)
+
+		assert.Equal(t, false, result)
+		assert.Equal(t, 1, len(errors))
+		assert.Equal(t, "Age1 must be negative", errors[0].Error())
 	})
 }

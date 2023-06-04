@@ -18,6 +18,7 @@ type Validation struct {
 	minLength    *minLength
 	numericality *numericality
 	positive     *positive
+	negative     *negative
 }
 
 func (v *Validation) Rule() *Validation {
@@ -139,12 +140,35 @@ func (n *positive) Rule() *Validation {
 	return n.Validation
 }
 
-type Validator struct {
-	rule *Validation
+func (v *Validation) Negative() *negative {
+	if v.negative == nil {
+		v.negative = newNegative(v)
+	}
+	return v.negative
+}
+
+type negative struct {
+	*Validation
+	negative bool
+}
+
+func newNegative(v *Validation) *negative {
+	return &negative{
+		Validation: v,
+		negative:   true,
+	}
+}
+
+func (n *negative) Rule() *Validation {
+	return n.Validation
 }
 
 func NewValidator(rule *Validation) Validator {
 	return Validator{rule}
+}
+
+type Validator struct {
+	rule *Validation
 }
 
 func (v Validator) IsValid(name string, value interface{}) (bool, []error) {
@@ -188,6 +212,12 @@ func (v Validator) isNumericality(name string, value interface{}) (bool, error) 
 			// TODO: type assertion for various types
 			if value.(int) < 0 {
 				return false, fmt.Errorf("%s must be positive", name)
+			}
+		}
+		if v.rule.negative != nil && v.rule.negative.negative {
+			// TODO: type assertion for various types
+			if value.(int) > 0 {
+				return false, fmt.Errorf("%s must be negative", name)
 			}
 		}
 		return true, nil

@@ -343,19 +343,19 @@ func TestIsValid(t *testing.T) {
 		assert.Equal(t, "age must be positive", err[0].Error())
 		assert.False(t, valid)
 	})
+}
 
-	t.Run("DeleteDependent", func(t *testing.T) {
-		post, err := Post{}.Find(3)
-		assert.NoError(t, err)
+func TestDeleteDependent(t *testing.T) {
+	post, err := Post{}.Find(3)
+	assert.NoError(t, err)
 
-		comments, err := post.Comments()
-		assert.NoError(t, err)
-		beforeCount := Comment{}.Count()
+	comments, err := post.Comments()
+	assert.NoError(t, err)
+	beforeCount := Comment{}.Count()
 
-		err = post.DeleteDependent()
-		assert.NoError(t, err)
+	err = post.DeleteDependent()
+	assert.NoError(t, err)
 
-		afterCount := Comment{}.Count()
-		assert.Equal(t, beforeCount-len(comments), afterCount)
-	})
+	afterCount := Comment{}.Count()
+	assert.Equal(t, beforeCount-len(comments), afterCount)
 }
