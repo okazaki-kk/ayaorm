@@ -45,7 +45,7 @@ func (m User) validateNumericalityOfAge() ayaorm.Rule {
 	return ayaorm.MakeRule().Numericality().Positive()
 }
 
-func (m User) validateCustom() ayaorm.Rule {
+func (m User) validateCustomRule() ayaorm.Rule {
 	return ayaorm.CustomRule(func(es *[]error) {
 		if m.Name == "custom-example" {
 			*es = append(*es, errors.New("name must not be custom-example"))
