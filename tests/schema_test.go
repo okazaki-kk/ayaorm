@@ -351,6 +351,7 @@ func TestIsValid(t *testing.T) {
 
 		valid, err := user.IsValid()
 		assert.Equal(t, 1, len(err))
+		assert.Equal(t, "name must not be custom-example", err[0].Error())
 		assert.False(t, valid)
 	})
 }
