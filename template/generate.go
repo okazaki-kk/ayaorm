@@ -10,6 +10,7 @@ import (
 
 	"github.com/okazaki-kk/ayaorm"
 	"github.com/okazaki-kk/ayaorm/template/templates"
+	"golang.org/x/exp/slices"
 )
 
 func Generate(from string, fileInspect FileInspect) error {
@@ -58,7 +59,7 @@ func Generate(from string, fileInspect FileInspect) error {
 		}
 	}
 
-	params := generateValidateParams(fileInspect)
+	params := generateValidateParams(fileInspect, fileInspect.CustomRecv)
 
 	// sort by key and fix generate func order
 	keys := make([]string, 0, len(params))
@@ -175,41 +176,51 @@ func generateBelongsToFunc(file *os.File, funcInspect FuncInspect) error {
 }
 
 type validate struct {
-	Recv     string
-	Name     string
-	FuncName string
+	Recv       string
+	Name       string
+	FuncName   string
+	CustomRecv []string
 }
 
-func generateValidateParams(fileInspect FileInspect) map[string][]validate {
-	params := map[string][]validate{}
+type validates []validate
+
+func generateValidateParams(fileInspect FileInspect, customRecv []string) map[string]validates {
+	params := map[string]validates{}
 
 	for _, f := range fileInspect.FuncInspect {
 		if f.ValidateLength {
 			params[f.Recv] = append(params[f.Recv], validate{
-				Recv:     f.Recv,
-				Name:     f.ValidateLengthField(),
-				FuncName: f.FuncName,
+				Recv:       f.Recv,
+				Name:       f.ValidateLengthField(),
+				FuncName:   f.FuncName,
+				CustomRecv: customRecv,
 			})
 		}
 		if f.ValidatePresence {
 			params[f.Recv] = append(params[f.Recv], validate{
-				Recv:     f.Recv,
-				Name:     f.ValidatePresenceField(),
-				FuncName: f.FuncName,
+				Recv:       f.Recv,
+				Name:       f.ValidatePresenceField(),
+				FuncName:   f.FuncName,
+				CustomRecv: customRecv,
 			})
 		}
 		if f.ValidateNumericality {
 			params[f.Recv] = append(params[f.Recv], validate{
-				Recv:     f.Recv,
-				Name:     f.ValidateNumericalityField(),
-				FuncName: f.FuncName,
+				Recv:       f.Recv,
+				Name:       f.ValidateNumericalityField(),
+				FuncName:   f.FuncName,
+				CustomRecv: customRecv,
 			})
 		}
 	}
 	return params
 }
 
-func generateValidateFunc(file *os.File, validates []validate) error {
+func (v validates) NeedCustom() bool {
+	return slices.Contains(v[0].CustomRecv, v[0].Recv)
+}
+
+func generateValidateFunc(file *os.File, validates validates) error {
 	funcMap := template.FuncMap{
 		"toSnakeCase": ayaorm.ToSnakeCase,
 	}

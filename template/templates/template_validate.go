@@ -19,6 +19,14 @@ var ValidatePresenceTextBody = `
 			}
 		}
 
+		{{ if .NeedCustom }}
+		customs := []*ayaorm.Validation{m.validateCustomRule().Rule()}
+		for _, rule := range customs {
+			custom := ayaorm.NewValidator(rule).Custom()
+			custom(&errors)
+		}
+		{{ end }}
+
 		if len(errors) > 0 {
 			result = false
 		}

@@ -1006,12 +1006,6 @@ func (m User) IsValid() (bool, []error) {
 		}
 	}
 
-	customs := []*ayaorm.Validation{m.validateCustomRule().Rule()}
-	for _, rule := range customs {
-		custom := ayaorm.NewValidator(rule).Custom()
-		custom(&errors)
-	}
-
 	if len(errors) > 0 {
 		result = false
 	}
