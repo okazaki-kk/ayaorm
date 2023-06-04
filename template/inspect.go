@@ -16,6 +16,7 @@ type FileInspect struct {
 	PackageName   string
 	StructInspect []StructInspect
 	FuncInspect   []FuncInspect
+	CustomRecv    []string
 }
 
 func (f FileInspect) ModelName() string {
@@ -142,6 +143,11 @@ func Inspect(path string) FileInspect {
 			validatePresence := strings.HasPrefix(funcName, "validatesPresenceOf")
 			validateLength := strings.HasPrefix(funcName, "validateLengthOf")
 			validateNumericality := strings.HasPrefix(funcName, "validateNumericalityOf")
+
+			if strings.HasPrefix("validateCustomRule", funcName) {
+				fileInspect.CustomRecv = append(fileInspect.CustomRecv, recv)
+				return true
+			}
 
 			funcInspect = append(funcInspect, FuncInspect{FuncName: funcName, Recv: recv, HasMany: hasMany, BelongTo: belongsTo, ValidatePresence: validatePresence, ValidateLength: validateLength, ValidateNumericality: validateNumericality})
 		}

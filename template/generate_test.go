@@ -11,6 +11,7 @@ import (
 func TestGenerate(t *testing.T) {
 	var fileInspect = FileInspect{
 		PackageName: "testss",
+		CustomRecv:  []string{"User"},
 		StructInspect: []StructInspect{
 			{
 				ModelName:   "Comment",
@@ -472,6 +473,12 @@ func (m User) IsValid() (bool, []error) {
 			result = false
 			errors = append(errors, errs...)
 		}
+	}
+
+	customs := []*ayaorm.Validation{m.validateCustomRule().Rule()}
+	for _, rule := range customs {
+		custom := ayaorm.NewValidator(rule).Custom()
+		custom(&errors)
 	}
 
 	if len(errors) > 0 {

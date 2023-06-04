@@ -50,6 +50,14 @@ func TestImport(t *testing.T) {
 	func (m User) validateNumericalityOfAge() ayaorm.Rule {
 		return ayaorm.MakeRule().Numericality().OnlyInteger()
 	}
+
+	func (m User) validateCustomRule() ayaorm.Rule {
+		return ayaorm.CustomRule(func(es *[]error) {
+			if m.Name == "custom-example" {
+				*es = append(*es, errors.New("name must not be custom-example"))
+			}
+		})
+	}
 	`
 
 	_, err = file.Write([]byte(userStruct))
@@ -60,6 +68,8 @@ func TestImport(t *testing.T) {
 	assert.Equal(t, "testss", fileInspect.PackageName)
 	assert.Equal(t, 2, len(fileInspect.StructInspect))
 	assert.Equal(t, 5, len(fileInspect.FuncInspect))
+	assert.Equal(t, 1, len(fileInspect.CustomRecv))
+	assert.Equal(t, "User", fileInspect.CustomRecv[0])
 
 	assert.Equal(t, "Post", fileInspect.StructInspect[0].ModelName)
 	assert.Equal(t, []string{"Id", "Content", "Author", "CreatedAt", "UpdatedAt"}, fileInspect.StructInspect[0].FieldKeys)
