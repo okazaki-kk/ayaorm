@@ -12,7 +12,20 @@ func MakeRule() *Validation {
 	return &Validation{}
 }
 
+func CustomRule(c CustomValidation) *Validation {
+	v := &Validation{}
+	return v.CustomRule(c)
+}
+
+func (v *Validation) CustomRule(c CustomValidation) *Validation {
+	v.custom = c
+	return v
+}
+
+type CustomValidation func(errors *[]error)
+
 type Validation struct {
+	custom       CustomValidation
 	presence     *presence
 	maxLength    *maxLength
 	minLength    *minLength
@@ -231,4 +244,11 @@ func (v Validator) isPresent(name string, value interface{}) (bool, error) {
 		return false, fmt.Errorf("%s can't be blank", name)
 	}
 	return true, nil
+}
+
+func (v Validator) Custom() CustomValidation {
+	if v.rule.custom == nil {
+		return func(errors *[]error) {}
+	}
+	return v.rule.custom
 }

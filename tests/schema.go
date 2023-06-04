@@ -1,6 +1,8 @@
 package tests
 
 import (
+	"errors"
+
 	"github.com/okazaki-kk/ayaorm"
 	"github.com/okazaki-kk/ayaorm/null"
 )
@@ -41,4 +43,12 @@ func (m Post) validateLengthOfContent() ayaorm.Rule {
 
 func (m User) validateNumericalityOfAge() ayaorm.Rule {
 	return ayaorm.MakeRule().Numericality().Positive()
+}
+
+func (m User) validateCustom() ayaorm.Rule {
+	return ayaorm.CustomRule(func(es *[]error) {
+		if m.Name == "custom-example" {
+			*es = append(*es, errors.New("name must not be custom-example"))
+		}
+	})
 }
