@@ -19,7 +19,7 @@ func TestGenerate(t *testing.T) {
 				FieldValues: []string{"int", "string", "string", "int", "time.Time", "time.Time"},
 			},
 		},
-		FuncInspect: []FuncInspect{
+		RelationFuncInspect: []RelationFuncInspect{
 			{
 				FuncName: "hasManyComments",
 				Recv:     "Post",
@@ -30,6 +30,8 @@ func TestGenerate(t *testing.T) {
 				Recv:     "Comment",
 				BelongTo: true,
 			},
+		},
+		ValidateFuncInspect: []ValidateFuncInspect{
 			{
 				FuncName:         "validatesPresenceOfAuthor",
 				Recv:             "Post",
