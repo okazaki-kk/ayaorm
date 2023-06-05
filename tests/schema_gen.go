@@ -969,6 +969,25 @@ func (u *CommentRelation) JoinPost() *CommentRelation {
 	return u
 }
 
+func (m Comment) IsValid() (bool, []error) {
+	result := true
+	var errors []error
+
+	rules := map[string]*ayaorm.Validation{}
+
+	for name, rule := range rules {
+		if ok, errs := ayaorm.NewValidator(rule).IsValid(name, m.fieldValuesByName(name)); !ok {
+			result = false
+			errors = append(errors, errs...)
+		}
+	}
+
+	if len(errors) > 0 {
+		result = false
+	}
+	return result, errors
+}
+
 func (m Post) IsValid() (bool, []error) {
 	result := true
 	var errors []error

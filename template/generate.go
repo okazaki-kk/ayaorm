@@ -67,6 +67,7 @@ func Generate(from string, fileInspect FileInspect) error {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
+	fmt.Println(keys)
 
 	for _, k := range keys {
 		err := generateValidateFunc(file, params[k])
@@ -184,6 +185,10 @@ type validates []validate
 
 func generateValidateParams(fileInspect FileInspect, customRecv []string) map[string]validates {
 	params := map[string]validates{}
+
+	for _, f := range fileInspect.StructInspect {
+		params[f.ModelName] = append(params[f.ModelName], validate{Recv: f.ModelName})
+	}
 
 	for _, f := range fileInspect.ValidateFuncInspect {
 		if f.ValidateLength {
