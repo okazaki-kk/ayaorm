@@ -41,17 +41,6 @@ func (s StructInspect) SnakeCaseModelName() string {
 	return ayaorm.ToSnakeCase(s.ModelName) + "s"
 }
 
-/*type FuncInspect struct {
-	FuncName             string
-	Recv                 string
-	Args                 []string
-	HasMany              bool
-	BelongTo             bool
-	ValidatePresence     bool
-	ValidateLength       bool
-	ValidateNumericality bool
-}*/
-
 type RelationFuncInspect struct {
 	FuncName string
 	Recv     string
