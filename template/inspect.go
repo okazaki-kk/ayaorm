@@ -13,10 +13,11 @@ import (
 )
 
 type FileInspect struct {
-	PackageName   string
-	StructInspect []StructInspect
-	FuncInspect   []FuncInspect
-	CustomRecv    []string
+	PackageName         string
+	StructInspect       []StructInspect
+	RelationFuncInspect []RelationFuncInspect
+	ValidateFuncInspect []ValidateFuncInspect
+	CustomRecv          []string
 }
 
 func (f FileInspect) ModelName() string {
@@ -40,35 +41,41 @@ func (s StructInspect) SnakeCaseModelName() string {
 	return ayaorm.ToSnakeCase(s.ModelName) + "s"
 }
 
-type FuncInspect struct {
+type RelationFuncInspect struct {
+	FuncName string
+	Recv     string
+	Args     []string
+	HasMany  bool
+	BelongTo bool
+}
+
+type ValidateFuncInspect struct {
 	FuncName             string
 	Recv                 string
 	Args                 []string
-	HasMany              bool
-	BelongTo             bool
 	ValidatePresence     bool
 	ValidateLength       bool
 	ValidateNumericality bool
 }
 
-func (f FuncInspect) HasManyModel() string {
+func (f RelationFuncInspect) HasManyModel() string {
 	hasManyModels := strings.TrimPrefix(f.FuncName, "hasMany")
 	return hasManyModels[:len(hasManyModels)-1]
 }
 
-func (f FuncInspect) BelongsToModel() string {
+func (f RelationFuncInspect) BelongsToModel() string {
 	return strings.TrimPrefix(f.FuncName, "belongsTo")
 }
 
-func (f FuncInspect) ValidatePresenceField() string {
+func (f ValidateFuncInspect) ValidatePresenceField() string {
 	return strings.TrimPrefix(f.FuncName, "validatesPresenceOf")
 }
 
-func (f FuncInspect) ValidateLengthField() string {
+func (f ValidateFuncInspect) ValidateLengthField() string {
 	return strings.TrimPrefix(f.FuncName, "validateLengthOf")
 }
 
-func (f FuncInspect) ValidateNumericalityField() string {
+func (f ValidateFuncInspect) ValidateNumericalityField() string {
 	return strings.TrimPrefix(f.FuncName, "validateNumericalityOf")
 }
 
@@ -80,9 +87,10 @@ func Inspect(path string) FileInspect {
 		log.Fatal(err)
 	}
 
-	var structInspect []StructInspect
-	var funcInspect []FuncInspect
 	var fileInspect FileInspect
+	var structInspect []StructInspect
+	var relationFuncInspect []RelationFuncInspect
+	var validateFuncInspect []ValidateFuncInspect
 
 	ast.Inspect(f, func(n ast.Node) bool {
 		fileInspect.PackageName = f.Name.Name
@@ -138,23 +146,34 @@ func Inspect(path string) FileInspect {
 		case *ast.FuncDecl:
 			funcName := n.(*ast.FuncDecl).Name.Name
 			recv := n.(*ast.FuncDecl).Recv.List[0].Type.(*ast.Ident).Name
-			hasMany := strings.HasPrefix(funcName, "hasMany")
-			belongsTo := strings.HasPrefix(funcName, "belongsTo")
-			validatePresence := strings.HasPrefix(funcName, "validatesPresenceOf")
-			validateLength := strings.HasPrefix(funcName, "validateLengthOf")
-			validateNumericality := strings.HasPrefix(funcName, "validateNumericalityOf")
 
 			if strings.HasPrefix("validateCustomRule", funcName) {
 				fileInspect.CustomRecv = append(fileInspect.CustomRecv, recv)
 				return true
 			}
 
-			funcInspect = append(funcInspect, FuncInspect{FuncName: funcName, Recv: recv, HasMany: hasMany, BelongTo: belongsTo, ValidatePresence: validatePresence, ValidateLength: validateLength, ValidateNumericality: validateNumericality})
+			hasMany := strings.HasPrefix(funcName, "hasMany")
+			belongsTo := strings.HasPrefix(funcName, "belongsTo")
+			if hasMany || belongsTo {
+				relationFuncInspect = append(relationFuncInspect, RelationFuncInspect{FuncName: funcName, Recv: recv, HasMany: hasMany, BelongTo: belongsTo})
+				return true
+			}
+
+			validatePresence := strings.HasPrefix(funcName, "validatesPresenceOf")
+			validateLength := strings.HasPrefix(funcName, "validateLengthOf")
+			validateNumericality := strings.HasPrefix(funcName, "validateNumericalityOf")
+			if validatePresence || validateLength || validateNumericality {
+				validateFuncInspect = append(validateFuncInspect, ValidateFuncInspect{FuncName: funcName, Recv: recv, ValidatePresence: validatePresence, ValidateLength: validateLength, ValidateNumericality: validateNumericality})
+				return true
+			}
+
 		}
 		return true
 	})
 
 	fileInspect.StructInspect = structInspect
-	fileInspect.FuncInspect = funcInspect
+	fileInspect.ValidateFuncInspect = validateFuncInspect
+	fileInspect.RelationFuncInspect = relationFuncInspect
+
 	return fileInspect
 }

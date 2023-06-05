@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestImport(t *testing.T) {
+func TestInspect(t *testing.T) {
 	filePath := "./temp_inspect.go"
 	file, err := os.Create(filePath)
 	defer os.Remove(filePath)
@@ -67,7 +67,8 @@ func TestImport(t *testing.T) {
 
 	assert.Equal(t, "testss", fileInspect.PackageName)
 	assert.Equal(t, 2, len(fileInspect.StructInspect))
-	assert.Equal(t, 5, len(fileInspect.FuncInspect))
+	assert.Equal(t, 2, len(fileInspect.RelationFuncInspect))
+	assert.Equal(t, 3, len(fileInspect.ValidateFuncInspect))
 	assert.Equal(t, 1, len(fileInspect.CustomRecv))
 	assert.Equal(t, "User", fileInspect.CustomRecv[0])
 
@@ -79,28 +80,28 @@ func TestImport(t *testing.T) {
 	assert.Equal(t, []string{"Id", "Content", "Author", "PostId", "CreatedAt", "UpdatedAt"}, fileInspect.StructInspect[1].FieldKeys)
 	assert.Equal(t, []string{"int", "string", "string", "int", "time.Time", "time.Time"}, fileInspect.StructInspect[1].FieldValues)
 
-	assert.Equal(t, "hasManyComments", fileInspect.FuncInspect[0].FuncName)
-	assert.Equal(t, "Post", fileInspect.FuncInspect[0].Recv)
-	assert.Equal(t, true, fileInspect.FuncInspect[0].HasMany)
-	assert.Equal(t, "Comment", fileInspect.FuncInspect[0].HasManyModel())
+	assert.Equal(t, "hasManyComments", fileInspect.RelationFuncInspect[0].FuncName)
+	assert.Equal(t, "Post", fileInspect.RelationFuncInspect[0].Recv)
+	assert.Equal(t, true, fileInspect.RelationFuncInspect[0].HasMany)
+	assert.Equal(t, "Comment", fileInspect.RelationFuncInspect[0].HasManyModel())
 
-	assert.Equal(t, "belongsToPost", fileInspect.FuncInspect[1].FuncName)
-	assert.Equal(t, "Comment", fileInspect.FuncInspect[1].Recv)
-	assert.Equal(t, true, fileInspect.FuncInspect[1].BelongTo)
-	assert.Equal(t, "Post", fileInspect.FuncInspect[1].BelongsToModel())
+	assert.Equal(t, "belongsToPost", fileInspect.RelationFuncInspect[1].FuncName)
+	assert.Equal(t, "Comment", fileInspect.RelationFuncInspect[1].Recv)
+	assert.Equal(t, true, fileInspect.RelationFuncInspect[1].BelongTo)
+	assert.Equal(t, "Post", fileInspect.RelationFuncInspect[1].BelongsToModel())
 
-	assert.Equal(t, "validatesPresenceOfAuthor", fileInspect.FuncInspect[2].FuncName)
-	assert.Equal(t, "Post", fileInspect.FuncInspect[2].Recv)
-	assert.Equal(t, true, fileInspect.FuncInspect[2].ValidatePresence)
-	assert.Equal(t, "Author", fileInspect.FuncInspect[2].ValidatePresenceField())
+	assert.Equal(t, "validatesPresenceOfAuthor", fileInspect.ValidateFuncInspect[0].FuncName)
+	assert.Equal(t, "Post", fileInspect.ValidateFuncInspect[0].Recv)
+	assert.Equal(t, true, fileInspect.ValidateFuncInspect[0].ValidatePresence)
+	assert.Equal(t, "Author", fileInspect.ValidateFuncInspect[0].ValidatePresenceField())
 
-	assert.Equal(t, "validateLengthOfContent", fileInspect.FuncInspect[3].FuncName)
-	assert.Equal(t, "Post", fileInspect.FuncInspect[3].Recv)
-	assert.Equal(t, true, fileInspect.FuncInspect[3].ValidateLength)
-	assert.Equal(t, "Content", fileInspect.FuncInspect[3].ValidateLengthField())
+	assert.Equal(t, "validateLengthOfContent", fileInspect.ValidateFuncInspect[1].FuncName)
+	assert.Equal(t, "Post", fileInspect.ValidateFuncInspect[1].Recv)
+	assert.Equal(t, true, fileInspect.ValidateFuncInspect[1].ValidateLength)
+	assert.Equal(t, "Content", fileInspect.ValidateFuncInspect[1].ValidateLengthField())
 
-	assert.Equal(t, "validateNumericalityOfAge", fileInspect.FuncInspect[4].FuncName)
-	assert.Equal(t, "User", fileInspect.FuncInspect[4].Recv)
-	assert.Equal(t, true, fileInspect.FuncInspect[4].ValidateNumericality)
-	assert.Equal(t, "Age", fileInspect.FuncInspect[4].ValidateNumericalityField())
+	assert.Equal(t, "validateNumericalityOfAge", fileInspect.ValidateFuncInspect[2].FuncName)
+	assert.Equal(t, "User", fileInspect.ValidateFuncInspect[2].Recv)
+	assert.Equal(t, true, fileInspect.ValidateFuncInspect[2].ValidateNumericality)
+	assert.Equal(t, "Age", fileInspect.ValidateFuncInspect[2].ValidateNumericalityField())
 }

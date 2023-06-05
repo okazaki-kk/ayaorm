@@ -47,7 +47,7 @@ func Generate(from string, fileInspect FileInspect) error {
 		}
 	}
 
-	for _, f := range fileInspect.FuncInspect {
+	for _, f := range fileInspect.RelationFuncInspect {
 		var err error
 		if f.BelongTo {
 			err = generateBelongsToFunc(file, f)
@@ -137,7 +137,7 @@ func generateStruct(file *os.File, structInspect StructInspect) error {
 	return nil
 }
 
-func generateHasManyFunc(file *os.File, funcInspect FuncInspect) error {
+func generateHasManyFunc(file *os.File, funcInspect RelationFuncInspect) error {
 	funcMap := template.FuncMap{
 		"toSnakeCase": ayaorm.ToSnakeCase,
 	}
@@ -156,7 +156,7 @@ func generateHasManyFunc(file *os.File, funcInspect FuncInspect) error {
 	return nil
 }
 
-func generateBelongsToFunc(file *os.File, funcInspect FuncInspect) error {
+func generateBelongsToFunc(file *os.File, funcInspect RelationFuncInspect) error {
 	funcMap := template.FuncMap{
 		"toSnakeCase": ayaorm.ToSnakeCase,
 	}
@@ -187,7 +187,7 @@ type validates []validate
 func generateValidateParams(fileInspect FileInspect, customRecv []string) map[string]validates {
 	params := map[string]validates{}
 
-	for _, f := range fileInspect.FuncInspect {
+	for _, f := range fileInspect.ValidateFuncInspect {
 		if f.ValidateLength {
 			params[f.Recv] = append(params[f.Recv], validate{
 				Recv:       f.Recv,
