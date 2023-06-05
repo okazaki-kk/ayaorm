@@ -185,6 +185,10 @@ type validates []validate
 func generateValidateParams(fileInspect FileInspect, customRecv []string) map[string]validates {
 	params := map[string]validates{}
 
+	for _, f := range fileInspect.StructInspect {
+		params[f.ModelName] = append(params[f.ModelName], validate{Recv: f.ModelName, CustomRecv: customRecv})
+	}
+
 	for _, f := range fileInspect.ValidateFuncInspect {
 		if f.ValidateLength {
 			params[f.Recv] = append(params[f.Recv], validate{

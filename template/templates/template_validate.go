@@ -8,6 +8,7 @@ var ValidatePresenceTextBody = `
 
 		rules := map[string]*ayaorm.Validation{
 			{{ range $key, $value := . -}}
+			{{ if eq $value.Name "" -}} {{continue}} {{ end -}}
 			"{{toSnakeCase $value.Name}}": m.{{$value.FuncName}}().Rule(),
 			{{ end -}}
 		}
