@@ -6,7 +6,6 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"log"
 	"strings"
 
 	"github.com/okazaki-kk/ayaorm"
@@ -80,11 +79,11 @@ func (f ValidateFuncInspect) ValidateNumericalityField() string {
 }
 
 // scan file and return package name and file info
-func Inspect(path string) FileInspect {
+func Inspect(path string) (FileInspect, error) {
 	fset := token.NewFileSet()
 	f, err := parser.ParseFile(fset, path, nil, parser.ParseComments)
 	if err != nil {
-		log.Fatal(err)
+		return FileInspect{}, err
 	}
 
 	var fileInspect FileInspect
@@ -175,5 +174,5 @@ func Inspect(path string) FileInspect {
 	fileInspect.ValidateFuncInspect = validateFuncInspect
 	fileInspect.RelationFuncInspect = relationFuncInspect
 
-	return fileInspect
+	return fileInspect, nil
 }
