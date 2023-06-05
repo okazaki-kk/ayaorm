@@ -63,8 +63,9 @@ func TestInspect(t *testing.T) {
 	_, err = file.Write([]byte(userStruct))
 	assert.NoError(t, err)
 
-	fileInspect := Inspect(filePath)
+	fileInspect, err := Inspect(filePath)
 
+	assert.NoError(t, err)
 	assert.Equal(t, "testss", fileInspect.PackageName)
 	assert.Equal(t, 2, len(fileInspect.StructInspect))
 	assert.Equal(t, 2, len(fileInspect.RelationFuncInspect))

@@ -88,11 +88,6 @@ func Generate(from string, fileInspect FileInspect) error {
 	return nil
 }
 
-type templ struct {
-	templateName string
-	templateBody string
-}
-
 func generateStruct(file *os.File, structInspect StructInspect) error {
 	funcMap := template.FuncMap{
 		"toSnakeCase": ayaorm.ToSnakeCase,
@@ -100,7 +95,10 @@ func generateStruct(file *os.File, structInspect StructInspect) error {
 
 	t, _ := template.New("Base").Funcs(funcMap).Parse(TextBody)
 
-	var templs []templ = []templ{
+	templs := []struct {
+		templateName string
+		templateBody string
+	}{
 		{
 			templateName: "Relation",
 			templateBody: templates.RelationTextBody,
