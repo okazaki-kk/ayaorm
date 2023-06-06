@@ -10,3 +10,6 @@ lint:
 
 build:
 	go build -o ayaorm ./cmd/ayaorm/
+
+testgen:
+	make build && cd tests && cp ../ayaorm . && ./ayaorm schema.go
