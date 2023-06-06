@@ -2,6 +2,7 @@
 package tests
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/okazaki-kk/ayaorm"
@@ -87,6 +88,11 @@ func (u *Comment) Update(params CommentParams) error {
 }
 
 func (m *Comment) Save() error {
+	ok, errs := m.IsValid()
+	if !ok {
+		return errors.Join(errs...)
+	}
+
 	lastId, err := m.newRelation().Save()
 	if m.Id == 0 {
 		m.Id = lastId
@@ -390,6 +396,11 @@ func (u *Post) Update(params PostParams) error {
 }
 
 func (m *Post) Save() error {
+	ok, errs := m.IsValid()
+	if !ok {
+		return errors.Join(errs...)
+	}
+
 	lastId, err := m.newRelation().Save()
 	if m.Id == 0 {
 		m.Id = lastId
@@ -691,6 +702,11 @@ func (u *User) Update(params UserParams) error {
 }
 
 func (m *User) Save() error {
+	ok, errs := m.IsValid()
+	if !ok {
+		return errors.Join(errs...)
+	}
+
 	lastId, err := m.newRelation().Save()
 	if m.Id == 0 {
 		m.Id = lastId
