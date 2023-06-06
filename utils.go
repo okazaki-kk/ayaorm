@@ -27,3 +27,13 @@ func ToCamelCase(s string) string {
 func IsZero(v interface{}) bool {
 	return reflect.ValueOf(v).Interface() == reflect.Zero(reflect.TypeOf(v)).Interface()
 }
+
+// Contains reports whether v is present in s.
+func Contains[E comparable](s []E, v E) bool {
+	for i := range s {
+		if v == s[i] {
+			return true
+		}
+	}
+	return false
+}

@@ -10,7 +10,6 @@ import (
 
 	"github.com/okazaki-kk/ayaorm"
 	"github.com/okazaki-kk/ayaorm/template/templates"
-	"golang.org/x/exp/slices"
 )
 
 func Generate(from string, fileInspect FileInspect) error {
@@ -179,9 +178,9 @@ type validate struct {
 }
 
 type validates struct {
-	Validates  []validate
-	CustomRecv []string
-	Recv       string
+	Validates        []validate
+	CustomValidation bool
+	Recv             string
 }
 
 func generateValidateParams(fileInspect FileInspect) map[string]validates {
@@ -211,15 +210,11 @@ func generateValidateParams(fileInspect FileInspect) map[string]validates {
 	return params
 }
 
-func (v validates) NeedCustom() bool {
-	return slices.Contains(v.CustomRecv, v.Recv)
-}
-
 func generateValidateFunc(file *os.File, validates validates, customRecv []string) error {
 	funcMap := template.FuncMap{
 		"toSnakeCase": ayaorm.ToSnakeCase,
 	}
-	validates.CustomRecv = customRecv
+	validates.CustomValidation = ayaorm.Contains(customRecv, validates.Recv)
 
 	t, err := template.New("Base").Funcs(funcMap).Parse(FuncBody)
 	if err != nil {
