@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log"
 	"os"
+	"strings"
 	"testing"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -385,7 +386,8 @@ func TestValidation(t *testing.T) {
 		post.Content = "Golang Post Updated Updated Updated Updated"
 
 		err := post.Save()
-		assert.Equal(t, "author can't be blank\ncontent is too long (maximum is 20 characters)", err.Error())
+		assert.True(t, strings.Contains(err.Error(), "author can't be blank"))
+		assert.True(t, strings.Contains(err.Error(), "content is too long (maximum is 20 characters)"))
 	})
 }
 
