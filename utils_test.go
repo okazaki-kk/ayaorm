@@ -86,3 +86,17 @@ func TestIsZero(t *testing.T) {
 	assert.True(t, IsZero(ti.D))
 	assert.True(t, IsZero(ti.E))
 }
+
+func TestContains(t *testing.T) {
+	s := []int{1, 2, 3, 4, 5}
+	assert.True(t, Contains(s, 1))
+	assert.True(t, Contains(s, 2))
+	assert.True(t, Contains(s, 3))
+	assert.True(t, Contains(s, 4))
+	assert.True(t, Contains(s, 5))
+	assert.False(t, Contains(s, 6))
+	assert.False(t, Contains(s, 7))
+	assert.False(t, Contains(s, 8))
+	assert.False(t, Contains(s, 9))
+	assert.False(t, Contains(s, 10))
+}

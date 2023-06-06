@@ -19,7 +19,7 @@ var ValidatePresenceTextBody = `
 			}
 		}
 
-		{{ if .NeedCustom }}
+		{{ if .CustomValidation }}
 		customs := []*ayaorm.Validation{m.validateCustomRule().Rule()}
 		for _, rule := range customs {
 			custom := ayaorm.NewValidator(rule).Custom()
