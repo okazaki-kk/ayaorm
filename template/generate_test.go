@@ -18,6 +18,16 @@ func TestGenerate(t *testing.T) {
 				FieldKeys:   []string{"Id", "Content", "Author", "PostId", "CreatedAt", "UpdatedAt"},
 				FieldValues: []string{"int", "string", "string", "int", "time.Time", "time.Time"},
 			},
+			{
+				ModelName:   "Post",
+				FieldKeys:   []string{"Id", "Content", "Author", "CreatedAt", "UpdatedAt"},
+				FieldValues: []string{"int", "string", "string", "time.Time", "time.Time"},
+			},
+			{
+				ModelName:   "User",
+				FieldKeys:   []string{"Id", "Name", "Age", "Address", "CreatedAt", "UpdatedAt"},
+				FieldValues: []string{"int", "string", "int", "string", "time.Time", "time.Time"},
+			},
 		},
 		RelationFuncInspect: []RelationFuncInspect{
 			{
@@ -385,6 +395,610 @@ func (m *Comment) columnNames() []string {
 		"content",
 		"author",
 		"post_id",
+		"created_at",
+		"updated_at",
+	}
+}
+
+type PostRelation struct {
+	model *Post
+	*ayaorm.Relation
+}
+
+func (m *Post) newRelation() *PostRelation {
+	r := &PostRelation{
+		m,
+		ayaorm.NewRelation(db).SetTable("posts"),
+	}
+	r.Select(
+		"id",
+		"content",
+		"author",
+		"created_at",
+		"updated_at",
+	)
+
+	return r
+}
+
+func (m Post) Select(columns ...string) *PostRelation {
+	return m.newRelation().Select(columns...)
+}
+
+func (r *PostRelation) Select(columns ...string) *PostRelation {
+	cs := []string{}
+	for _, c := range columns {
+		if r.model.isColumnName(c) {
+			cs = append(cs, fmt.Sprintf("posts.%s", c))
+		} else {
+			cs = append(cs, c)
+		}
+	}
+	r.Relation.SetColumns(cs...)
+	return r
+}
+
+type PostParams Post
+
+func (m Post) Build(p PostParams) *Post {
+	return &Post{
+		Schema:  ayaorm.Schema{Id: p.Id},
+		Content: p.Content,
+		Author:  p.Author,
+	}
+}
+
+func (u Post) Create(params PostParams) (*Post, error) {
+	post := u.Build(params)
+	return u.newRelation().Create(post)
+}
+
+func (r *PostRelation) Create(post *Post) (*Post, error) {
+	err := post.Save()
+	if err != nil {
+		return nil, err
+	}
+	return post, nil
+}
+
+func (u *Post) Update(params PostParams) error {
+	if !ayaorm.IsZero(params.Id) {
+		u.Id = params.Id
+	}
+	if !ayaorm.IsZero(params.Content) {
+		u.Content = params.Content
+	}
+	if !ayaorm.IsZero(params.Author) {
+		u.Author = params.Author
+	}
+	return u.Save()
+}
+
+func (m *Post) Save() error {
+	lastId, err := m.newRelation().Save()
+	if m.Id == 0 {
+		m.Id = lastId
+	}
+	return err
+}
+
+func (r *PostRelation) Save() (int, error) {
+	fieldMap := make(map[string]interface{})
+	for _, c := range r.Relation.GetColumns() {
+		switch c {
+		case "content", "posts.content":
+			fieldMap["content"] = r.model.Content
+		case "author", "posts.author":
+			fieldMap["author"] = r.model.Author
+		}
+	}
+
+	return r.Relation.Save(r.model.Id, fieldMap)
+}
+
+func (m *Post) Delete() error {
+	return m.newRelation().Delete(m.Id)
+}
+
+func (m Post) Count(column ...string) int {
+	return m.newRelation().Count(column...)
+}
+
+func (m Post) All() *PostRelation {
+	return m.newRelation()
+}
+
+func (m Post) Limit(limit int) *PostRelation {
+	return m.newRelation().Limit(limit)
+}
+
+func (r *PostRelation) Limit(limit int) *PostRelation {
+	r.Relation.Limit(limit)
+	return r
+}
+
+func (m Post) Order(key, order string) *PostRelation {
+	return m.newRelation().Order(key, order)
+}
+
+func (r *PostRelation) Order(key, order string) *PostRelation {
+	r.Relation.Order(key, order)
+	return r
+}
+
+func (m Post) Where(column string, conditions ...interface{}) *PostRelation {
+	return m.newRelation().Where(column, conditions...)
+}
+
+func (r *PostRelation) Where(column string, conditions ...interface{}) *PostRelation {
+	r.Relation.Where(column, conditions...)
+	return r
+}
+
+func (m Post) Or(column string, conditions ...interface{}) *PostRelation {
+	return m.newRelation().Or(column, conditions...)
+}
+
+func (r *PostRelation) Or(column string, conditions ...interface{}) *PostRelation {
+	r.Relation.Or(column, conditions...)
+	return r
+}
+
+func (m Post) GroupBy(columns ...string) *PostRelation {
+	return m.newRelation().GroupBy(columns...)
+}
+
+func (r *PostRelation) GroupBy(columns ...string) *PostRelation {
+	r.Relation.GroupBy(columns...)
+	return r
+}
+
+func (m Post) Having(column string, conditions ...interface{}) *PostRelation {
+	return m.newRelation().Having(column, conditions...)
+}
+
+func (r *PostRelation) Having(column string, conditions ...interface{}) *PostRelation {
+	r.Relation.Having(column, conditions...)
+	return r
+}
+
+func (m Post) First() (*Post, error) {
+	return m.newRelation().First()
+}
+
+func (r *PostRelation) First() (*Post, error) {
+	r.Relation.First()
+	return r.QueryRow()
+}
+
+func (m Post) Last() (*Post, error) {
+	return m.newRelation().Last()
+}
+
+func (r *PostRelation) Last() (*Post, error) {
+	r.Relation.Last()
+	return r.QueryRow()
+}
+
+func (m Post) Find(id int) (*Post, error) {
+	return m.newRelation().Find(id)
+}
+
+func (r *PostRelation) Find(id int) (*Post, error) {
+	r.Relation.Find(id)
+	return r.QueryRow()
+}
+
+func (m Post) FindBy(column string, value interface{}) (*Post, error) {
+	return m.newRelation().FindBy(column, value)
+}
+
+func (r *PostRelation) FindBy(column string, value interface{}) (*Post, error) {
+	r.Relation.FindBy(column, value)
+	return r.QueryRow()
+}
+
+func (m Post) Pluck(column string) ([]interface{}, error) {
+	return m.newRelation().Pluck(column)
+}
+
+func (r *PostRelation) Pluck(column string) ([]interface{}, error) {
+	return r.Relation.Pluck(column)
+}
+
+func (r *PostRelation) Query() ([]*Post, error) {
+	rows, err := r.Relation.Query()
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	results := []*Post{}
+	for rows.Next() {
+		row := &Post{}
+		err := rows.Scan(row.fieldPtrsByName(r.Relation.GetColumns())...)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, row)
+	}
+	return results, nil
+}
+
+func (r *PostRelation) QueryRow() (*Post, error) {
+	row := &Post{}
+	err := r.Relation.QueryRow(row.fieldPtrsByName(r.Relation.GetColumns())...)
+	if err != nil {
+		return nil, err
+	}
+	return row, nil
+}
+
+func (m *Post) fieldPtrByName(name string) interface{} {
+	switch name {
+	case "id", "posts.id":
+		return &m.Id
+	case "content", "posts.content":
+		return &m.Content
+	case "author", "posts.author":
+		return &m.Author
+	case "created_at", "posts.created_at":
+		return &m.CreatedAt
+	case "updated_at", "posts.updated_at":
+		return &m.UpdatedAt
+	default:
+		return nil
+	}
+}
+
+func (m *Post) fieldValuesByName(name string) interface{} {
+	switch name {
+	case "id", "posts.id":
+		return m.Id
+	case "content", "posts.content":
+		return m.Content
+	case "author", "posts.author":
+		return m.Author
+	case "created_at", "posts.created_at":
+		return m.CreatedAt
+	case "updated_at", "posts.updated_at":
+		return m.UpdatedAt
+	default:
+		return nil
+	}
+}
+
+func (m *Post) fieldPtrsByName(names []string) []interface{} {
+	fields := []interface{}{}
+	for _, n := range names {
+		f := m.fieldPtrByName(n)
+		fields = append(fields, f)
+	}
+	return fields
+}
+
+func (m *Post) isColumnName(name string) bool {
+	for _, c := range m.columnNames() {
+		if c == name {
+			return true
+		}
+	}
+	return false
+}
+
+func (m *Post) columnNames() []string {
+	return []string{
+		"id",
+		"content",
+		"author",
+		"created_at",
+		"updated_at",
+	}
+}
+
+type UserRelation struct {
+	model *User
+	*ayaorm.Relation
+}
+
+func (m *User) newRelation() *UserRelation {
+	r := &UserRelation{
+		m,
+		ayaorm.NewRelation(db).SetTable("users"),
+	}
+	r.Select(
+		"id",
+		"name",
+		"age",
+		"address",
+		"created_at",
+		"updated_at",
+	)
+
+	return r
+}
+
+func (m User) Select(columns ...string) *UserRelation {
+	return m.newRelation().Select(columns...)
+}
+
+func (r *UserRelation) Select(columns ...string) *UserRelation {
+	cs := []string{}
+	for _, c := range columns {
+		if r.model.isColumnName(c) {
+			cs = append(cs, fmt.Sprintf("users.%s", c))
+		} else {
+			cs = append(cs, c)
+		}
+	}
+	r.Relation.SetColumns(cs...)
+	return r
+}
+
+type UserParams User
+
+func (m User) Build(p UserParams) *User {
+	return &User{
+		Schema:  ayaorm.Schema{Id: p.Id},
+		Name:    p.Name,
+		Age:     p.Age,
+		Address: p.Address,
+	}
+}
+
+func (u User) Create(params UserParams) (*User, error) {
+	user := u.Build(params)
+	return u.newRelation().Create(user)
+}
+
+func (r *UserRelation) Create(user *User) (*User, error) {
+	err := user.Save()
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+func (u *User) Update(params UserParams) error {
+	if !ayaorm.IsZero(params.Id) {
+		u.Id = params.Id
+	}
+	if !ayaorm.IsZero(params.Name) {
+		u.Name = params.Name
+	}
+	if !ayaorm.IsZero(params.Age) {
+		u.Age = params.Age
+	}
+	if !ayaorm.IsZero(params.Address) {
+		u.Address = params.Address
+	}
+	return u.Save()
+}
+
+func (m *User) Save() error {
+	lastId, err := m.newRelation().Save()
+	if m.Id == 0 {
+		m.Id = lastId
+	}
+	return err
+}
+
+func (r *UserRelation) Save() (int, error) {
+	fieldMap := make(map[string]interface{})
+	for _, c := range r.Relation.GetColumns() {
+		switch c {
+		case "name", "users.name":
+			fieldMap["name"] = r.model.Name
+		case "age", "users.age":
+			fieldMap["age"] = r.model.Age
+		case "address", "users.address":
+			fieldMap["address"] = r.model.Address
+		}
+	}
+
+	return r.Relation.Save(r.model.Id, fieldMap)
+}
+
+func (m *User) Delete() error {
+	return m.newRelation().Delete(m.Id)
+}
+
+func (m User) Count(column ...string) int {
+	return m.newRelation().Count(column...)
+}
+
+func (m User) All() *UserRelation {
+	return m.newRelation()
+}
+
+func (m User) Limit(limit int) *UserRelation {
+	return m.newRelation().Limit(limit)
+}
+
+func (r *UserRelation) Limit(limit int) *UserRelation {
+	r.Relation.Limit(limit)
+	return r
+}
+
+func (m User) Order(key, order string) *UserRelation {
+	return m.newRelation().Order(key, order)
+}
+
+func (r *UserRelation) Order(key, order string) *UserRelation {
+	r.Relation.Order(key, order)
+	return r
+}
+
+func (m User) Where(column string, conditions ...interface{}) *UserRelation {
+	return m.newRelation().Where(column, conditions...)
+}
+
+func (r *UserRelation) Where(column string, conditions ...interface{}) *UserRelation {
+	r.Relation.Where(column, conditions...)
+	return r
+}
+
+func (m User) Or(column string, conditions ...interface{}) *UserRelation {
+	return m.newRelation().Or(column, conditions...)
+}
+
+func (r *UserRelation) Or(column string, conditions ...interface{}) *UserRelation {
+	r.Relation.Or(column, conditions...)
+	return r
+}
+
+func (m User) GroupBy(columns ...string) *UserRelation {
+	return m.newRelation().GroupBy(columns...)
+}
+
+func (r *UserRelation) GroupBy(columns ...string) *UserRelation {
+	r.Relation.GroupBy(columns...)
+	return r
+}
+
+func (m User) Having(column string, conditions ...interface{}) *UserRelation {
+	return m.newRelation().Having(column, conditions...)
+}
+
+func (r *UserRelation) Having(column string, conditions ...interface{}) *UserRelation {
+	r.Relation.Having(column, conditions...)
+	return r
+}
+
+func (m User) First() (*User, error) {
+	return m.newRelation().First()
+}
+
+func (r *UserRelation) First() (*User, error) {
+	r.Relation.First()
+	return r.QueryRow()
+}
+
+func (m User) Last() (*User, error) {
+	return m.newRelation().Last()
+}
+
+func (r *UserRelation) Last() (*User, error) {
+	r.Relation.Last()
+	return r.QueryRow()
+}
+
+func (m User) Find(id int) (*User, error) {
+	return m.newRelation().Find(id)
+}
+
+func (r *UserRelation) Find(id int) (*User, error) {
+	r.Relation.Find(id)
+	return r.QueryRow()
+}
+
+func (m User) FindBy(column string, value interface{}) (*User, error) {
+	return m.newRelation().FindBy(column, value)
+}
+
+func (r *UserRelation) FindBy(column string, value interface{}) (*User, error) {
+	r.Relation.FindBy(column, value)
+	return r.QueryRow()
+}
+
+func (m User) Pluck(column string) ([]interface{}, error) {
+	return m.newRelation().Pluck(column)
+}
+
+func (r *UserRelation) Pluck(column string) ([]interface{}, error) {
+	return r.Relation.Pluck(column)
+}
+
+func (r *UserRelation) Query() ([]*User, error) {
+	rows, err := r.Relation.Query()
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	results := []*User{}
+	for rows.Next() {
+		row := &User{}
+		err := rows.Scan(row.fieldPtrsByName(r.Relation.GetColumns())...)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, row)
+	}
+	return results, nil
+}
+
+func (r *UserRelation) QueryRow() (*User, error) {
+	row := &User{}
+	err := r.Relation.QueryRow(row.fieldPtrsByName(r.Relation.GetColumns())...)
+	if err != nil {
+		return nil, err
+	}
+	return row, nil
+}
+
+func (m *User) fieldPtrByName(name string) interface{} {
+	switch name {
+	case "id", "users.id":
+		return &m.Id
+	case "name", "users.name":
+		return &m.Name
+	case "age", "users.age":
+		return &m.Age
+	case "address", "users.address":
+		return &m.Address
+	case "created_at", "users.created_at":
+		return &m.CreatedAt
+	case "updated_at", "users.updated_at":
+		return &m.UpdatedAt
+	default:
+		return nil
+	}
+}
+
+func (m *User) fieldValuesByName(name string) interface{} {
+	switch name {
+	case "id", "users.id":
+		return m.Id
+	case "name", "users.name":
+		return m.Name
+	case "age", "users.age":
+		return m.Age
+	case "address", "users.address":
+		return m.Address
+	case "created_at", "users.created_at":
+		return m.CreatedAt
+	case "updated_at", "users.updated_at":
+		return m.UpdatedAt
+	default:
+		return nil
+	}
+}
+
+func (m *User) fieldPtrsByName(names []string) []interface{} {
+	fields := []interface{}{}
+	for _, n := range names {
+		f := m.fieldPtrByName(n)
+		fields = append(fields, f)
+	}
+	return fields
+}
+
+func (m *User) isColumnName(name string) bool {
+	for _, c := range m.columnNames() {
+		if c == name {
+			return true
+		}
+	}
+	return false
+}
+
+func (m *User) columnNames() []string {
+	return []string{
+		"id",
+		"name",
+		"age",
+		"address",
 		"created_at",
 		"updated_at",
 	}
