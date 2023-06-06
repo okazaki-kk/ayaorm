@@ -1,7 +1,9 @@
-package ayaorm
+package validate
 
 import (
 	"fmt"
+
+	"github.com/okazaki-kk/ayaorm"
 )
 
 type Rule interface {
@@ -240,7 +242,7 @@ func (v Validator) isNumericality(name string, value interface{}) (bool, error) 
 }
 
 func (v Validator) isPresent(name string, value interface{}) (bool, error) {
-	if IsZero(value) {
+	if ayaorm.IsZero(value) {
 		return false, fmt.Errorf("%s can't be blank", name)
 	}
 	return true, nil
