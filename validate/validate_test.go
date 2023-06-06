@@ -1,13 +1,14 @@
-package ayaorm
+package validate
 
 import (
 	"testing"
 
+	"github.com/okazaki-kk/ayaorm"
 	"github.com/stretchr/testify/assert"
 )
 
 type TestPost struct {
-	Schema
+	ayaorm.Schema
 	Author  string
 	Content string
 	Age     int

@@ -5,7 +5,7 @@ var ValidatePresenceTextBody = `
 		result := true
 		var errors []error
 
-		rules := map[string]*ayaorm.Validation{
+		rules := map[string]*validate.Validation{
 			{{ range $key, $value := .Validates -}}
 			{{ if eq $value.Name "" -}} {{continue}} {{ end -}}
 			"{{toSnakeCase $value.Name}}": m.{{$value.FuncName}}().Rule(),
@@ -13,16 +13,16 @@ var ValidatePresenceTextBody = `
 		}
 
 		for name, rule := range rules {
-			if ok, errs := ayaorm.NewValidator(rule).IsValid(name, m.fieldValuesByName(name)); !ok {
+			if ok, errs := validate.NewValidator(rule).IsValid(name, m.fieldValuesByName(name)); !ok {
 				result = false
 				errors = append(errors, errs...)
 			}
 		}
 
 		{{ if .CustomValidation }}
-		customs := []*ayaorm.Validation{m.validateCustomRule().Rule()}
+		customs := []*validate.Validation{m.validateCustomRule().Rule()}
 		for _, rule := range customs {
-			custom := ayaorm.NewValidator(rule).Custom()
+			custom := validate.NewValidator(rule).Custom()
 			custom(&errors)
 		}
 		{{ end }}

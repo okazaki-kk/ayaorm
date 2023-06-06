@@ -5,6 +5,7 @@ import (
 
 	"github.com/okazaki-kk/ayaorm"
 	"github.com/okazaki-kk/ayaorm/null"
+	"github.com/okazaki-kk/ayaorm/validate"
 )
 
 type Comment struct {
@@ -33,20 +34,20 @@ func (m Post) hasManyComments() {
 func (m Comment) belongsToPost() {
 }
 
-func (m Post) validatesPresenceOfAuthor() ayaorm.Rule {
-	return ayaorm.MakeRule().Presence()
+func (m Post) validatesPresenceOfAuthor() validate.Rule {
+	return validate.MakeRule().Presence()
 }
 
-func (m Post) validateLengthOfContent() ayaorm.Rule {
-	return ayaorm.MakeRule().MaxLength(20).MinLength(3)
+func (m Post) validateLengthOfContent() validate.Rule {
+	return validate.MakeRule().MaxLength(20).MinLength(3)
 }
 
-func (m User) validateNumericalityOfAge() ayaorm.Rule {
-	return ayaorm.MakeRule().Numericality().Positive()
+func (m User) validateNumericalityOfAge() validate.Rule {
+	return validate.MakeRule().Numericality().Positive()
 }
 
-func (m User) validateCustomRule() ayaorm.Rule {
-	return ayaorm.CustomRule(func(es *[]error) {
+func (m User) validateCustomRule() validate.Rule {
+	return validate.CustomRule(func(es *[]error) {
 		if m.Name == "custom-example" {
 			*es = append(*es, errors.New("name must not be custom-example"))
 		}

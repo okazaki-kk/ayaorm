@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/okazaki-kk/ayaorm"
+	"github.com/okazaki-kk/ayaorm/validate"
 )
 
 type CommentRelation struct {
@@ -989,10 +990,10 @@ func (m Comment) IsValid() (bool, []error) {
 	result := true
 	var errors []error
 
-	rules := map[string]*ayaorm.Validation{}
+	rules := map[string]*validate.Validation{}
 
 	for name, rule := range rules {
-		if ok, errs := ayaorm.NewValidator(rule).IsValid(name, m.fieldValuesByName(name)); !ok {
+		if ok, errs := validate.NewValidator(rule).IsValid(name, m.fieldValuesByName(name)); !ok {
 			result = false
 			errors = append(errors, errs...)
 		}
@@ -1008,13 +1009,13 @@ func (m Post) IsValid() (bool, []error) {
 	result := true
 	var errors []error
 
-	rules := map[string]*ayaorm.Validation{
+	rules := map[string]*validate.Validation{
 		"author":  m.validatesPresenceOfAuthor().Rule(),
 		"content": m.validateLengthOfContent().Rule(),
 	}
 
 	for name, rule := range rules {
-		if ok, errs := ayaorm.NewValidator(rule).IsValid(name, m.fieldValuesByName(name)); !ok {
+		if ok, errs := validate.NewValidator(rule).IsValid(name, m.fieldValuesByName(name)); !ok {
 			result = false
 			errors = append(errors, errs...)
 		}
@@ -1030,20 +1031,20 @@ func (m User) IsValid() (bool, []error) {
 	result := true
 	var errors []error
 
-	rules := map[string]*ayaorm.Validation{
+	rules := map[string]*validate.Validation{
 		"age": m.validateNumericalityOfAge().Rule(),
 	}
 
 	for name, rule := range rules {
-		if ok, errs := ayaorm.NewValidator(rule).IsValid(name, m.fieldValuesByName(name)); !ok {
+		if ok, errs := validate.NewValidator(rule).IsValid(name, m.fieldValuesByName(name)); !ok {
 			result = false
 			errors = append(errors, errs...)
 		}
 	}
 
-	customs := []*ayaorm.Validation{m.validateCustomRule().Rule()}
+	customs := []*validate.Validation{m.validateCustomRule().Rule()}
 	for _, rule := range customs {
-		custom := ayaorm.NewValidator(rule).Custom()
+		custom := validate.NewValidator(rule).Custom()
 		custom(&errors)
 	}
 
