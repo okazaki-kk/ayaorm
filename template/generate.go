@@ -59,7 +59,7 @@ func Generate(from string, fileInspect FileInspect) error {
 		}
 	}
 
-	params := generateValidateParams(fileInspect, fileInspect.CustomRecv)
+	params := generateValidateParams(fileInspect)
 
 	// sort by key and fix generate func order
 	keys := make([]string, 0, len(params))
@@ -69,7 +69,7 @@ func Generate(from string, fileInspect FileInspect) error {
 	sort.Strings(keys)
 
 	for _, k := range keys {
-		err := generateValidateFunc(file, params[k])
+		err := generateValidateFunc(file, params[k], fileInspect.CustomRecv)
 		if err != nil {
 			return err
 		}
@@ -174,58 +174,52 @@ func generateBelongsToFunc(file *os.File, funcInspect RelationFuncInspect) error
 }
 
 type validate struct {
-	Recv       string
-	Name       string
-	FuncName   string
-	CustomRecv []string
+	Name     string
+	FuncName string
 }
 
-type validates []validate
+type validates struct {
+	Validates  []validate
+	CustomRecv []string
+	Recv       string
+}
 
-func generateValidateParams(fileInspect FileInspect, customRecv []string) map[string]validates {
+func generateValidateParams(fileInspect FileInspect) map[string]validates {
 	params := map[string]validates{}
 
 	for _, f := range fileInspect.StructInspect {
-		params[f.ModelName] = append(params[f.ModelName], validate{Recv: f.ModelName, CustomRecv: customRecv})
+		params[f.ModelName] = validates{Validates: []validate{{}}, Recv: f.ModelName}
 	}
 
 	for _, f := range fileInspect.ValidateFuncInspect {
 		if f.ValidateLength {
-			params[f.Recv] = append(params[f.Recv], validate{
-				Recv:       f.Recv,
-				Name:       f.ValidateLengthField(),
-				FuncName:   f.FuncName,
-				CustomRecv: customRecv,
-			})
+			v := params[f.Recv]
+			v.Validates = append(v.Validates, validate{Name: f.ValidateLengthField(), FuncName: f.FuncName})
+			params[f.Recv] = v
 		}
 		if f.ValidatePresence {
-			params[f.Recv] = append(params[f.Recv], validate{
-				Recv:       f.Recv,
-				Name:       f.ValidatePresenceField(),
-				FuncName:   f.FuncName,
-				CustomRecv: customRecv,
-			})
+			v := params[f.Recv]
+			v.Validates = append(v.Validates, validate{Name: f.ValidatePresenceField(), FuncName: f.FuncName})
+			params[f.Recv] = v
 		}
 		if f.ValidateNumericality {
-			params[f.Recv] = append(params[f.Recv], validate{
-				Recv:       f.Recv,
-				Name:       f.ValidateNumericalityField(),
-				FuncName:   f.FuncName,
-				CustomRecv: customRecv,
-			})
+			v := params[f.Recv]
+			v.Validates = append(v.Validates, validate{Name: f.ValidateNumericalityField(), FuncName: f.FuncName})
+			params[f.Recv] = v
 		}
 	}
 	return params
 }
 
 func (v validates) NeedCustom() bool {
-	return slices.Contains(v[0].CustomRecv, v[0].Recv)
+	return slices.Contains(v.CustomRecv, v.Recv)
 }
 
-func generateValidateFunc(file *os.File, validates validates) error {
+func generateValidateFunc(file *os.File, validates validates, customRecv []string) error {
 	funcMap := template.FuncMap{
 		"toSnakeCase": ayaorm.ToSnakeCase,
 	}
+	validates.CustomRecv = customRecv
 
 	t, err := template.New("Base").Funcs(funcMap).Parse(FuncBody)
 	if err != nil {

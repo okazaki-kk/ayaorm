@@ -1,13 +1,12 @@
 package templates
 
 var ValidatePresenceTextBody = `
-	{{ $struct := index . 0 }}
-	func (m {{$struct.Recv}}) IsValid() (bool, []error) {
+	func (m {{.Recv}}) IsValid() (bool, []error) {
 		result := true
 		var errors []error
 
 		rules := map[string]*ayaorm.Validation{
-			{{ range $key, $value := . -}}
+			{{ range $key, $value := .Validates -}}
 			{{ if eq $value.Name "" -}} {{continue}} {{ end -}}
 			"{{toSnakeCase $value.Name}}": m.{{$value.FuncName}}().Rule(),
 			{{ end -}}
