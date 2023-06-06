@@ -49,6 +49,11 @@ var CrudTextBody = `
 	}
 
 	func (m *{{.ModelName}}) Save() error {
+		ok, errs := m.IsValid()
+		if !ok {
+			return errors.Join(errs...)
+		}
+
 		lastId, err := m.newRelation().Save()
 		if m.Id == 0 {
 			m.Id = lastId

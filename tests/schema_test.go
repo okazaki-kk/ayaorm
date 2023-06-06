@@ -308,12 +308,12 @@ func TestIsValid(t *testing.T) {
 
 	t.Run("length invalid", func(t *testing.T) {
 		post := Post{}
-		post.Content = "Ruby Post Post"
+		post.Content = "Ruby Post Post Post Post Post Post"
 		post.Author = "Matz"
 
 		valid, err := post.IsValid()
 		assert.Equal(t, 1, len(err))
-		assert.Equal(t, "content is too long (maximum is 10 characters)", err[0].Error())
+		assert.Equal(t, "content is too long (maximum is 20 characters)", err[0].Error())
 		assert.False(t, valid)
 
 		post.Content = "Ru"
@@ -353,6 +353,39 @@ func TestIsValid(t *testing.T) {
 		assert.Equal(t, 1, len(err))
 		assert.Equal(t, "name must not be custom-example", err[0].Error())
 		assert.False(t, valid)
+	})
+}
+
+func TestValidation(t *testing.T) {
+	t.Run("validation before create", func(t *testing.T) {
+		post, errs := Post{}.Create(PostParams{Content: "Golang Post Updated Updated Updated Updated", Author: "He"})
+		assert.Equal(t, "content is too long (maximum is 20 characters)", errs.Error())
+		assert.Empty(t, post)
+	})
+
+	t.Run("validation before update", func(t *testing.T) {
+		post, err := Post{}.Find(1)
+		assert.NoError(t, err)
+
+		errs := post.Update(PostParams{Content: "Golang Post Updated Updated Updated Updated"})
+		assert.Equal(t, "content is too long (maximum is 20 characters)", errs.Error())
+	})
+
+	t.Run("validation before save", func(t *testing.T) {
+		post, err := Post{}.Find(1)
+		assert.NoError(t, err)
+
+		post.Content = "Golang Post Updated Updated Updated Updated"
+		errs := post.Save()
+		assert.Equal(t, "content is too long (maximum is 20 characters)", errs.Error())
+	})
+
+	t.Run("validate multi errors", func(t *testing.T) {
+		post := Post{}
+		post.Content = "Golang Post Updated Updated Updated Updated"
+
+		err := post.Save()
+		assert.Equal(t, "author can't be blank\ncontent is too long (maximum is 20 characters)", err.Error())
 	})
 }
 

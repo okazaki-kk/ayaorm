@@ -27,6 +27,7 @@ func Generate(from string, fileInspect FileInspect) error {
 
 	var importText = `
 	import (
+		"errors"
 		"fmt"
 
 		"github.com/okazaki-kk/ayaorm"
