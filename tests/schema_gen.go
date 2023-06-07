@@ -990,10 +990,17 @@ func (m Comment) IsValid() (bool, []error) {
 	result := true
 	var errors []error
 
+	var on validate.On
+	if ayaorm.IsZero(m.Id) {
+		on = validate.On{OnCreate: true, OnUpdate: false}
+	} else {
+		on = validate.On{OnCreate: false, OnUpdate: true}
+	}
+
 	rules := map[string]*validate.Validation{}
 
 	for name, rule := range rules {
-		if ok, errs := validate.NewValidator(rule).IsValid(name, m.fieldValuesByName(name)); !ok {
+		if ok, errs := validate.NewValidator(rule).On(on).IsValid(name, m.fieldValuesByName(name)); !ok {
 			result = false
 			errors = append(errors, errs...)
 		}
@@ -1009,13 +1016,20 @@ func (m Post) IsValid() (bool, []error) {
 	result := true
 	var errors []error
 
+	var on validate.On
+	if ayaorm.IsZero(m.Id) {
+		on = validate.On{OnCreate: true, OnUpdate: false}
+	} else {
+		on = validate.On{OnCreate: false, OnUpdate: true}
+	}
+
 	rules := map[string]*validate.Validation{
 		"author":  m.validatesPresenceOfAuthor().Rule(),
 		"content": m.validateLengthOfContent().Rule(),
 	}
 
 	for name, rule := range rules {
-		if ok, errs := validate.NewValidator(rule).IsValid(name, m.fieldValuesByName(name)); !ok {
+		if ok, errs := validate.NewValidator(rule).On(on).IsValid(name, m.fieldValuesByName(name)); !ok {
 			result = false
 			errors = append(errors, errs...)
 		}
@@ -1031,12 +1045,19 @@ func (m User) IsValid() (bool, []error) {
 	result := true
 	var errors []error
 
+	var on validate.On
+	if ayaorm.IsZero(m.Id) {
+		on = validate.On{OnCreate: true, OnUpdate: false}
+	} else {
+		on = validate.On{OnCreate: false, OnUpdate: true}
+	}
+
 	rules := map[string]*validate.Validation{
 		"age": m.validateNumericalityOfAge().Rule(),
 	}
 
 	for name, rule := range rules {
-		if ok, errs := validate.NewValidator(rule).IsValid(name, m.fieldValuesByName(name)); !ok {
+		if ok, errs := validate.NewValidator(rule).On(on).IsValid(name, m.fieldValuesByName(name)); !ok {
 			result = false
 			errors = append(errors, errs...)
 		}

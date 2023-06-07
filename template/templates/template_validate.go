@@ -5,6 +5,13 @@ var ValidatePresenceTextBody = `
 		result := true
 		var errors []error
 
+		var on validate.On
+		if ayaorm.IsZero(m.Id) {
+			on = validate.On{OnCreate: true, OnUpdate: false}
+		} else {
+			on = validate.On{OnCreate: false, OnUpdate: true}
+		}
+
 		rules := map[string]*validate.Validation{
 			{{ range $key, $value := .Validates -}}
 			{{ if eq $value.Name "" -}} {{continue}} {{ end -}}
@@ -13,7 +20,7 @@ var ValidatePresenceTextBody = `
 		}
 
 		for name, rule := range rules {
-			if ok, errs := validate.NewValidator(rule).IsValid(name, m.fieldValuesByName(name)); !ok {
+			if ok, errs := validate.NewValidator(rule).On(on).IsValid(name, m.fieldValuesByName(name)); !ok {
 				result = false
 				errors = append(errors, errs...)
 			}

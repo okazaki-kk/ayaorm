@@ -20,6 +20,8 @@ type Validation struct {
 	numericality *numericality
 	positive     *positive
 	negative     *negative
+	onCreate     bool
+	onUpdate     bool
 }
 
 func (v *Validation) Rule() *Validation {
@@ -27,6 +29,8 @@ func (v *Validation) Rule() *Validation {
 }
 
 func NewValidator(rule *Validation) Validator {
+	rule.onCreate = true
+	rule.onUpdate = true
 	return Validator{rule}
 }
 
