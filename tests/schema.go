@@ -25,6 +25,8 @@ type User struct {
 	ayaorm.Schema
 	Name    string
 	Age     int
+	Age1    int
+	Age2    int
 	Address null.NullString
 }
 
@@ -44,6 +46,14 @@ func (m Post) validateLengthOfContent() validate.Rule {
 
 func (m User) validateNumericalityOfAge() validate.Rule {
 	return validate.MakeRule().Numericality().Positive()
+}
+
+func (m User) validateNumericalityOfAge1() validate.Rule {
+	return validate.MakeRule().Numericality().Positive().OnCreate()
+}
+
+func (m User) validateNumericalityOfAge2() validate.Rule {
+	return validate.MakeRule().Numericality().Positive().OnUpdate()
 }
 
 func (m User) validateCustomRule() validate.Rule {

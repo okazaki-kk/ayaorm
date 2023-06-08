@@ -18,7 +18,7 @@ func TestMain(m *testing.M) {
 		drop table if exists users;
 		drop table if exists posts;
 		drop table if exists comments;
-		create table users (id integer primary key autoincrement, name text not null, age int not null, address text, created_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now', 'localtime')), updated_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now','localtime')) );
+		create table users (id integer primary key autoincrement, name text not null, age int not null, age1 int not null, age2 int not null, address text, created_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now', 'localtime')), updated_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now','localtime')) );
 		create table posts (id integer primary key autoincrement, content text not null, author text not null, created_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now', 'localtime')), updated_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now','localtime')) );
 		create table comments (id integer primary key autoincrement, content text not null, author text not null, post_id integer not null, created_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now', 'localtime')), updated_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now','localtime')), foreign key (post_id) references posts(id) );
 		CREATE TRIGGER trigger_test_updated_at_users AFTER UPDATE ON posts
@@ -34,12 +34,12 @@ func TestMain(m *testing.M) {
 			UPDATE comments SET updated_at = DATETIME('now', 'localtime') WHERE rowid == NEW.rowid;
 		END;
 
-		insert into users (name, age, address) values ('Alice', 18, 'Tokyo');
-		insert into users (name, age, address) values ('Bob', 20, 'Osaka');
-		insert into users (name, age, address) values ('Carol', 22, 'Nagoya');
-		insert into users (name, age, address) values ('Dave', 24, 'Fukuoka');
-		insert into users (name, age, address) values ('Eve', 26, 'Sapporo');
-		insert into users (name, age, address) values ('Frank', 28, 'Okinawa');
+		insert into users (name, age, age1, age2, address) values ('Alice', 18, 100, 100, 'Tokyo');
+		insert into users (name, age, age1, age2, address) values ('Bob', 20, 100, 100, 'Osaka');
+		insert into users (name, age, age1, age2, address) values ('Carol', 22, 100, 100, 'Nagoya');
+		insert into users (name, age, age1, age2, address) values ('Dave', 24, 100, 100, 'Fukuoka');
+		insert into users (name, age, age1, age2, address) values ('Eve', 26, 100, 100, 'Sapporo');
+		insert into users (name, age, age1, age2, address) values ('Frank', 28, 100, 100, 'Okinawa');
 
 		insert into posts (content, author) values ('Golang Post', 'Me');
 		insert into posts (content, author) values ('Ruby Post', 'You');
@@ -388,6 +388,26 @@ func TestValidation(t *testing.T) {
 		err := post.Save()
 		assert.True(t, strings.Contains(err.Error(), "author can't be blank"))
 		assert.True(t, strings.Contains(err.Error(), "content is too long (maximum is 20 characters)"))
+	})
+
+	t.Run("onCreate validation", func(t *testing.T) {
+		_, err := User{}.Create(UserParams{Name: "custom-example1", Age1: -20})
+		assert.Equal(t, "age1 must be positive", err.Error())
+
+		u, err := User{}.Last()
+		assert.NoError(t, err)
+		err = u.Update(UserParams{Name: "custom-example1", Age1: -20})
+		assert.NoError(t, err)
+	})
+
+	t.Run("onUpdate validation", func(t *testing.T) {
+		_, err := User{}.Create(UserParams{Name: "custom-example1", Age2: -20})
+		assert.NoError(t, err)
+
+		u, err := User{}.Last()
+		assert.NoError(t, err)
+		err = u.Update(UserParams{Name: "custom-example1", Age1: -20})
+		assert.Equal(t, "age2 must be positive", err.Error())
 	})
 }
 

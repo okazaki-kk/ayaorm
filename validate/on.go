@@ -14,3 +14,15 @@ func (v Validator) On(on On) Validator {
 	}
 	return v
 }
+
+func (v *Validation) OnCreate() *Validation {
+	v.onCreate = true
+	v.onUpdate = false
+	return v
+}
+
+func (v *Validation) OnUpdate() *Validation {
+	v.onUpdate = true
+	v.onCreate = false
+	return v
+}

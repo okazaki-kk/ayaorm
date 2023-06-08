@@ -29,8 +29,10 @@ func (v *Validation) Rule() *Validation {
 }
 
 func NewValidator(rule *Validation) Validator {
-	rule.onCreate = true
-	rule.onUpdate = true
+	if !rule.onCreate && !rule.onUpdate {
+		rule.onCreate = true
+		rule.onUpdate = true
+	}
 	return Validator{rule}
 }
 
