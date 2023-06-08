@@ -384,14 +384,14 @@ func (r *PostRelation) Create(post *Post) (*Post, error) {
 }
 
 func (u Post) CreateAll(params []PostParams) error {
-	posts := make([]Post, len(params))
+	posts := make([]*Post, len(params))
 	for i, p := range params {
-		posts[i] = *u.Build(p)
+		posts[i] = u.Build(p)
 	}
 	return u.newRelation().CreateAll(posts)
 }
 
-func (r *PostRelation) CreateAll(posts []Post) error {
+func (r *PostRelation) CreateAll(posts []*Post) error {
 	fieldMap := make(map[string][]interface{})
 	for _, post := range posts {
 		for _, c := range r.Relation.GetColumns() {
