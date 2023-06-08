@@ -33,6 +33,38 @@ var CrudTextBody = `
 		return {{toSnakeCase .ModelName}}, nil
 	}
 
+	func (u {{.ModelName}}) CreateAll(params []{{.ModelName}}Params) error {
+		{{toSnakeCase .ModelName}}s := make([]*{{.ModelName}}, len(params))
+		for i, p := range params {
+			{{toSnakeCase .ModelName}}s[i] = u.Build(p)
+		}
+		return u.newRelation().CreateAll({{toSnakeCase .ModelName}}s)
+	}
+
+	func (r *{{.ModelName}}Relation) CreateAll({{toSnakeCase .ModelName}}s []*{{.ModelName}}) error {
+		fieldMap := make(map[string][]interface{})
+		for _, {{toSnakeCase .ModelName}} := range {{toSnakeCase .ModelName}}s {
+			for _, c := range r.Relation.GetColumns() {
+				switch c {
+					{{ range $column := .Columns -}}
+					{{ if eq $column "Id" -}}
+					{{ continue }}
+					{{ end -}}
+					{{ if eq $column "CreatedAt" -}}
+					{{ continue }}
+					{{ end -}}
+					{{ if eq $column "UpdatedAt" -}}
+					{{ continue }}
+					{{ end -}}
+					case "{{ toSnakeCase  $column}}", "{{$.SnakeCaseModelName}}.{{toSnakeCase $column}}":
+						fieldMap["{{toSnakeCase $column}}"] = append(fieldMap["{{toSnakeCase $column}}"], {{toSnakeCase $.ModelName}}.{{$column}})
+					{{ end -}}
+				}
+			}
+		}
+		return r.Relation.CreateAll(fieldMap)
+	}
+
 	func (u *{{.ModelName}}) Update(params {{.ModelName}}Params) error {
 		{{ range $column := .Columns -}}
 		{{ if eq $column "CreatedAt" -}}

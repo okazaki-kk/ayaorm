@@ -199,11 +199,25 @@ func TestBuildInsert(t *testing.T) {
 	s.SetTable("users")
 	s.SetColumns("id", "name", "email")
 	s.query.insert.params = map[string]interface{}{
-		"columnA": "value1",
+		"name":  "name1",
+		"value": "value2",
 	}
 	query, args := s.query.BuildInsert(s.tableName)
-	assert.Equal(t, "INSERT INTO users (columnA) VALUES (?);", query)
-	assert.Equal(t, []interface{}{"value1"}, args)
+	assert.Equal(t, "INSERT INTO users (name, value) VALUES (?, ?);", query)
+	assert.Equal(t, []interface{}{"name1", "value2"}, args)
+}
+
+func TestBuildCreateAll(t *testing.T) {
+	s := &Table{}
+	s.SetTable("users")
+	s.SetColumns("id", "name", "email")
+	s.query.createAll.params = map[string][]interface{}{
+		"name":  {"name1", "name2", "name3"},
+		"value": {"value1", "value2", "value3"},
+	}
+	query, args := s.query.BuildCreateAll(s.tableName)
+	assert.Equal(t, "INSERT INTO users (name, value) VALUES (?, ?), (?, ?), (?, ?);", query)
+	assert.Equal(t, []interface{}{"name1", "value1", "name2", "value2", "name3", "value3"}, args)
 }
 
 func TestBuildDelete(t *testing.T) {

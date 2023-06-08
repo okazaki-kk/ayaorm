@@ -110,6 +110,21 @@ func (r *Relation) Save(id int, fieldMap map[string]interface{}) (int, error) {
 	return int(lastId), err
 }
 
+func (r *Relation) CreateAll(fieldMaps map[string][]interface{}) error {
+	r.Table.query.createAll.params = fieldMaps
+	var query string
+	var args []interface{}
+
+	query, args = r.Table.query.BuildCreateAll(r.Table.tableName)
+
+	log.Println("execute query: ", query, " ", args)
+	_, err := r.db.Exec(query, args...)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *Relation) Delete(id int) error {
 	query := r.Table.query.BuildDelete(r.Table.tableName, id)
 	log.Print("execute query: ", query)
