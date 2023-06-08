@@ -33,3 +33,6 @@ jobs:
 
     - name: Test
       run: make test
+
+    - name: Check Diff
+      run: ./bin/testgen.sh
