@@ -24,6 +24,7 @@ type Query struct {
 	}
 	insert    struct{ params map[string]interface{} }
 	update    struct{ params map[string]interface{} }
+	createAll struct{ params map[string][]interface{} }
 	innerJoin struct {
 		left    string
 		right   string
@@ -152,6 +153,38 @@ func (q *Query) BuildInsert(tableName string) (string, []interface{}) {
 	}
 
 	return fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s);", tableName, strings.Join(columns, ", "), strings.Join(ph, ", ")), args
+}
+
+func (q *Query) BuildCreateAll(tableName string) (string, []interface{}) {
+	columns := []string{}
+	ph := ""
+	args := []interface{}{}
+
+	for column := range q.createAll.params {
+		columns = append(columns, column)
+	}
+
+	xCount := len(q.createAll.params[columns[0]])
+	yCount := len(columns)
+
+	for i := 0; i < xCount; i++ {
+		ph += "("
+		for j := 0; j < yCount; j++ {
+			if j == yCount-1 {
+				ph += "?"
+			} else {
+				ph += "?, "
+			}
+			args = append(args, q.createAll.params[columns[j]][i])
+		}
+		if i == xCount-1 {
+			ph += ")"
+		} else {
+			ph += "), "
+		}
+	}
+
+	return fmt.Sprintf("INSERT INTO %s (%s) VALUES %s;", tableName, strings.Join(columns, ", "), ph), args
 }
 
 func (q *Query) BuildUpdate(tableName string, id int) (string, []interface{}) {
