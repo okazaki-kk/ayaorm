@@ -31,11 +31,11 @@ func (m TestPost) validateNumericalityOfAge1() Rule {
 	return MakeRule().Numericality().Negative()
 }
 
-func(m TestPost) validateNumericalityOfAge2() Rule {
+func (m TestPost) validateNumericalityOfAge2() Rule {
 	return MakeRule().Numericality().Positive().OnCreate()
 }
 
-func(m TestPost) validateNumericalityOfAge3() Rule {
+func (m TestPost) validateNumericalityOfAge3() Rule {
 	return MakeRule().Numericality().Positive().OnUpdate()
 }
 

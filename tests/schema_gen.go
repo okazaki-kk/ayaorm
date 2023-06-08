@@ -383,6 +383,29 @@ func (r *PostRelation) Create(post *Post) (*Post, error) {
 	return post, nil
 }
 
+func (u Post) CreateAll(params []PostParams) error {
+	posts := make([]Post, len(params))
+	for i, p := range params {
+		posts[i] = *u.Build(p)
+	}
+	return u.newRelation().CreateAll(posts)
+}
+
+func (r *PostRelation) CreateAll(posts []Post) error {
+	fieldMap := make(map[string][]interface{})
+	for _, post := range posts {
+		for _, c := range r.Relation.GetColumns() {
+			switch c {
+			case "content", "posts.content":
+				fieldMap["content"] = append(fieldMap["content"], post.Content)
+			case "author", "posts.author":
+				fieldMap["author"] = append(fieldMap["author"], post.Author)
+			}
+		}
+	}
+	return r.Relation.CreateAll(fieldMap)
+}
+
 func (u *Post) Update(params PostParams) error {
 	if !ayaorm.IsZero(params.Id) {
 		u.Id = params.Id

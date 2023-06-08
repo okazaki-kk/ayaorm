@@ -425,3 +425,19 @@ func TestDeleteDependent(t *testing.T) {
 	afterCount := Comment{}.Count()
 	assert.Equal(t, beforeCount-len(comments), afterCount)
 }
+
+func TestCreateAll(t *testing.T) {
+	posts := []PostParams{
+		{Content: "Golang Post", Author: "Me"},
+		{Content: "Ruby Post", Author: "You"},
+		{Content: "Python Post", Author: "He"},
+		{Content: "Java Post", Author: "She"},
+		{Content: "C++ Post", Author: "They"},
+		{Content: "Ruby Post", Author: "We"},
+		{Content: "PHP Post", Author: "Us"},
+	}
+
+	err := Post{}.CreateAll(posts)
+	assert.NoError(t, err)
+	assert.Equal(t, 15, Post{}.Count())
+}

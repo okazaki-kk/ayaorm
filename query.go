@@ -198,7 +198,6 @@ func (q *Query) BuildUpdate(tableName string, id int) (string, []interface{}) {
 		args = append(args, v)
 	}
 	updateObj = updateObj[:len(updateObj)-1]
-	fmt.Println(updateObj, "update")
 
 	return fmt.Sprintf("UPDATE %s SET %s WHERE id = %d;", tableName, updateObj, id), args
 }
