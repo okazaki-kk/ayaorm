@@ -72,6 +72,31 @@ func (r *CommentRelation) Create(comment *Comment) (*Comment, error) {
 	return comment, nil
 }
 
+func (u Comment) CreateAll(params []CommentParams) error {
+	comments := make([]*Comment, len(params))
+	for i, p := range params {
+		comments[i] = u.Build(p)
+	}
+	return u.newRelation().CreateAll(comments)
+}
+
+func (r *CommentRelation) CreateAll(comments []*Comment) error {
+	fieldMap := make(map[string][]interface{})
+	for _, comment := range comments {
+		for _, c := range r.Relation.GetColumns() {
+			switch c {
+			case "content", "comments.content":
+				fieldMap["content"] = append(fieldMap["content"], comment.Content)
+			case "author", "comments.author":
+				fieldMap["author"] = append(fieldMap["author"], comment.Author)
+			case "post_id", "comments.post_id":
+				fieldMap["post_id"] = append(fieldMap["post_id"], comment.PostId)
+			}
+		}
+	}
+	return r.Relation.CreateAll(fieldMap)
+}
+
 func (u *Comment) Update(params CommentParams) error {
 	if !ayaorm.IsZero(params.Id) {
 		u.Id = params.Id
@@ -711,6 +736,35 @@ func (r *UserRelation) Create(user *User) (*User, error) {
 		return nil, err
 	}
 	return user, nil
+}
+
+func (u User) CreateAll(params []UserParams) error {
+	users := make([]*User, len(params))
+	for i, p := range params {
+		users[i] = u.Build(p)
+	}
+	return u.newRelation().CreateAll(users)
+}
+
+func (r *UserRelation) CreateAll(users []*User) error {
+	fieldMap := make(map[string][]interface{})
+	for _, user := range users {
+		for _, c := range r.Relation.GetColumns() {
+			switch c {
+			case "name", "users.name":
+				fieldMap["name"] = append(fieldMap["name"], user.Name)
+			case "age", "users.age":
+				fieldMap["age"] = append(fieldMap["age"], user.Age)
+			case "age1", "users.age1":
+				fieldMap["age1"] = append(fieldMap["age1"], user.Age1)
+			case "age2", "users.age2":
+				fieldMap["age2"] = append(fieldMap["age2"], user.Age2)
+			case "address", "users.address":
+				fieldMap["address"] = append(fieldMap["address"], user.Address)
+			}
+		}
+	}
+	return r.Relation.CreateAll(fieldMap)
 }
 
 func (u *User) Update(params UserParams) error {
