@@ -637,6 +637,8 @@ func (m *User) newRelation() *UserRelation {
 		"id",
 		"name",
 		"age",
+		"age1",
+		"age2",
 		"address",
 		"created_at",
 		"updated_at",
@@ -669,6 +671,8 @@ func (m User) Build(p UserParams) *User {
 		Schema:  ayaorm.Schema{Id: p.Id},
 		Name:    p.Name,
 		Age:     p.Age,
+		Age1:    p.Age1,
+		Age2:    p.Age2,
 		Address: p.Address,
 	}
 }
@@ -695,6 +699,12 @@ func (u *User) Update(params UserParams) error {
 	}
 	if !ayaorm.IsZero(params.Age) {
 		u.Age = params.Age
+	}
+	if !ayaorm.IsZero(params.Age1) {
+		u.Age1 = params.Age1
+	}
+	if !ayaorm.IsZero(params.Age2) {
+		u.Age2 = params.Age2
 	}
 	if !ayaorm.IsZero(params.Address) {
 		u.Address = params.Address
@@ -723,6 +733,10 @@ func (r *UserRelation) Save() (int, error) {
 			fieldMap["name"] = r.model.Name
 		case "age", "users.age":
 			fieldMap["age"] = r.model.Age
+		case "age1", "users.age1":
+			fieldMap["age1"] = r.model.Age1
+		case "age2", "users.age2":
+			fieldMap["age2"] = r.model.Age2
 		case "address", "users.address":
 			fieldMap["address"] = r.model.Address
 		}
@@ -877,6 +891,10 @@ func (m *User) fieldPtrByName(name string) interface{} {
 		return &m.Name
 	case "age", "users.age":
 		return &m.Age
+	case "age1", "users.age1":
+		return &m.Age1
+	case "age2", "users.age2":
+		return &m.Age2
 	case "address", "users.address":
 		return &m.Address
 	case "created_at", "users.created_at":
@@ -896,6 +914,10 @@ func (m *User) fieldValuesByName(name string) interface{} {
 		return m.Name
 	case "age", "users.age":
 		return m.Age
+	case "age1", "users.age1":
+		return m.Age1
+	case "age2", "users.age2":
+		return m.Age2
 	case "address", "users.address":
 		return m.Address
 	case "created_at", "users.created_at":
@@ -930,6 +952,8 @@ func (m *User) columnNames() []string {
 		"id",
 		"name",
 		"age",
+		"age1",
+		"age2",
 		"address",
 		"created_at",
 		"updated_at",
@@ -1053,7 +1077,9 @@ func (m User) IsValid() (bool, []error) {
 	}
 
 	rules := map[string]*validate.Validation{
-		"age": m.validateNumericalityOfAge().Rule(),
+		"age":  m.validateNumericalityOfAge().Rule(),
+		"age1": m.validateNumericalityOfAge1().Rule(),
+		"age2": m.validateNumericalityOfAge2().Rule(),
 	}
 
 	for name, rule := range rules {

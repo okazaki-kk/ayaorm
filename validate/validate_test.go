@@ -31,8 +31,18 @@ func (m TestPost) validateNumericalityOfAge1() Rule {
 	return MakeRule().Numericality().Negative()
 }
 
+func(m TestPost) validateNumericalityOfAge2() Rule {
+	return MakeRule().Numericality().Positive().OnCreate()
+}
+
+func(m TestPost) validateNumericalityOfAge3() Rule {
+	return MakeRule().Numericality().Positive().OnUpdate()
+}
+
 func TestIsValid(t *testing.T) {
 	validator := NewValidator(TestPost{}.validatesPresenceOfAuthor().Rule())
+	assert.True(t, validator.rule.onCreate)
+	assert.True(t, validator.rule.onUpdate)
 
 	t.Run("when value is empty", func(t *testing.T) {
 		result, errors := validator.IsValid("Author", "")
@@ -48,6 +58,8 @@ func TestIsValid(t *testing.T) {
 	})
 
 	validator = NewValidator(TestPost{}.validateLengthOfContent().Rule())
+	assert.True(t, validator.rule.onCreate)
+	assert.True(t, validator.rule.onUpdate)
 	t.Run("when text is too long", func(t *testing.T) {
 		result, errors := validator.IsValid("Content", "abcdefghijklmn")
 
@@ -72,6 +84,8 @@ func TestIsValid(t *testing.T) {
 	})
 
 	validator = NewValidator(TestPost{}.validateNumericalityOfAge().Rule())
+	assert.True(t, validator.rule.onCreate)
+	assert.True(t, validator.rule.onUpdate)
 	t.Run("when age is not numerical", func(t *testing.T) {
 		result, errors := validator.IsValid("Age", "20.0")
 
@@ -96,6 +110,8 @@ func TestIsValid(t *testing.T) {
 	})
 
 	validator = NewValidator(TestPost{}.validateNumericalityOfAge1().Rule())
+	assert.True(t, validator.rule.onCreate)
+	assert.True(t, validator.rule.onUpdate)
 
 	t.Run("when age1 is negative", func(t *testing.T) {
 		result, errors := validator.IsValid("Age1", -20)
@@ -111,4 +127,12 @@ func TestIsValid(t *testing.T) {
 		assert.Equal(t, 1, len(errors))
 		assert.Equal(t, "Age1 must be negative", errors[0].Error())
 	})
+
+	validator = NewValidator(TestPost{}.validateNumericalityOfAge2().Rule())
+	assert.True(t, validator.rule.onCreate)
+	assert.False(t, validator.rule.onUpdate)
+
+	validator = NewValidator(TestPost{}.validateNumericalityOfAge3().Rule())
+	assert.False(t, validator.rule.onCreate)
+	assert.True(t, validator.rule.onUpdate)
 }
