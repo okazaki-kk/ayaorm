@@ -21,6 +21,12 @@ type Post struct {
 	Author  string
 }
 
+type Project struct {
+	ayaorm.Schema
+	Name   string
+	PostId int
+}
+
 type User struct {
 	ayaorm.Schema
 	Name    string
@@ -34,6 +40,12 @@ func (m Post) hasManyComments() {
 }
 
 func (m Comment) belongsToPost() {
+}
+
+func (m Project) belongsToPost() {
+}
+
+func (m Post) hasOneProject() {
 }
 
 func (m Post) validatesPresenceOfAuthor() validate.Rule {

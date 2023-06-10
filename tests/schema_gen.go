@@ -671,6 +671,330 @@ func (m *Post) columnNames() []string {
 	}
 }
 
+type ProjectRelation struct {
+	model *Project
+	*ayaorm.Relation
+}
+
+func (m *Project) newRelation() *ProjectRelation {
+	r := &ProjectRelation{
+		m,
+		ayaorm.NewRelation(db).SetTable("projects"),
+	}
+	r.Select(
+		"id",
+		"name",
+		"post_id",
+		"created_at",
+		"updated_at",
+	)
+
+	return r
+}
+
+func (m Project) Select(columns ...string) *ProjectRelation {
+	return m.newRelation().Select(columns...)
+}
+
+func (r *ProjectRelation) Select(columns ...string) *ProjectRelation {
+	cs := []string{}
+	for _, c := range columns {
+		if r.model.isColumnName(c) {
+			cs = append(cs, fmt.Sprintf("projects.%s", c))
+		} else {
+			cs = append(cs, c)
+		}
+	}
+	r.Relation.SetColumns(cs...)
+	return r
+}
+
+type ProjectParams Project
+
+func (m Project) Build(p ProjectParams) *Project {
+	return &Project{
+		Schema: ayaorm.Schema{Id: p.Id},
+		Name:   p.Name,
+		PostId: p.PostId,
+	}
+}
+
+func (u Project) Create(params ProjectParams) (*Project, error) {
+	project := u.Build(params)
+	return u.newRelation().Create(project)
+}
+
+func (r *ProjectRelation) Create(project *Project) (*Project, error) {
+	err := project.Save()
+	if err != nil {
+		return nil, err
+	}
+	return project, nil
+}
+
+func (u Project) CreateAll(params []ProjectParams) error {
+	projects := make([]*Project, len(params))
+	for i, p := range params {
+		projects[i] = u.Build(p)
+	}
+	return u.newRelation().CreateAll(projects)
+}
+
+func (r *ProjectRelation) CreateAll(projects []*Project) error {
+	fieldMap := make(map[string][]interface{})
+	for _, project := range projects {
+		for _, c := range r.Relation.GetColumns() {
+			switch c {
+			case "name", "projects.name":
+				fieldMap["name"] = append(fieldMap["name"], project.Name)
+			case "post_id", "projects.post_id":
+				fieldMap["post_id"] = append(fieldMap["post_id"], project.PostId)
+			}
+		}
+	}
+	return r.Relation.CreateAll(fieldMap)
+}
+
+func (u *Project) Update(params ProjectParams) error {
+	if !ayaorm.IsZero(params.Id) {
+		u.Id = params.Id
+	}
+	if !ayaorm.IsZero(params.Name) {
+		u.Name = params.Name
+	}
+	if !ayaorm.IsZero(params.PostId) {
+		u.PostId = params.PostId
+	}
+	return u.Save()
+}
+
+func (m *Project) Save() error {
+	ok, errs := m.IsValid()
+	if !ok {
+		return errors.Join(errs...)
+	}
+
+	lastId, err := m.newRelation().Save()
+	if m.Id == 0 {
+		m.Id = lastId
+	}
+	return err
+}
+
+func (r *ProjectRelation) Save() (int, error) {
+	fieldMap := make(map[string]interface{})
+	for _, c := range r.Relation.GetColumns() {
+		switch c {
+		case "name", "projects.name":
+			fieldMap["name"] = r.model.Name
+		case "post_id", "projects.post_id":
+			fieldMap["post_id"] = r.model.PostId
+		}
+	}
+
+	return r.Relation.Save(r.model.Id, fieldMap)
+}
+
+func (m *Project) Delete() error {
+	return m.newRelation().Delete(m.Id)
+}
+
+func (m Project) Count(column ...string) int {
+	return m.newRelation().Count(column...)
+}
+
+func (m Project) All() *ProjectRelation {
+	return m.newRelation()
+}
+
+func (m Project) Limit(limit int) *ProjectRelation {
+	return m.newRelation().Limit(limit)
+}
+
+func (r *ProjectRelation) Limit(limit int) *ProjectRelation {
+	r.Relation.Limit(limit)
+	return r
+}
+
+func (m Project) Order(key, order string) *ProjectRelation {
+	return m.newRelation().Order(key, order)
+}
+
+func (r *ProjectRelation) Order(key, order string) *ProjectRelation {
+	r.Relation.Order(key, order)
+	return r
+}
+
+func (m Project) Where(column string, conditions ...interface{}) *ProjectRelation {
+	return m.newRelation().Where(column, conditions...)
+}
+
+func (r *ProjectRelation) Where(column string, conditions ...interface{}) *ProjectRelation {
+	r.Relation.Where(column, conditions...)
+	return r
+}
+
+func (m Project) Or(column string, conditions ...interface{}) *ProjectRelation {
+	return m.newRelation().Or(column, conditions...)
+}
+
+func (r *ProjectRelation) Or(column string, conditions ...interface{}) *ProjectRelation {
+	r.Relation.Or(column, conditions...)
+	return r
+}
+
+func (m Project) GroupBy(columns ...string) *ProjectRelation {
+	return m.newRelation().GroupBy(columns...)
+}
+
+func (r *ProjectRelation) GroupBy(columns ...string) *ProjectRelation {
+	r.Relation.GroupBy(columns...)
+	return r
+}
+
+func (m Project) Having(column string, conditions ...interface{}) *ProjectRelation {
+	return m.newRelation().Having(column, conditions...)
+}
+
+func (r *ProjectRelation) Having(column string, conditions ...interface{}) *ProjectRelation {
+	r.Relation.Having(column, conditions...)
+	return r
+}
+
+func (m Project) First() (*Project, error) {
+	return m.newRelation().First()
+}
+
+func (r *ProjectRelation) First() (*Project, error) {
+	r.Relation.First()
+	return r.QueryRow()
+}
+
+func (m Project) Last() (*Project, error) {
+	return m.newRelation().Last()
+}
+
+func (r *ProjectRelation) Last() (*Project, error) {
+	r.Relation.Last()
+	return r.QueryRow()
+}
+
+func (m Project) Find(id int) (*Project, error) {
+	return m.newRelation().Find(id)
+}
+
+func (r *ProjectRelation) Find(id int) (*Project, error) {
+	r.Relation.Find(id)
+	return r.QueryRow()
+}
+
+func (m Project) FindBy(column string, value interface{}) (*Project, error) {
+	return m.newRelation().FindBy(column, value)
+}
+
+func (r *ProjectRelation) FindBy(column string, value interface{}) (*Project, error) {
+	r.Relation.FindBy(column, value)
+	return r.QueryRow()
+}
+
+func (m Project) Pluck(column string) ([]interface{}, error) {
+	return m.newRelation().Pluck(column)
+}
+
+func (r *ProjectRelation) Pluck(column string) ([]interface{}, error) {
+	return r.Relation.Pluck(column)
+}
+
+func (r *ProjectRelation) Query() ([]*Project, error) {
+	rows, err := r.Relation.Query()
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	results := []*Project{}
+	for rows.Next() {
+		row := &Project{}
+		err := rows.Scan(row.fieldPtrsByName(r.Relation.GetColumns())...)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, row)
+	}
+	return results, nil
+}
+
+func (r *ProjectRelation) QueryRow() (*Project, error) {
+	row := &Project{}
+	err := r.Relation.QueryRow(row.fieldPtrsByName(r.Relation.GetColumns())...)
+	if err != nil {
+		return nil, err
+	}
+	return row, nil
+}
+
+func (m *Project) fieldPtrByName(name string) interface{} {
+	switch name {
+	case "id", "projects.id":
+		return &m.Id
+	case "name", "projects.name":
+		return &m.Name
+	case "post_id", "projects.post_id":
+		return &m.PostId
+	case "created_at", "projects.created_at":
+		return &m.CreatedAt
+	case "updated_at", "projects.updated_at":
+		return &m.UpdatedAt
+	default:
+		return nil
+	}
+}
+
+func (m *Project) fieldValuesByName(name string) interface{} {
+	switch name {
+	case "id", "projects.id":
+		return m.Id
+	case "name", "projects.name":
+		return m.Name
+	case "post_id", "projects.post_id":
+		return m.PostId
+	case "created_at", "projects.created_at":
+		return m.CreatedAt
+	case "updated_at", "projects.updated_at":
+		return m.UpdatedAt
+	default:
+		return nil
+	}
+}
+
+func (m *Project) fieldPtrsByName(names []string) []interface{} {
+	fields := []interface{}{}
+	for _, n := range names {
+		f := m.fieldPtrByName(n)
+		fields = append(fields, f)
+	}
+	return fields
+}
+
+func (m *Project) isColumnName(name string) bool {
+	for _, c := range m.columnNames() {
+		if c == name {
+			return true
+		}
+	}
+	return false
+}
+
+func (m *Project) columnNames() []string {
+	return []string{
+		"id",
+		"name",
+		"post_id",
+		"created_at",
+		"updated_at",
+	}
+}
+
 type UserRelation struct {
 	model *User
 	*ayaorm.Relation
@@ -1087,6 +1411,29 @@ func (u *CommentRelation) JoinPost() *CommentRelation {
 	return u
 }
 
+func (u Project) Post() (*Post, error) {
+	u.belongsToPost()
+	return Post{}.Find(u.PostId)
+}
+
+func (u Project) JoinPost() *ProjectRelation {
+	return u.newRelation().JoinPost()
+}
+
+func (u *ProjectRelation) JoinPost() *ProjectRelation {
+	u.Relation.InnerJoin("projects", "posts", false)
+	return u
+}
+
+func (u Post) Project() (*Project, error) {
+	u.hasOneProject()
+	c, err := Project{}.FindBy("post_id", u.Id)
+	if err != nil {
+		return nil, err
+	}
+	return c, nil
+}
+
 func (m Comment) IsValid() (bool, []error) {
 	result := true
 	var errors []error
@@ -1128,6 +1475,32 @@ func (m Post) IsValid() (bool, []error) {
 		"author":  m.validatesPresenceOfAuthor().Rule(),
 		"content": m.validateLengthOfContent().Rule(),
 	}
+
+	for name, rule := range rules {
+		if ok, errs := validate.NewValidator(rule).On(on).IsValid(name, m.fieldValuesByName(name)); !ok {
+			result = false
+			errors = append(errors, errs...)
+		}
+	}
+
+	if len(errors) > 0 {
+		result = false
+	}
+	return result, errors
+}
+
+func (m Project) IsValid() (bool, []error) {
+	result := true
+	var errors []error
+
+	var on validate.On
+	if ayaorm.IsZero(m.Id) {
+		on = validate.On{OnCreate: true, OnUpdate: false}
+	} else {
+		on = validate.On{OnCreate: false, OnUpdate: true}
+	}
+
+	rules := map[string]*validate.Validation{}
 
 	for name, rule := range rules {
 		if ok, errs := validate.NewValidator(rule).On(on).IsValid(name, m.fieldValuesByName(name)); !ok {

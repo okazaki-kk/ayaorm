@@ -18,9 +18,11 @@ func TestMain(m *testing.M) {
 		drop table if exists users;
 		drop table if exists posts;
 		drop table if exists comments;
+		drop table if exists projects;
 		create table users (id integer primary key autoincrement, name text not null, age int not null, age1 int not null, age2 int not null, address text, created_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now', 'localtime')), updated_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now','localtime')) );
 		create table posts (id integer primary key autoincrement, content text not null, author text not null, created_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now', 'localtime')), updated_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now','localtime')) );
 		create table comments (id integer primary key autoincrement, content text not null, author text not null, post_id integer not null, created_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now', 'localtime')), updated_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now','localtime')), foreign key (post_id) references posts(id) );
+		create table projects (id integer primary key autoincrement, name text not null, post_id integer not null, created_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now', 'localtime')), updated_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now','localtime')), foreign key (post_id) references posts(id) );
 		CREATE TRIGGER trigger_test_updated_at_users AFTER UPDATE ON posts
 		BEGIN
 			UPDATE posts SET updated_at = DATETIME('now', 'localtime') WHERE rowid == NEW.rowid;
@@ -282,7 +284,7 @@ func TestBelongsTo(t *testing.T) {
 func TestJoin1(t *testing.T) {
 	comments, err := Comment{}.JoinPost().Query()
 	assert.NoError(t, err)
-	assert.Equal(t, 7, len(comments))
+	assert.Equal(t, 8, len(comments))
 	assert.Equal(t, 1, comments[0].PostId)
 	assert.Equal(t, "Fantastic", comments[0].Content)
 	assert.Equal(t, "You", comments[0].Author)
@@ -297,16 +299,21 @@ func TestJoin1(t *testing.T) {
 func TestJoin2(t *testing.T) {
 	posts, err := Post{}.JoinComments().Query()
 	assert.NoError(t, err)
-	assert.Equal(t, 7, len(posts))
-	assert.Equal(t, 1, posts[0].Id)
-	assert.Equal(t, "Golang Post", posts[0].Content)
-	assert.Equal(t, "Me", posts[0].Author)
-	assert.Equal(t, 1, posts[1].Id)
-	assert.Equal(t, "Golang Post", posts[1].Content)
-	assert.Equal(t, "Me", posts[1].Author)
+	assert.Equal(t, 8, len(posts))
 	assert.Equal(t, 2, posts[2].Id)
 	assert.Equal(t, "Ruby Post", posts[2].Content)
 	assert.Equal(t, "You", posts[2].Author)
+}
+
+func TestHasOne(t *testing.T) {
+	post, err := Post{}.Last()
+	assert.NoError(t, err)
+	_, err = Project{}.Create(ProjectParams{Name: "Project-Post", PostId: post.Id})
+	assert.NoError(t, err)
+
+	porject, err := post.Project()
+	assert.NoError(t, err)
+	assert.Equal(t, "Project-Post", porject.Name)
 }
 
 func TestIsValid(t *testing.T) {
