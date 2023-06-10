@@ -279,6 +279,36 @@ func TestBelongsTo(t *testing.T) {
 	assert.Equal(t, 2, post.Id)
 }
 
+func TestJoin1(t *testing.T) {
+	comments, err := Comment{}.JoinPost().Query()
+	assert.NoError(t, err)
+	assert.Equal(t, 7, len(comments))
+	assert.Equal(t, 1, comments[0].PostId)
+	assert.Equal(t, "Fantastic", comments[0].Content)
+	assert.Equal(t, "You", comments[0].Author)
+	assert.Equal(t, 1, comments[1].PostId)
+	assert.Equal(t, "Great", comments[1].Content)
+	assert.Equal(t, "He", comments[1].Author)
+	assert.Equal(t, 2, comments[2].PostId)
+	assert.Equal(t, "Good", comments[2].Content)
+	assert.Equal(t, "She", comments[2].Author)
+}
+
+func TestJoin2(t *testing.T) {
+	posts, err := Post{}.JoinComments().Query()
+	assert.NoError(t, err)
+	assert.Equal(t, 7, len(posts))
+	assert.Equal(t, 1, posts[0].Id)
+	assert.Equal(t, "Golang Post", posts[0].Content)
+	assert.Equal(t, "Me", posts[0].Author)
+	assert.Equal(t, 1, posts[1].Id)
+	assert.Equal(t, "Golang Post", posts[1].Content)
+	assert.Equal(t, "Me", posts[1].Author)
+	assert.Equal(t, 2, posts[2].Id)
+	assert.Equal(t, "Ruby Post", posts[2].Content)
+	assert.Equal(t, "You", posts[2].Author)
+}
+
 func TestIsValid(t *testing.T) {
 	t.Run("presence valid", func(t *testing.T) {
 		post := Post{}
