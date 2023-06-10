@@ -12,6 +12,22 @@ jobs:
 
   check:
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_PASSWORD: root
+          MYSQL_DATABASE: todo
+          MYSQL_USER: root
+        options: >-
+          --health-cmd "mysqladmin ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
     - uses: actions/checkout@v3
 
@@ -21,8 +37,7 @@ jobs:
         go-version-file: ./go.mod
         cache: true
     - run: go mod download
-    - run: docker-compose build
-    - run: docker-compose up -d
+
 
     - name: Build
       run: go build .
