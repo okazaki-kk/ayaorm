@@ -18,19 +18,21 @@ jobs:
         ports:
           - 3306:3306
         env:
-          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_PASSWORD: root
+          MYSQL_DATABASE: todo
         options: >-
           --health-cmd "mysqladmin ping"
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 54
+          --health-retries 5
 
     steps:
     - uses: actions/checkout@v3
 
     - name: set MySQL sql_mode
       run: |
-        mysql -u root --protocol tcp <<SQL
+        mysql --protocol=tcp mysql <<SQL
         SET GLOBAL sql_mode = 'NO_ENGINE_SUBSTITUTION';
         SET GLOBAL character_set_server = 'utf8mb4';
         SET GLOBAL collation_server = 'utf8mb4_general_ci';
