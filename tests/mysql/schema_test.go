@@ -235,11 +235,11 @@ func TestOr(t *testing.T) {
 	assert.Equal(t, 20, users[1].Age)
 }
 
-/*func TestGroupBy(t *testing.T) {
+func TestGroupBy(t *testing.T) {
 	posts, err := Post{}.GroupBy("author").Query()
 	assert.NoError(t, err)
 	assert.Equal(t, 8, len(posts))
-	assert.Equal(t, "He", posts[0].Author)
+	assert.Equal(t, "Me Updated", posts[0].Author)
 
 	_, err = Post{}.Create(PostParams{Content: "Golang Post", Author: "He"})
 	assert.NoError(t, err)
@@ -254,7 +254,7 @@ func TestHaving(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, 1, len(posts))
 	assert.Equal(t, "He", posts[0].Author)
-}*/
+}
 
 func TestNull(t *testing.T) {
 	user, err := User{}.Create(UserParams{Name: "Null Name", Age: 50})
@@ -488,5 +488,5 @@ func TestCreateAll(t *testing.T) {
 
 	err := Post{}.CreateAll(posts)
 	assert.NoError(t, err)
-	assert.Equal(t, 14, Post{}.Count())
+	assert.Equal(t, 15, Post{}.Count())
 }

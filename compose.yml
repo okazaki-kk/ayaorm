@@ -2,7 +2,7 @@ version: "3.5"
 services:
   db:
     image: mysql:${MYSQL_VERSION_8_0:-8.0-debian}
-    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci --default-authentication-plugin=mysql_native_password
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci --default-authentication-plugin=mysql_native_password --sql-mode="NO_ENGINE_SUBSTITUTION"
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: todo
