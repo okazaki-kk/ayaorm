@@ -32,7 +32,7 @@ jobs:
 
     - name: set MySQL sql_mode
       run: |
-        mysql --protocol=tcp --password=${MYSQL_PASSWORD} -u root mysql <<SQL
+        mysql --protocol=tcp --host 127.0.0.1 --password=${MYSQL_PASSWORD} -u root mysql <<SQL
         SET GLOBAL sql_mode = 'NO_ENGINE_SUBSTITUTION';
         SET GLOBAL character_set_server = 'utf8mb4';
         SET GLOBAL collation_server = 'utf8mb4_general_ci';
