@@ -7,7 +7,6 @@ services:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: todo
       MYSQL_PASSWORD: root
-      MYSQL_USER: root
       TZ: 'Asia/Tokyo'
     volumes:
       - "mysql8-data:/var/lib/mysql/:delegated"
