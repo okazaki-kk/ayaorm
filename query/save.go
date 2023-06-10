@@ -98,8 +98,3 @@ func (q *Query) BuildDelete(tableName string, id int) string {
 	query := fmt.Sprintf("DELETE FROM %s WHERE id = %d;", tableName, id)
 	return query
 }
-
-func (q *Query) BuildInnerJoin(left, right string) string {
-	query := fmt.Sprintf("SELECT * FROM %s inner join %s on %s.id = %s.post_id", left, right, left, right)
-	return query
-}
