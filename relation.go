@@ -3,15 +3,17 @@ package ayaorm
 import (
 	"database/sql"
 	"log"
+
+	"github.com/okazaki-kk/ayaorm/query"
 )
 
 type Relation struct {
-	Table
+	query.Table
 	db *sql.DB
 }
 
 func NewRelation(db *sql.DB) *Relation {
-	r := &Relation{db: db, Table: Table{}}
+	r := &Relation{db: db, Table: query.Table{}}
 	return r
 }
 
@@ -54,46 +56,45 @@ func (r *Relation) Pluck(column string) ([]interface{}, error) {
 }
 
 func (r *Relation) Limit(lim int) *Relation {
-	r.Table.query.limit = lim
+	r.Table.Limit(lim)
 	return r
 }
 
 func (r *Relation) Order(key, order string) *Relation {
-	r.Table.query.order = order
-	r.Table.query.orderKey = key
+	r.Table.Order(key, order)
 	return r
 }
 
 func (r *Relation) Where(column string, conditions ...interface{}) *Relation {
-	r.Table.query.Where(column, conditions...)
+	r.Table.Where(column, conditions...)
 	return r
 }
 
 func (r *Relation) Or(column string, conditions ...interface{}) *Relation {
-	r.Table.query.Or(column, conditions...)
+	r.Table.Or(column, conditions...)
 	return r
 }
 
 func (r *Relation) GroupBy(column ...string) *Relation {
-	r.Table.query.groupBy = column
+	r.Table.GroupBy(column...)
 	return r
 }
 
 func (r *Relation) Having(column string, conditions ...interface{}) *Relation {
-	r.Table.query.Having(column, conditions...)
+	r.Table.Having(column, conditions...)
 	return r
 }
 
 func (r *Relation) Save(id int, fieldMap map[string]interface{}) (int, error) {
-	r.Table.query.insert.params = fieldMap
+	r.Table.Insert(fieldMap)
 	var query string
 	var args []interface{}
 
 	if IsZero(id) {
-		query, args = r.Table.query.BuildInsert(r.Table.tableName)
+		query, args = r.Table.BuildInsert(r.GetTable())
 	} else {
-		r.Table.query.update.params = fieldMap
-		query, args = r.Table.query.BuildUpdate(r.Table.tableName, id)
+		r.Table.Update(fieldMap)
+		query, args = r.Table.BuildUpdate(r.Table.GetTable(), id)
 	}
 
 	log.Print("execute query: ", query, " ", args)
@@ -111,11 +112,11 @@ func (r *Relation) Save(id int, fieldMap map[string]interface{}) (int, error) {
 }
 
 func (r *Relation) CreateAll(fieldMaps map[string][]interface{}) error {
-	r.Table.query.createAll.params = fieldMaps
+	r.Table.CreateAll(fieldMaps)
 	var query string
 	var args []interface{}
 
-	query, args = r.Table.query.BuildCreateAll(r.Table.tableName)
+	query, args = r.Table.BuildCreateAll(r.Table.GetTable())
 
 	log.Println("execute query: ", query, " ", args)
 	_, err := r.db.Exec(query, args...)
@@ -126,7 +127,7 @@ func (r *Relation) CreateAll(fieldMaps map[string][]interface{}) error {
 }
 
 func (r *Relation) Delete(id int) error {
-	query := r.Table.query.BuildDelete(r.Table.tableName, id)
+	query := r.Table.BuildDelete(r.Table.GetTable(), id)
 	log.Print("execute query: ", query)
 	_, err := r.db.Exec(query)
 	return err
@@ -155,18 +156,18 @@ func (r *Relation) FindBy(column string, value interface{}) *Relation {
 }
 
 func (r *Relation) InnerJoin(left, right string, hasMany bool) *Relation {
-	r.Table.query.InnerJoin(left, right, hasMany)
+	r.Table.InnerJoin(left, right, hasMany)
 	return r
 }
 
 func (r *Relation) QueryRow(dest ...interface{}) error {
-	query, args := r.Table.query.BuildQuery(r.Table.columns, r.tableName)
+	query, args := r.Table.BuildQuery(r.Table.GetColumns(), r.GetTable())
 	log.Print("execute query: ", query, " ", args)
 	return r.db.QueryRow(query, args...).Scan(dest...)
 }
 
 func (r *Relation) Query() (*sql.Rows, error) {
-	query, args := r.Table.query.BuildQuery(r.Table.columns, r.tableName)
+	query, args := r.Table.BuildQuery(r.Table.GetColumns(), r.GetTable())
 	log.Print("execute query: ", query, " ", args)
 	rows, err := r.db.Query(query, args...)
 	return rows, err

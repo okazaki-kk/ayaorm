@@ -1,4 +1,4 @@
-package ayaorm
+package query
 
 import (
 	"fmt"
@@ -32,6 +32,17 @@ type Query struct {
 	}
 }
 
+func (q *Query) Limit(lim int) *Query {
+	q.limit = lim
+	return q
+}
+
+func (q *Query) Order(key, value string) *Query {
+	q.order = value
+	q.orderKey = key
+	return q
+}
+
 func (q *Query) Where(column string, conditions ...interface{}) *Query {
 	q.where.key = column
 	q.where.conditions = conditions
@@ -47,6 +58,26 @@ func (q *Query) Or(column string, conditions ...interface{}) *Query {
 func (q *Query) Having(column string, conditions ...interface{}) *Query {
 	q.having.key = column
 	q.having.conditions = conditions
+	return q
+}
+
+func (q *Query) GroupBy(column ...string) *Query {
+	q.groupBy = column
+	return q
+}
+
+func (q *Query) Insert(params map[string]interface{}) *Query {
+	q.insert.params = params
+	return q
+}
+
+func (q *Query) Update(params map[string]interface{}) *Query {
+	q.update.params = params
+	return q
+}
+
+func (q *Query) CreateAll(params map[string][]interface{}) *Query {
+	q.createAll.params = params
 	return q
 }
 

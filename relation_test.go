@@ -5,6 +5,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/okazaki-kk/ayaorm/query"
 	"github.com/stretchr/testify/assert"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -53,7 +54,8 @@ func TestMain(m *testing.M) {
 }
 
 func TestSave(t *testing.T) {
-	table := Table{tableName: "users"}
+	table := query.Table{}
+	table.SetTable("users")
 	relation := Relation{Table: table, db: db}
 
 	countBefore := relation.Count()
@@ -86,7 +88,8 @@ func TestSave(t *testing.T) {
 }
 
 func TestPluck(t *testing.T) {
-	table := Table{tableName: "users"}
+	table := query.Table{}
+	table.SetTable("users")
 	relation := Relation{Table: table, db: db}
 
 	ages, err := relation.Pluck("age")
@@ -96,7 +99,8 @@ func TestPluck(t *testing.T) {
 }
 
 func TestWhere(t *testing.T) {
-	table := Table{tableName: "users"}
+	table := query.Table{}
+	table.SetTable("users")
 	relation := Relation{Table: table, db: db}
 
 	Hanako, err := relation.SetColumns("*").Where("name", "Hanako").Query()
@@ -111,7 +115,8 @@ func TestWhere(t *testing.T) {
 }
 
 func TestWhere1(t *testing.T) {
-	table := Table{tableName: "users"}
+	table := query.Table{}
+	table.SetTable("users")
 	relation := Relation{Table: table, db: db}
 
 	Hanako, err := relation.SetColumns("*").Where("age", ">", 24).Query()
@@ -126,7 +131,8 @@ func TestWhere1(t *testing.T) {
 }
 
 func TestFirst(t *testing.T) {
-	table := Table{tableName: "users"}
+	table := query.Table{}
+	table.SetTable("users")
 	relation := Relation{Table: table, db: db}
 
 	var user TestUser
@@ -137,7 +143,8 @@ func TestFirst(t *testing.T) {
 }
 
 func TestFind(t *testing.T) {
-	table := Table{tableName: "users"}
+	table := query.Table{}
+	table.SetTable("users")
 	relation := Relation{Table: table, db: db}
 
 	var user TestUser
@@ -148,7 +155,8 @@ func TestFind(t *testing.T) {
 }
 
 func TestFindBy(t *testing.T) {
-	table := Table{tableName: "users"}
+	table := query.Table{}
+	table.SetTable("users")
 	relation := Relation{Table: table, db: db}
 
 	var user TestUser
@@ -159,7 +167,8 @@ func TestFindBy(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-	table := Table{tableName: "users"}
+	table := query.Table{}
+	table.SetTable("users")
 	relation := Relation{Table: table, db: db}
 
 	countBefore := relation.Count()
@@ -196,7 +205,8 @@ func TestInnerJoin(t *testing.T) {
 	_, err = db.Exec(`insert into comments (content, user_id) values ('Bad', 1)`)
 	assert.NoError(t, err)
 
-	table := Table{tableName: "users"}
+	table := query.Table{}
+	table.SetTable("users")
 	relation := Relation{Table: table, db: db}
 
 	rows, err := relation.SetColumns("users.id, users.name, users.age, users.created_at, users.updated_at").InnerJoin("users", "comments", true).Query()
