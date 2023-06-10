@@ -1425,7 +1425,7 @@ func (u *ProjectRelation) JoinPost() *ProjectRelation {
 	return u
 }
 
-func (u Post) Project()  (*Project, error) {
+func (u Post) Project() (*Project, error) {
 	u.hasOneProject()
 	return Project{}.Find(u.Id)
 }

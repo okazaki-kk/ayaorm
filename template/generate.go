@@ -54,6 +54,8 @@ func Generate(from string, fileInspect FileInspect) error {
 			err = generateBelongsToFunc(file, f)
 		} else if f.HasMany {
 			err = generateHasManyFunc(file, f)
+		} else if f.HasOne {
+			err = generateHasOneFunc(file, f)
 		}
 		if err != nil {
 			return err
@@ -163,6 +165,25 @@ func generateBelongsToFunc(file *os.File, funcInspect RelationFuncInspect) error
 	t, _ := template.New("Base").Funcs(funcMap).Parse(FuncBody)
 
 	_, err := t.New("Joins").Parse(templates.BelongsTextBody)
+	if err != nil {
+		return err
+	}
+
+	err = t.Execute(file, funcInspect)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func generateHasOneFunc(file *os.File, funcInspect RelationFuncInspect) error {
+	funcMap := template.FuncMap{
+		"toSnakeCase": ayaorm.ToSnakeCase,
+	}
+
+	t, _ := template.New("Base").Funcs(funcMap).Parse(FuncBody)
+
+	_, err := t.New("Joins").Parse(templates.HasOneTextBody)
 	if err != nil {
 		return err
 	}

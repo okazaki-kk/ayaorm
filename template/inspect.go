@@ -46,7 +46,7 @@ type RelationFuncInspect struct {
 	Args     []string
 	HasMany  bool
 	BelongTo bool
-	HasOne bool
+	HasOne   bool
 }
 
 type ValidateFuncInspect struct {

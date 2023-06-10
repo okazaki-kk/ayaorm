@@ -23,7 +23,7 @@ type Post struct {
 
 type Project struct {
 	ayaorm.Schema
-	Name string
+	Name   string
 	PostId int
 }
 
