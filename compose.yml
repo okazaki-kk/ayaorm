@@ -1,0 +1,19 @@
+version: "3.5"
+services:
+  db:
+    image: mysql:${MYSQL_VERSION_8_0:-8.0-debian}
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: todo
+      MYSQL_PASSWORD: root
+      TZ: 'Asia/Tokyo'
+    volumes:
+      - "mysql8-data:/var/lib/mysql/:delegated"
+    ports:
+      - "3306:3306"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+volumes:
+  mysql8-data:
+    driver: local
