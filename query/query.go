@@ -9,83 +9,14 @@ type Query struct {
 	limit    int
 	order    string
 	orderKey string
-	where    struct {
-		key        string
-		conditions []interface{}
-	}
-	or struct {
-		key        string
-		conditions []interface{}
-	}
+	where
+	or
 	groupBy []string
-	having  struct {
-		key        string
-		conditions []interface{}
-	}
-	insert    struct{ params map[string]interface{} }
-	update    struct{ params map[string]interface{} }
-	createAll struct{ params map[string][]interface{} }
-	innerJoin struct {
-		left    string
-		right   string
-		hasMany bool
-	}
-}
-
-func (q *Query) Limit(lim int) *Query {
-	q.limit = lim
-	return q
-}
-
-func (q *Query) Order(key, value string) *Query {
-	q.order = value
-	q.orderKey = key
-	return q
-}
-
-func (q *Query) Where(column string, conditions ...interface{}) *Query {
-	q.where.key = column
-	q.where.conditions = conditions
-	return q
-}
-
-func (q *Query) Or(column string, conditions ...interface{}) *Query {
-	q.or.key = column
-	q.or.conditions = conditions
-	return q
-}
-
-func (q *Query) Having(column string, conditions ...interface{}) *Query {
-	q.having.key = column
-	q.having.conditions = conditions
-	return q
-}
-
-func (q *Query) GroupBy(column ...string) *Query {
-	q.groupBy = column
-	return q
-}
-
-func (q *Query) Insert(params map[string]interface{}) *Query {
-	q.insert.params = params
-	return q
-}
-
-func (q *Query) Update(params map[string]interface{}) *Query {
-	q.update.params = params
-	return q
-}
-
-func (q *Query) CreateAll(params map[string][]interface{}) *Query {
-	q.createAll.params = params
-	return q
-}
-
-func (q *Query) InnerJoin(left, right string, hasMany bool) *Query {
-	q.innerJoin.left = left
-	q.innerJoin.right = right
-	q.innerJoin.hasMany = hasMany
-	return q
+	having
+	insert
+	update
+	createAll
+	innerJoin
 }
 
 func (q *Query) BuildQuery(columns []string, tableName string) (string, []interface{}) {
@@ -169,76 +100,4 @@ func (q *Query) BuildQuery(columns []string, tableName string) (string, []interf
 	}
 
 	return query + ";", args
-}
-
-func (q *Query) BuildInsert(tableName string) (string, []interface{}) {
-	columns := []string{}
-	ph := []string{}
-	args := []interface{}{}
-	i := q.insert
-
-	for k, v := range i.params {
-		columns = append(columns, k)
-		ph = append(ph, "?")
-		args = append(args, v)
-	}
-
-	return fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s);", tableName, strings.Join(columns, ", "), strings.Join(ph, ", ")), args
-}
-
-func (q *Query) BuildCreateAll(tableName string) (string, []interface{}) {
-	columns := []string{}
-	ph := ""
-	args := []interface{}{}
-
-	for column := range q.createAll.params {
-		columns = append(columns, column)
-	}
-
-	xCount := len(q.createAll.params[columns[0]])
-	yCount := len(columns)
-
-	for i := 0; i < xCount; i++ {
-		ph += "("
-		for j := 0; j < yCount; j++ {
-			if j == yCount-1 {
-				ph += "?"
-			} else {
-				ph += "?, "
-			}
-			args = append(args, q.createAll.params[columns[j]][i])
-		}
-		if i == xCount-1 {
-			ph += ")"
-		} else {
-			ph += "), "
-		}
-	}
-
-	return fmt.Sprintf("INSERT INTO %s (%s) VALUES %s;", tableName, strings.Join(columns, ", "), ph), args
-}
-
-func (q *Query) BuildUpdate(tableName string, id int) (string, []interface{}) {
-	args := []interface{}{}
-	i := q.update
-
-	updateObj := ""
-
-	for k, v := range i.params {
-		updateObj = fmt.Sprintf("%s %s = ?,", updateObj, k)
-		args = append(args, v)
-	}
-	updateObj = updateObj[:len(updateObj)-1]
-
-	return fmt.Sprintf("UPDATE %s SET %s WHERE id = %d;", tableName, updateObj, id), args
-}
-
-func (q *Query) BuildDelete(tableName string, id int) string {
-	query := fmt.Sprintf("DELETE FROM %s WHERE id = %d;", tableName, id)
-	return query
-}
-
-func (q *Query) BuildInnerJoin(left, right string) string {
-	query := fmt.Sprintf("SELECT * FROM %s inner join %s on %s.id = %s.post_id", left, right, left, right)
-	return query
 }
