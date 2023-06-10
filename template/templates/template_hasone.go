@@ -1,7 +1,7 @@
 package templates
 
-var HasOneTextBody = `func (u Post) Project()  (*Project, error) {
-	u.hasOneProject()
-	return Project{}.Find(u.Id)
+var HasOneTextBody = `func (u {{.Recv}}) {{.HasOneModel}}()  (*{{.HasOneModel}}, error) {
+	u.hasOne{{.HasOneModel}}()
+	return {{.HasOneModel}}{}.Find(u.Id)
 }
 `
