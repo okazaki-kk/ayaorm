@@ -1,2 +1,4 @@
 *.db
 ayaorm
+
+dist/
