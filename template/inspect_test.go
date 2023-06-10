@@ -39,6 +39,9 @@ func TestInspect(t *testing.T) {
 	func (m Comment) belongsToPost() {
 	}
 
+	func (m Comment) hasOnePost() {
+	}
+
 	func (m Post) validatesPresenceOfAuthor() ayaorm.Rule {
 		return ayaorm.MakeRule().Presence()
 	}
@@ -68,7 +71,7 @@ func TestInspect(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "testss", fileInspect.PackageName)
 	assert.Equal(t, 2, len(fileInspect.StructInspect))
-	assert.Equal(t, 2, len(fileInspect.RelationFuncInspect))
+	assert.Equal(t, 3, len(fileInspect.RelationFuncInspect))
 	assert.Equal(t, 3, len(fileInspect.ValidateFuncInspect))
 	assert.Equal(t, 1, len(fileInspect.CustomRecv))
 	assert.Equal(t, "User", fileInspect.CustomRecv[0])
@@ -83,26 +86,31 @@ func TestInspect(t *testing.T) {
 
 	assert.Equal(t, "hasManyComments", fileInspect.RelationFuncInspect[0].FuncName)
 	assert.Equal(t, "Post", fileInspect.RelationFuncInspect[0].Recv)
-	assert.Equal(t, true, fileInspect.RelationFuncInspect[0].HasMany)
+	assert.True(t, fileInspect.RelationFuncInspect[0].HasMany)
 	assert.Equal(t, "Comment", fileInspect.RelationFuncInspect[0].HasManyModel())
 
 	assert.Equal(t, "belongsToPost", fileInspect.RelationFuncInspect[1].FuncName)
 	assert.Equal(t, "Comment", fileInspect.RelationFuncInspect[1].Recv)
-	assert.Equal(t, true, fileInspect.RelationFuncInspect[1].BelongTo)
+	assert.True(t, fileInspect.RelationFuncInspect[1].BelongTo)
 	assert.Equal(t, "Post", fileInspect.RelationFuncInspect[1].BelongsToModel())
+
+	assert.Equal(t, "hasOnePost", fileInspect.RelationFuncInspect[2].FuncName)
+	assert.Equal(t, "Comment", fileInspect.RelationFuncInspect[2].Recv)
+	assert.True(t, fileInspect.RelationFuncInspect[2].HasOne)
+	assert.Equal(t, "Post", fileInspect.RelationFuncInspect[2].HasOneModel())
 
 	assert.Equal(t, "validatesPresenceOfAuthor", fileInspect.ValidateFuncInspect[0].FuncName)
 	assert.Equal(t, "Post", fileInspect.ValidateFuncInspect[0].Recv)
-	assert.Equal(t, true, fileInspect.ValidateFuncInspect[0].ValidatePresence)
+	assert.True(t, fileInspect.ValidateFuncInspect[0].ValidatePresence)
 	assert.Equal(t, "Author", fileInspect.ValidateFuncInspect[0].ValidatePresenceField())
 
 	assert.Equal(t, "validateLengthOfContent", fileInspect.ValidateFuncInspect[1].FuncName)
 	assert.Equal(t, "Post", fileInspect.ValidateFuncInspect[1].Recv)
-	assert.Equal(t, true, fileInspect.ValidateFuncInspect[1].ValidateLength)
+	assert.True(t, fileInspect.ValidateFuncInspect[1].ValidateLength)
 	assert.Equal(t, "Content", fileInspect.ValidateFuncInspect[1].ValidateLengthField())
 
 	assert.Equal(t, "validateNumericalityOfAge", fileInspect.ValidateFuncInspect[2].FuncName)
 	assert.Equal(t, "User", fileInspect.ValidateFuncInspect[2].Recv)
-	assert.Equal(t, true, fileInspect.ValidateFuncInspect[2].ValidateNumericality)
+	assert.True(t, fileInspect.ValidateFuncInspect[2].ValidateNumericality)
 	assert.Equal(t, "Age", fileInspect.ValidateFuncInspect[2].ValidateNumericalityField())
 }

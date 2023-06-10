@@ -46,6 +46,7 @@ type RelationFuncInspect struct {
 	Args     []string
 	HasMany  bool
 	BelongTo bool
+	HasOne bool
 }
 
 type ValidateFuncInspect struct {
@@ -64,6 +65,10 @@ func (f RelationFuncInspect) HasManyModel() string {
 
 func (f RelationFuncInspect) BelongsToModel() string {
 	return strings.TrimPrefix(f.FuncName, "belongsTo")
+}
+
+func (f RelationFuncInspect) HasOneModel() string {
+	return strings.TrimPrefix(f.FuncName, "hasOne")
 }
 
 func (f ValidateFuncInspect) ValidatePresenceField() string {
@@ -153,8 +158,9 @@ func Inspect(path string) (FileInspect, error) {
 
 			hasMany := strings.HasPrefix(funcName, "hasMany")
 			belongsTo := strings.HasPrefix(funcName, "belongsTo")
-			if hasMany || belongsTo {
-				relationFuncInspect = append(relationFuncInspect, RelationFuncInspect{FuncName: funcName, Recv: recv, HasMany: hasMany, BelongTo: belongsTo})
+			hasOne := strings.HasPrefix(funcName, "hasOne")
+			if hasMany || belongsTo || hasOne {
+				relationFuncInspect = append(relationFuncInspect, RelationFuncInspect{FuncName: funcName, Recv: recv, HasMany: hasMany, BelongTo: belongsTo, HasOne: hasOne})
 				return true
 			}
 
