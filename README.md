@@ -1,3 +1,4 @@
+[English](README.en.md)
 # ayaorm
 
 Ayaormは自動生成を用いたActive Record風のインターフェイスを持つORMです。
@@ -262,8 +263,6 @@ comments, _ := post.Comments()
 // select * from posts join comments on posts.id = comments.post_id where posts.id = xxx;
 Post{}.JoinComments().Find(xxx)
 ```
-
-他にも、`Delete`
 
 一方、Commentモデルには以下のようにBelongsToメソッドを定義します。
 ```go
