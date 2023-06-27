@@ -65,7 +65,7 @@ func TestMain(m *testing.M) {
 		log.Fatal("db create error", err)
 	}
 
-	sqlStmt  = `insert into posts (content, author) values ('Golang Post', 'Me'), ('Ruby Post', 'You'), ('Python Post', 'He'), ('Java Post', 'She'), ('C++ Post', 'They'), ('Ruby Post', 'We'), ('PHP Post', 'Us');`
+	sqlStmt = `insert into posts (content, author) values ('Golang Post', 'Me'), ('Ruby Post', 'You'), ('Python Post', 'He'), ('Java Post', 'She'), ('C++ Post', 'They'), ('Ruby Post', 'We'), ('PHP Post', 'Us');`
 	_, err = db.Exec(strings.Replace(sqlStmt, "\n", "", -1))
 	if err != nil {
 		log.Fatal("db create error", err)

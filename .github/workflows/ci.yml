@@ -45,9 +45,11 @@ jobs:
         cache: true
     - run: go mod download
 
-
     - name: Build
       run: go build .
+
+    - name: Fmt
+      run: make fmt
 
     - name: Test
       run: make test
