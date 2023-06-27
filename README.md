@@ -1,24 +1,25 @@
-[English](README.en.md)
+[日本語](README.ja.md)
 # ayaorm
 
-Ayaormは自動生成を用いたActive Record風のインターフェイスを持つORMです。
+Ayaorm is an ORM with an Active Record-like interface using auto-generation.
 
 ## How To Install
 
-自動生成に用いるバイナリは以下のコマンドで取得できます。
+Binaries for automatic generation can be obtained with the following command.
 
 ```shell
 go install github.com/okazaki-kk/ayaorm/cmd/ayaorm@latest
 ```
 
-また、goのコード内でayaormを使用するには、以下のコマンドでダウンロードできます。
+Also, to use ayaorm in your go code, you can download it with the following command
+
 ```
 go get -u github.com/okazaki-kk/ayaorm
 ```
 
 ## Quick Start
 
-まず、User構造体を含んだ`schema.go`ファイルを作成します。
+First, create a `schema.go` file containing the User structure.
 
 ```go
 package main
@@ -32,14 +33,15 @@ type User struct {
 }
 ```
 
-そして、
+Then
 ```shell
 ayaorm schema.go
 ```
-を実行すると、`schema_gen.go`というファイルが自動生成されます。
-これで準備完了です。`User`構造体の中に`ayaorm.Schema`が定義されていますが、これを含めることで、primarykey idとcreated_at, updated_atが自動的に追加されます。
 
-後は以下のように簡潔にDB操作を行えます。(sqlite3を用いた例)
+a file named `schema_gen.go` will be automatically generated.
+This completes the preparation. Schema` is defined in the `User` structure, and by including it, the primarykey id and created_at, updated_at are automatically added.
+
+The rest of the DB operations can be performed in a concise manner as follows. (Example using sqlite3)
 
 ```go
 package main
@@ -70,8 +72,8 @@ func main() {
 }
 ```
 
-## モデルの操作
-まず、基本的なCRUD操作の方法を紹介します。
+## Model Manipulation
+First, here are some basic CRUD operations.
 ### Create
 ```go
 // insert into users (name, age) values ('example-user', 16)
@@ -82,7 +84,7 @@ user = User{Age: 16, Name: "example-user"}
 err = user.Save()
 ```
 
-また、`CreateAll`メソッドを用いると、複数のレコードを一度に挿入することができます。
+The `CreateAll` method can also be used to insert multiple records at once.
 ```go
 // insert into users (name, age) values ('example-user', 16), ('example-user2', 17)
 users, err := User{}.CreateAll([]UserParams{
@@ -103,9 +105,9 @@ err = user.Update(UserParams{Age: 35})
 err = user.Delete()
 ```
 
-## クエリ
-次に、データベースを検索するクエリを紹介します。
-WhereやOrderByなどはQuery()メソッドを呼ばないとクエリが叩かれないため、チェーンメソッドとして使用できます。一方、FirstやLastなどはクエリが即時に実行されるため、チェーンメソッドとして使用することはできません。
+## Query
+Next, we introduce queries that search the database.
+Where, OrderBy, etc. can be used as chained methods because the query is not struck until the Query() method is called. On the other hand, First, Last, etc. cannot be used as chained methods because the query is executed immediately.
 
 ### Where
 ```go
@@ -148,7 +150,7 @@ user, err = User{}.Last()
 users, err = User{}.All()
 ```
 
-### その他
+### Others
 ```go
 // select count(*) from users;
 count = User{}.Count()
@@ -160,65 +162,65 @@ users, err = User.OrderBy("age", "desc")
 User{}.GroupBy("name").Having("count(name)", 2).Query()
 ```
 
-## バリデーション
-schemaファイルにバリデーションを記述することで、値が不正な場合にデータベースにアクセスする前にエラーを返すことができます。
+## Validation
+By writing validation in the schema file, an error can be returned before accessing the database if the value is incorrect.
 
-例えば、Userモデルのageカラムを以下のように定義した場合、ageには0以上の値しか入れることができません。
+For example, if the age column of the User model is defined as follows, age can only contain values greater than or equal to 0.
 ```go
 // schema.go
 func (m User) validateNumericalityOfAge() Rule {
 	return MakeRule().Numericality().Positive()
 }
 ```
-このように、validateNumericalityOf***から始まるメソッドは、数値に関するバリデーションであると認識されます
-また、xxxにはバリデーション対象のカラム名を、レシーバにはバリデーション対象の構造体を指定します。
+Thus, methods beginning with validateNumericalityOf*** are recognized as validation on numeric values
+The xxx is the name of the column to be validated, and the receiver is the structure to be validated.
 
-この場合、ageカラムに負の値が指定されているとデータベースにアクセスせずにエラーを返します。また、現在の状態がバリデーションに引っかからないかは、`IsValid()`メソッドで判定できます。
+In this case, if a negative value is specified for the age column, an error is returned without accessing the database. You can also use the `IsValid()` method to determine if the current state is not trapped by validation.
 ```go
 user := User{Age: -1}
-err := user.Save() // insert into ~~~ は実行されない
+err := user.Save() // insert into ~~~~ is not executed
 // err = "Age must be positive"
 
 ok, errors = user.IsValid()
-// バリデーションエラーが発生した場合、okはfalse、errorsがエラー配列
+// If a validation error occurs, ok is false and errors is the error array
 ```
 
-### 数値バリデーション
+### Numerical Validation
 ```go
-// ageは負の値のみ許可
+// Only negative values are allowed for age
 func (m User) validateNumericalityOfAge() Rule {
   return MakeRule().Numericality().Negative()
 }
 ```
 
-### 文字列バリデーション
-`validateLengthOf***`から始まるメソッドは、string型のカラム***の長さに関するバリデーションであると認識されます。
+### String Validation
+Methods beginning with `validateLengthOf***` are recognized as validations on the length of a column*** of type string.
 ```go
-// Userのnameカラムは、3文字以上10文字以下
+// User's name column must be between 3 and 10 characters long
 func (m User) validateLengthOfName() Rule {
 	return MakeRule().MaxLength(10).MinLength(3)
 }
 ```
 
-### OnCreateとOnUpdateフック
-以下のようにメソッドチェーンを用いて、バリデーションを行うタイミングを指定することができます。
+### OnCreate and OnUpdate hook
+The following method chain can be used to specify when to perform validation.
 ```go
-// Userのnameカラムバリデーションは、モデルの作成時のみ有効
+// User's name column validation is valid only when creating the model
 func (m User) validateLengthOfName() Rule {
 	return MakeRule().MaxLength(10).MinLength(3).OnCreate()
 }
 ```
 
 ```go
-// Userのageカラムバリデーションは、モデルの更新時のみ有効
+// User's name column validation is valid only when updating the model
 func (m User) validateNumericalityOfAge() Rule {
   return MakeRule().Numericality().Negative().OnUpdate()
 }
 ```
 
-### バリデーションのカスタマイズ
-`CustomRole`メソッドを用いると、バリデーションのルールをカスタマイズすることができます。
-以下の例では、nameカラムに"custom-example"という値が入っている場合にエラーを返すようにしています。
+### Customize Validation
+The `CustomRole` method allows you to customize the validation rules.
+In the following example, an error is returned if the name column contains the value "custom-example".
 ```go
 func (m User) validateCustomRule() validate.Rule {
 	return validate.CustomRule(func(es *[]error) {
@@ -229,10 +231,10 @@ func (m User) validateCustomRule() validate.Rule {
 }
 ```
 
-## リレーション
-モデル間の関連付けを行うことで、自分のコードの共通操作がシンプルになって扱いやすくなります。
+## Relation
+By making associations between models, the common operations of your code become simpler and easier to handle.
 
-例えば、以下のPostモデルとCommentモデルを考えます。
+For example, consider the following Post and Comment models.
 ```go
 type Comment struct {
 	ayaorm.Schema
@@ -247,14 +249,14 @@ type Post struct {
 	Author  string
 }
 ```
-そして、CommentとPostが1対多の関係にあるとします。この場合、Postモデルに以下のようにHasManyメソッドをschemaファイルに定義します。
+And suppose that Comment and Post have a one-to-many relationship. In this case, define the HasMany method in the Post model in the schema file as follows.
 ```go
 // schema.go
-// メソッド名はhasMany***sでなければならない
+// Method name must be hasMany***s
 func (m Post) hasManyComments() {}
 ```
 
-すると、自動生成されたファイルによって、`Comments()`というメソッドが使えるようになり、関連するCommentモデルの配列を取得することができます。また、`JoinComments`というメソッドも使えるようになり、関連するCommentモデルを結合したクエリを取得することができます。
+Then, the auto-generated file allows you to use the method `Comments()` to retrieve an array of related Comment models. Also, the method `JoinComments` can be used to retrieve a query that joins related Comment models.
 ```go
 // select * from comments where post_id = xxx;
 post, _ = Post{}.Find(xxx)
@@ -264,14 +266,14 @@ comments, _ := post.Comments()
 Post{}.JoinComments().Find(xxx)
 ```
 
-一方、Commentモデルには以下のようにBelongsToメソッドを定義します。
+On the other hand, the Comment model defines the BelongsTo method as follows.
 ```go
 // schema.go
-// メソッド名はbelongsTo***でなければならない
+// Method name must be belongsTo***
 func (m Comment) belongsToPost() {}
 ```
 
-すると、`Post()`というメソッドが使えるようになり、関連するPostモデルを取得することができます。また、`JoinPost`というメソッドも使えるようになり、関連するPostモデルを結合したクエリを取得することができます。
+Then the method `Post()` can be used to retrieve the related Post models. Also, the method `JoinPost` can be used to retrieve a query that joins related Post models.
 ```go
 // select * from posts where id = xxx;
 comment, _ = Comment{}.Find(xxx)
@@ -281,10 +283,10 @@ post, _ := comment.Post()
 Comment{}.JoinPost().Find(xxx)
 ```
 
-他にも、hasOneのようなメソッドを定義することで、1対1の関係を表現することもできます。
+Other one-to-one relationships can also be expressed by defining methods such as hasOne.
 
 ## null
-nullを扱う場合は、以下のように`null.Null***`型で対応できます。この場合、Addressカラムはnullを許容するようになります。
+When dealing with null, the `null.Null***` type can be used as follows. In this case, the Address column will allow null.
 ```go
 type User struct {
 	ayaorm.Schema
