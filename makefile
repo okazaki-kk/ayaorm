@@ -5,6 +5,9 @@ fmt:
 test:
 	go test -v ./...
 
+test-pretty:
+	set -o pipefail && go test -v ./... fmt -json | tparse -all
+
 lint:
 	golangci-lint run ./...
 
