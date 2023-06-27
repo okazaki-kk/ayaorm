@@ -45,7 +45,6 @@ jobs:
         cache: true
     - run: go mod download
 
-
     - name: Build
       run: go build .
 
