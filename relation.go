@@ -97,7 +97,7 @@ func (r *Relation) Save(id int, fieldMap map[string]interface{}) (int, error) {
 		query, args = r.Table.BuildUpdate(r.Table.GetTable(), id)
 	}
 
-	log.Print("execute query: ", query, " ", args)
+	log.Print("execute query: ", query, " ", InterfaceJoin(args, ", "))
 
 	res, err := r.db.Exec(query, args...)
 	if err != nil {
@@ -118,7 +118,7 @@ func (r *Relation) CreateAll(fieldMaps map[string][]interface{}) error {
 
 	query, args = r.Table.BuildCreateAll(r.Table.GetTable())
 
-	log.Println("execute query: ", query, " ", args)
+	log.Println("execute query: ", query, " ", InterfaceJoin(args, ", "))
 	_, err := r.db.Exec(query, args...)
 	if err != nil {
 		return err
@@ -162,13 +162,13 @@ func (r *Relation) InnerJoin(left, right string, hasMany bool) *Relation {
 
 func (r *Relation) QueryRow(dest ...interface{}) error {
 	query, args := r.Table.BuildQuery(r.Table.GetColumns(), r.GetTable())
-	log.Print("execute query: ", query, " ", args)
+	log.Print("execute query: ", query, " ", InterfaceJoin(args, ", "))
 	return r.db.QueryRow(query, args...).Scan(dest...)
 }
 
 func (r *Relation) Query() (*sql.Rows, error) {
 	query, args := r.Table.BuildQuery(r.Table.GetColumns(), r.GetTable())
-	log.Print("execute query: ", query, " ", args)
+	log.Print("execute query: ", query, " ", InterfaceJoin(args, ", "))
 	rows, err := r.db.Query(query, args...)
 	return rows, err
 }
