@@ -24,7 +24,6 @@ func (m *Comment) newRelation() *CommentRelation {
 		"content",
 		"author",
 		"post_id",
-		"achivement_rate",
 		"created_at",
 		"updated_at",
 	)
@@ -53,11 +52,10 @@ type CommentParams Comment
 
 func (m Comment) Build(p CommentParams) *Comment {
 	return &Comment{
-		Schema:         ayaorm.Schema{Id: p.Id},
-		Content:        p.Content,
-		Author:         p.Author,
-		PostId:         p.PostId,
-		AchivementRate: p.AchivementRate,
+		Schema:  ayaorm.Schema{Id: p.Id},
+		Content: p.Content,
+		Author:  p.Author,
+		PostId:  p.PostId,
 	}
 }
 
@@ -93,8 +91,6 @@ func (r *CommentRelation) CreateAll(comments []*Comment) error {
 				fieldMap["author"] = append(fieldMap["author"], comment.Author)
 			case "post_id", "comments.post_id":
 				fieldMap["post_id"] = append(fieldMap["post_id"], comment.PostId)
-			case "achivement_rate", "comments.achivement_rate":
-				fieldMap["achivement_rate"] = append(fieldMap["achivement_rate"], comment.AchivementRate)
 			}
 		}
 	}
@@ -113,9 +109,6 @@ func (u *Comment) Update(params CommentParams) error {
 	}
 	if !ayaorm.IsZero(params.PostId) {
 		u.PostId = params.PostId
-	}
-	if !ayaorm.IsZero(params.AchivementRate) {
-		u.AchivementRate = params.AchivementRate
 	}
 	return u.Save()
 }
@@ -143,8 +136,6 @@ func (r *CommentRelation) Save() (int, error) {
 			fieldMap["author"] = r.model.Author
 		case "post_id", "comments.post_id":
 			fieldMap["post_id"] = r.model.PostId
-		case "achivement_rate", "comments.achivement_rate":
-			fieldMap["achivement_rate"] = r.model.AchivementRate
 		}
 	}
 
@@ -299,8 +290,6 @@ func (m *Comment) fieldPtrByName(name string) interface{} {
 		return &m.Author
 	case "post_id", "comments.post_id":
 		return &m.PostId
-	case "achivement_rate", "comments.achivement_rate":
-		return &m.AchivementRate
 	case "created_at", "comments.created_at":
 		return &m.CreatedAt
 	case "updated_at", "comments.updated_at":
@@ -320,8 +309,6 @@ func (m *Comment) fieldValuesByName(name string) interface{} {
 		return m.Author
 	case "post_id", "comments.post_id":
 		return m.PostId
-	case "achivement_rate", "comments.achivement_rate":
-		return m.AchivementRate
 	case "created_at", "comments.created_at":
 		return m.CreatedAt
 	case "updated_at", "comments.updated_at":
@@ -355,7 +342,6 @@ func (m *Comment) columnNames() []string {
 		"content",
 		"author",
 		"post_id",
-		"achivement_rate",
 		"created_at",
 		"updated_at",
 	}
@@ -1441,7 +1427,11 @@ func (u *ProjectRelation) JoinPost() *ProjectRelation {
 
 func (u Post) Project() (*Project, error) {
 	u.hasOneProject()
-	return Project{}.Find(u.Id)
+	c, err := Project{}.FindBy("post_id", u.Id)
+	if err != nil {
+		return nil, err
+	}
+	return c, nil
 }
 
 func (m Comment) IsValid() (bool, []error) {
