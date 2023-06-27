@@ -12,4 +12,5 @@ build:
 	go build -o ayaorm ./cmd/ayaorm/
 
 testgen:
-	make build && cd tests && cp ../ayaorm . && ./ayaorm schema.go
+	make build && cd tests/sqlite/ && cp ../../ayaorm . && ./ayaorm schema.go
+	cd tests/mysql/ && cp ../../ayaorm . && ./ayaorm schema.go
