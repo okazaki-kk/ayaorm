@@ -25,9 +25,9 @@ package main
 import "github.com/okazaki-kk/ayaorm"
 
 type User struct {
- ayaorm.Schema
- Name string
- Age  int
+	ayaorm.Schema
+	Name string
+	Age  int
 }
 ```
 
@@ -44,28 +44,28 @@ ayaorm schema.go
 package main
 
 import (
- "database/sql"
- "fmt"
- "log"
+	"database/sql"
+	"fmt"
+	"log"
 
- _ "github.com/mattn/go-sqlite3"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func main() {
-  // insert into users (name, age) values ('example-user', 16)
-  user, err := User{}.Create(UserParams{Name: "example-user", Age: 16})
+	// insert into users (name, age) values ('example-user', 16)
+	user, err := User{}.Create(UserParams{Name: "example-user", Age: 16})
 
-  // select count(*) from users;
-  count := User{}.Count()
+	// select count(*) from users;
+	count := User{}.Count()
 
-  // select * from users where age = 16;
-  user, err = User{}.Where("age", 16).Query()
+	// select * from users where age = 16;
+	user, err = User{}.Where("age", 16).Query()
 
-  // select * from users where age > 15 or name = 'example-user';
-  user, err = User{}.Where("age", ">", 15).Or("name", "example-user").Query()
+	// select * from users where age > 15 or name = 'example-user';
+	user, err = User{}.Where("age", ">", 15).Or("name", "example-user").Query()
 
-  // update users set age = 35 where id = xxx;
-  err = user.Update(UserParams{Age: 35})
+	// update users set age = 35 where id = xxx;
+	err = user.Update(UserParams{Age: 35})
 }
 ```
 
@@ -85,8 +85,8 @@ err = user.Save()
 ```go
 // insert into users (name, age) values ('example-user', 16), ('example-user2', 17)
 users, err := User{}.CreateAll([]UserParams{
-  {Name: "example-user", Age: 16},
-  {Name: "example-user2", Age: 17},
+	{Name: "example-user", Age: 16},
+	{Name: "example-user2", Age: 17},
 })
 ```
 
@@ -122,7 +122,7 @@ user, err = User{}.Where("name", nil).Query()
 
 // select * from users where age > 15 and (name = 'example-user' or name = 'example-user2');
 user, err = User{}.Where("age", ">", 15).And(func(q *Query) {
-  q.Where("name", "example-user").Or("name", "example-user2")
+	q.Where("name", "example-user").Or("name", "example-user2")
 }).Query()
 
 // select * from users where age in (15, 16, 17);
@@ -186,7 +186,7 @@ ok, errors = user.IsValid()
 ```go
 // ageは負の値のみ許可
 func (m User) validateNumericalityOfAge() Rule {
-  return MakeRule().Numericality().Negative()
+	return MakeRule().Numericality().Negative()
 }
 ```
 
@@ -211,7 +211,7 @@ func (m User) validateLengthOfName() Rule {
 ```go
 // Userのageカラムバリデーションは、モデルの更新時のみ有効
 func (m User) validateNumericalityOfAge() Rule {
-  return MakeRule().Numericality().Negative().OnUpdate()
+	return MakeRule().Numericality().Negative().OnUpdate()
 }
 ```
 
