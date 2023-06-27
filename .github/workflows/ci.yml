@@ -1,4 +1,4 @@
-name: golangci-lint
+name: golang-test
 on:
   push:
     branches:
@@ -49,11 +49,11 @@ jobs:
     - name: Build
       run: go build .
 
+    - name: Test
+      run: make test
+
     - name: golangci-lint
       uses: reviewdog/action-golangci-lint@v2
       with:
         tool_name: errcheck
         level: info
-
-    - name: Test
-      run: make test
