@@ -6,32 +6,32 @@ import (
 	"fmt"
 )
 
-type Nullint struct {
+type NullInt struct {
 	i sql.NullInt64
 }
 
-func (i Nullint) String() string {
+func (i NullInt) String() string {
 	if !i.i.Valid {
 		return ""
 	}
 	return fmt.Sprint(i.i.Int64)
 }
 
-func (i *Nullint) Valid() bool {
+func (i *NullInt) Valid() bool {
 	return i.i.Valid
 }
 
-func (i *Nullint) Set(value int64) *Nullint {
+func (i *NullInt) Set(value int64) *NullInt {
 	i.i.Valid = true
 	i.i.Int64 = value
 	return i
 }
 
-func (i *Nullint) Scan(value interface{}) error {
+func (i *NullInt) Scan(value interface{}) error {
 	return i.i.Scan(value)
 }
 
-func (i Nullint) Value() (driver.Value, error) {
+func (i NullInt) Value() (driver.Value, error) {
 	if !i.Valid() {
 		return nil, nil
 	}
