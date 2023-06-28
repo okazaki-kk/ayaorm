@@ -1428,7 +1428,11 @@ func (u *ProjectRelation) JoinPost() *ProjectRelation {
 
 func (u Post) Project() (*Project, error) {
 	u.hasOneProject()
-	return Project{}.Find(u.Id)
+	c, err := Project{}.FindBy("post_id", u.Id)
+	if err != nil {
+		return nil, err
+	}
+	return c, nil
 }
 
 func (m Comment) IsValid() (bool, []error) {
