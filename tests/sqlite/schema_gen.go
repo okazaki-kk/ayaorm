@@ -24,6 +24,7 @@ func (m *Comment) newRelation() *CommentRelation {
 		"id",
 		"content",
 		"author",
+		"achievement_rate",
 		"post_id",
 		"created_at",
 		"updated_at",
@@ -53,10 +54,11 @@ type CommentParams Comment
 
 func (m Comment) Build(p CommentParams) *Comment {
 	return &Comment{
-		Schema:  ayaorm.Schema{Id: p.Id},
-		Content: p.Content,
-		Author:  p.Author,
-		PostId:  p.PostId,
+		Schema:          ayaorm.Schema{Id: p.Id},
+		Content:         p.Content,
+		Author:          p.Author,
+		AchievementRate: p.AchievementRate,
+		PostId:          p.PostId,
 	}
 }
 
@@ -90,6 +92,8 @@ func (r *CommentRelation) CreateAll(comments []*Comment) error {
 				fieldMap["content"] = append(fieldMap["content"], comment.Content)
 			case "author", "comments.author":
 				fieldMap["author"] = append(fieldMap["author"], comment.Author)
+			case "achievement_rate", "comments.achievement_rate":
+				fieldMap["achievement_rate"] = append(fieldMap["achievement_rate"], comment.AchievementRate)
 			case "post_id", "comments.post_id":
 				fieldMap["post_id"] = append(fieldMap["post_id"], comment.PostId)
 			}
@@ -107,6 +111,9 @@ func (u *Comment) Update(params CommentParams) error {
 	}
 	if !utils.IsZero(params.Author) {
 		u.Author = params.Author
+	}
+	if !utils.IsZero(params.AchievementRate) {
+		u.AchievementRate = params.AchievementRate
 	}
 	if !utils.IsZero(params.PostId) {
 		u.PostId = params.PostId
@@ -135,6 +142,8 @@ func (r *CommentRelation) Save() (int, error) {
 			fieldMap["content"] = r.model.Content
 		case "author", "comments.author":
 			fieldMap["author"] = r.model.Author
+		case "achievement_rate", "comments.achievement_rate":
+			fieldMap["achievement_rate"] = r.model.AchievementRate
 		case "post_id", "comments.post_id":
 			fieldMap["post_id"] = r.model.PostId
 		}
@@ -289,6 +298,8 @@ func (m *Comment) fieldPtrByName(name string) interface{} {
 		return &m.Content
 	case "author", "comments.author":
 		return &m.Author
+	case "achievement_rate", "comments.achievement_rate":
+		return &m.AchievementRate
 	case "post_id", "comments.post_id":
 		return &m.PostId
 	case "created_at", "comments.created_at":
@@ -308,6 +319,8 @@ func (m *Comment) fieldValuesByName(name string) interface{} {
 		return m.Content
 	case "author", "comments.author":
 		return m.Author
+	case "achievement_rate", "comments.achievement_rate":
+		return m.AchievementRate
 	case "post_id", "comments.post_id":
 		return m.PostId
 	case "created_at", "comments.created_at":
@@ -342,6 +355,7 @@ func (m *Comment) columnNames() []string {
 		"id",
 		"content",
 		"author",
+		"achievement_rate",
 		"post_id",
 		"created_at",
 		"updated_at",

@@ -3,6 +3,8 @@ package query
 import (
 	"fmt"
 	"strings"
+
+	"github.com/okazaki-kk/ayaorm/null"
 )
 
 type insert struct {
@@ -39,6 +41,10 @@ func (q *Query) BuildInsert(tableName string) (string, []interface{}) {
 	i := q.insert
 
 	for k, v := range i.params {
+		if nu, ok := v.(null.Null); ok && !nu.Valid() {
+			continue
+		}
+
 		columns = append(columns, k)
 		ph = append(ph, "?")
 		args = append(args, v)

@@ -21,7 +21,7 @@ func TestMain(m *testing.M) {
 		drop table if exists projects;
 		create table users (id integer primary key autoincrement, name text not null, age int not null, age1 int not null, age2 int not null, address text, created_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now', 'localtime')), updated_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now','localtime')) );
 		create table posts (id integer primary key autoincrement, content text not null, author text not null, created_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now', 'localtime')), updated_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now','localtime')) );
-		create table comments (id integer primary key autoincrement, content text not null, author text not null, post_id integer not null, created_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now', 'localtime')), updated_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now','localtime')), foreign key (post_id) references posts(id) );
+		create table comments (id integer primary key autoincrement, content text not null, author text not null, achievement_rate float, post_id integer not null, created_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now', 'localtime')), updated_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now','localtime')), foreign key (post_id) references posts(id) );
 		create table projects (id integer primary key autoincrement, name text not null, post_id integer not null, created_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now', 'localtime')), updated_at TIMESTAMP NOT NULL DEFAULT(DATETIME('now','localtime')), foreign key (post_id) references posts(id) );
 		CREATE TRIGGER trigger_test_updated_at_users AFTER UPDATE ON posts
 		BEGIN
@@ -245,7 +245,7 @@ func TestHaving(t *testing.T) {
 }
 
 func TestNull(t *testing.T) {
-	user, err := User{}.Create(UserParams{Name: "Null Name", Age: 50})
+	user, err := User{}.Create(UserParams{Name: "Null Name", Age: 50, Age1: 1, Age2: 2})
 	assert.NoError(t, err)
 	assert.Equal(t, "Null Name", user.Name)
 	assert.Equal(t, 50, user.Age)
