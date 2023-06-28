@@ -73,7 +73,7 @@ var CrudTextBody = `
 		{{ if eq $column "UpdatedAt" -}}
 		{{ continue }}
 		{{ end -}}
-		if !ayaorm.IsZero(params.{{ $column }}) {
+		if !utils.IsZero(params.{{ $column }}) {
 			u.{{ $column }} = params.{{ $column }}
 		}
 		{{ end -}}
