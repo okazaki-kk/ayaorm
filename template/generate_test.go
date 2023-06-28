@@ -91,6 +91,7 @@ import (
 	"fmt"
 
 	"github.com/okazaki-kk/ayaorm"
+	"github.com/okazaki-kk/ayaorm/utils"
 	"github.com/okazaki-kk/ayaorm/validate"
 )
 
