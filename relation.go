@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/okazaki-kk/ayaorm/query"
+	"github.com/okazaki-kk/ayaorm/utils"
 )
 
 type Relation struct {
@@ -90,7 +91,7 @@ func (r *Relation) Save(id int, fieldMap map[string]interface{}) (int, error) {
 	var query string
 	var args []interface{}
 
-	if IsZero(id) {
+	if utils.IsZero(id) {
 		query, args = r.Table.BuildInsert(r.GetTable())
 	} else {
 		r.Table.Update(fieldMap)

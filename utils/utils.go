@@ -1,4 +1,4 @@
-package ayaorm
+package utils
 
 import (
 	"reflect"

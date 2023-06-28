@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/okazaki-kk/ayaorm"
+	"github.com/okazaki-kk/ayaorm/utils"
 	"github.com/okazaki-kk/ayaorm/validate"
 )
 
@@ -98,16 +99,16 @@ func (r *CommentRelation) CreateAll(comments []*Comment) error {
 }
 
 func (u *Comment) Update(params CommentParams) error {
-	if !ayaorm.IsZero(params.Id) {
+	if !utils.IsZero(params.Id) {
 		u.Id = params.Id
 	}
-	if !ayaorm.IsZero(params.Content) {
+	if !utils.IsZero(params.Content) {
 		u.Content = params.Content
 	}
-	if !ayaorm.IsZero(params.Author) {
+	if !utils.IsZero(params.Author) {
 		u.Author = params.Author
 	}
-	if !ayaorm.IsZero(params.PostId) {
+	if !utils.IsZero(params.PostId) {
 		u.PostId = params.PostId
 	}
 	return u.Save()
@@ -432,13 +433,13 @@ func (r *PostRelation) CreateAll(posts []*Post) error {
 }
 
 func (u *Post) Update(params PostParams) error {
-	if !ayaorm.IsZero(params.Id) {
+	if !utils.IsZero(params.Id) {
 		u.Id = params.Id
 	}
-	if !ayaorm.IsZero(params.Content) {
+	if !utils.IsZero(params.Content) {
 		u.Content = params.Content
 	}
-	if !ayaorm.IsZero(params.Author) {
+	if !utils.IsZero(params.Author) {
 		u.Author = params.Author
 	}
 	return u.Save()
@@ -756,13 +757,13 @@ func (r *ProjectRelation) CreateAll(projects []*Project) error {
 }
 
 func (u *Project) Update(params ProjectParams) error {
-	if !ayaorm.IsZero(params.Id) {
+	if !utils.IsZero(params.Id) {
 		u.Id = params.Id
 	}
-	if !ayaorm.IsZero(params.Name) {
+	if !utils.IsZero(params.Name) {
 		u.Name = params.Name
 	}
-	if !ayaorm.IsZero(params.PostId) {
+	if !utils.IsZero(params.PostId) {
 		u.PostId = params.PostId
 	}
 	return u.Save()
@@ -1092,22 +1093,22 @@ func (r *UserRelation) CreateAll(users []*User) error {
 }
 
 func (u *User) Update(params UserParams) error {
-	if !ayaorm.IsZero(params.Id) {
+	if !utils.IsZero(params.Id) {
 		u.Id = params.Id
 	}
-	if !ayaorm.IsZero(params.Name) {
+	if !utils.IsZero(params.Name) {
 		u.Name = params.Name
 	}
-	if !ayaorm.IsZero(params.Age) {
+	if !utils.IsZero(params.Age) {
 		u.Age = params.Age
 	}
-	if !ayaorm.IsZero(params.Age1) {
+	if !utils.IsZero(params.Age1) {
 		u.Age1 = params.Age1
 	}
-	if !ayaorm.IsZero(params.Age2) {
+	if !utils.IsZero(params.Age2) {
 		u.Age2 = params.Age2
 	}
-	if !ayaorm.IsZero(params.Address) {
+	if !utils.IsZero(params.Address) {
 		u.Address = params.Address
 	}
 	return u.Save()
@@ -1435,7 +1436,7 @@ func (m Comment) IsValid() (bool, []error) {
 	var errors []error
 
 	var on validate.On
-	if ayaorm.IsZero(m.Id) {
+	if utils.IsZero(m.Id) {
 		on = validate.On{OnCreate: true, OnUpdate: false}
 	} else {
 		on = validate.On{OnCreate: false, OnUpdate: true}
@@ -1461,7 +1462,7 @@ func (m Post) IsValid() (bool, []error) {
 	var errors []error
 
 	var on validate.On
-	if ayaorm.IsZero(m.Id) {
+	if utils.IsZero(m.Id) {
 		on = validate.On{OnCreate: true, OnUpdate: false}
 	} else {
 		on = validate.On{OnCreate: false, OnUpdate: true}
@@ -1490,7 +1491,7 @@ func (m Project) IsValid() (bool, []error) {
 	var errors []error
 
 	var on validate.On
-	if ayaorm.IsZero(m.Id) {
+	if utils.IsZero(m.Id) {
 		on = validate.On{OnCreate: true, OnUpdate: false}
 	} else {
 		on = validate.On{OnCreate: false, OnUpdate: true}
@@ -1516,7 +1517,7 @@ func (m User) IsValid() (bool, []error) {
 	var errors []error
 
 	var on validate.On
-	if ayaorm.IsZero(m.Id) {
+	if utils.IsZero(m.Id) {
 		on = validate.On{OnCreate: true, OnUpdate: false}
 	} else {
 		on = validate.On{OnCreate: false, OnUpdate: true}

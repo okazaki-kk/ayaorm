@@ -3,7 +3,7 @@ package validate
 import (
 	"fmt"
 
-	"github.com/okazaki-kk/ayaorm"
+	"github.com/okazaki-kk/ayaorm/utils"
 )
 
 func (v *Validation) Presence() *presence {
@@ -30,7 +30,7 @@ func (p *presence) Rule() *Validation {
 }
 
 func (v Validator) isPresent(name string, value interface{}) (bool, error) {
-	if ayaorm.IsZero(value) {
+	if utils.IsZero(value) {
 		return false, fmt.Errorf("%s can't be blank", name)
 	}
 	return true, nil

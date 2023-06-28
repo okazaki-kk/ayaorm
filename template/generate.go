@@ -8,8 +8,8 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/okazaki-kk/ayaorm"
 	"github.com/okazaki-kk/ayaorm/template/templates"
+	"github.com/okazaki-kk/ayaorm/utils"
 )
 
 func Generate(from string, fileInspect FileInspect) error {
@@ -93,7 +93,7 @@ func Generate(from string, fileInspect FileInspect) error {
 
 func generateStruct(file *os.File, structInspect StructInspect) error {
 	funcMap := template.FuncMap{
-		"toSnakeCase": ayaorm.ToSnakeCase,
+		"toSnakeCase": utils.ToSnakeCase,
 	}
 
 	t, _ := template.New("Base").Funcs(funcMap).Parse(TextBody)
@@ -140,7 +140,7 @@ func generateStruct(file *os.File, structInspect StructInspect) error {
 
 func generateHasManyFunc(file *os.File, funcInspect RelationFuncInspect) error {
 	funcMap := template.FuncMap{
-		"toSnakeCase": ayaorm.ToSnakeCase,
+		"toSnakeCase": utils.ToSnakeCase,
 	}
 
 	t, _ := template.New("Base").Funcs(funcMap).Parse(FuncBody)
@@ -159,7 +159,7 @@ func generateHasManyFunc(file *os.File, funcInspect RelationFuncInspect) error {
 
 func generateBelongsToFunc(file *os.File, funcInspect RelationFuncInspect) error {
 	funcMap := template.FuncMap{
-		"toSnakeCase": ayaorm.ToSnakeCase,
+		"toSnakeCase": utils.ToSnakeCase,
 	}
 
 	t, _ := template.New("Base").Funcs(funcMap).Parse(FuncBody)
@@ -178,7 +178,7 @@ func generateBelongsToFunc(file *os.File, funcInspect RelationFuncInspect) error
 
 func generateHasOneFunc(file *os.File, funcInspect RelationFuncInspect) error {
 	funcMap := template.FuncMap{
-		"toSnakeCase": ayaorm.ToSnakeCase,
+		"toSnakeCase": utils.ToSnakeCase,
 	}
 
 	t, _ := template.New("Base").Funcs(funcMap).Parse(FuncBody)
@@ -235,9 +235,9 @@ func generateValidateParams(fileInspect FileInspect) map[string]validates {
 
 func generateValidateFunc(file *os.File, validates validates, customRecv []string) error {
 	funcMap := template.FuncMap{
-		"toSnakeCase": ayaorm.ToSnakeCase,
+		"toSnakeCase": utils.ToSnakeCase,
 	}
-	validates.CustomValidation = ayaorm.Contains(customRecv, validates.Recv)
+	validates.CustomValidation = utils.Contains(customRecv, validates.Recv)
 
 	t, err := template.New("Base").Funcs(funcMap).Parse(FuncBody)
 	if err != nil {
