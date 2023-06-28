@@ -31,6 +31,7 @@ func Generate(from string, fileInspect FileInspect) error {
 		"fmt"
 
 		"github.com/okazaki-kk/ayaorm"
+		"github.com/okazaki-kk/ayaorm/utils"
 		"github.com/okazaki-kk/ayaorm/validate"
 	)
 	`

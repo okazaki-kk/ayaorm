@@ -6,7 +6,7 @@ var ValidatePresenceTextBody = `
 		var errors []error
 
 		var on validate.On
-		if ayaorm.IsZero(m.Id) {
+		if utils.IsZero(m.Id) {
 			on = validate.On{OnCreate: true, OnUpdate: false}
 		} else {
 			on = validate.On{OnCreate: false, OnUpdate: true}
