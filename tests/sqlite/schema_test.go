@@ -305,7 +305,7 @@ func TestJoin2(t *testing.T) {
 	assert.Equal(t, "You", posts[2].Author)
 }
 
-/*func TestHasOne(t *testing.T) {
+func TestHasOne(t *testing.T) {
 	post, err := Post{}.Last()
 	assert.NoError(t, err)
 	_, err = Project{}.Create(ProjectParams{Name: "Project-Post", PostId: post.Id})
@@ -314,7 +314,7 @@ func TestJoin2(t *testing.T) {
 	porject, err := post.Project()
 	assert.NoError(t, err)
 	assert.Equal(t, "Project-Post", porject.Name)
-}*/
+}
 
 func TestIsValid(t *testing.T) {
 	t.Run("presence valid", func(t *testing.T) {
