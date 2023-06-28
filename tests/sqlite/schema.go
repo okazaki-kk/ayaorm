@@ -10,9 +10,10 @@ import (
 
 type Comment struct {
 	ayaorm.Schema
-	Content string
-	Author  string
-	PostId  int
+	Content         string
+	Author          string
+	AchievementRate null.NullFloat
+	PostId          int
 }
 
 type Post struct {
