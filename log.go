@@ -2,13 +2,18 @@ package ayaorm
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 )
 
 func InterfaceJoin(values []interface{}, sep string) string {
 	strs := make([]string, len(values))
 	for i, v := range values {
-		strs[i] = fmt.Sprintf("%v", v)
+		if reflect.TypeOf(v).Kind() == reflect.String {
+			strs[i] = fmt.Sprintf("'%s'", v)
+		} else {
+			strs[i] = fmt.Sprintf("%v", v)
+		}
 	}
 
 	if len(strs) == 0 {
