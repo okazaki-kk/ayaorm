@@ -12,6 +12,7 @@ func TestInterfaceJoin(t *testing.T) {
 		sep      string
 		expected string
 	}{
+		{[]interface{}{}, " ", ""},
 		{[]interface{}{"a", "b", "c"}, ",", "[a,b,c]"},
 		{[]interface{}{"a", "b", "c"}, " ", "[a b c]"},
 		{[]interface{}{"a", "b", "c"}, "", "[abc]"},

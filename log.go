@@ -10,5 +10,10 @@ func InterfaceJoin(values []interface{}, sep string) string {
 	for i, v := range values {
 		strs[i] = fmt.Sprintf("%v", v)
 	}
+
+	if len(strs) == 0 {
+		return ""
+	}
+
 	return fmt.Sprintf("[%v]", strings.Join(strs, sep))
 }
