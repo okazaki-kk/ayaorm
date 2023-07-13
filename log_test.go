@@ -12,12 +12,12 @@ func TestInterfaceJoin(t *testing.T) {
 		sep      string
 		expected string
 	}{
-		{[]interface{}{"a", "b", "c"}, ",", "[a,b,c]"},
-		{[]interface{}{"a", "b", "c"}, " ", "[a b c]"},
-		{[]interface{}{"a", "b", "c"}, "", "[abc]"},
-		{[]interface{}{"a", 12, "c"}, ", ", "[a, 12, c]"},
-		{[]interface{}{"15", 12, "c"}, ", ", "[15, 12, c]"},
-		{[]interface{}{15, "12", 133}, ", ", "[15, 12, 133]"},
+		{[]interface{}{}, " ", ""},
+		{[]interface{}{"a", "b", "c"}, ",", "['a','b','c']"},
+		{[]interface{}{"a", "b", "c"}, " ", "['a' 'b' 'c']"},
+		{[]interface{}{"a", 12, "c"}, ", ", "['a', 12, 'c']"},
+		{[]interface{}{"15", 12, "c"}, ", ", "['15', 12, 'c']"},
+		{[]interface{}{15, "12", 133}, ", ", "[15, '12', 133]"},
 	}
 
 	for _, c := range cases {
